@@ -2,150 +2,217 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Админские Мутки</title>
-    <meta name="theme-color" content="#604539">
+    
+    <!-- Настройки для того, чтобы сайт выглядел как приложение на iOS/Android -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+
     <style>
         :root {
-            --primary-bg: #FFEED2;
-            --header-bg: #604539;
-            --accent: #4CAF50;
-            --text-light: #FFFFFF;
+            --bg-color: #FFEED2;
+            --brand-dark: #604539;
+            --brand-accent: #4CAF50;
+            --white: #FFFFFF;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             margin: 0;
-            font-family: 'Segoe UI', sans-serif;
-            background-color: var(--primary-bg);
+            padding: 0;
+            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: #333;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         header {
-            padding: 10px 16px;
-            background-color: var(--header-bg);
+            padding: calc(env(safe-area-inset-top) + 12px) 16px 12px 16px;
+            background-color: var(--brand-dark);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            color: white;
+            color: var(--white);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
 
-        .decorative-bar {
-            height: 40px; 
-            background-color: var(--header-bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0 16px; 
+        .header-title {
+            text-align: right;
+        }
+
+        .header-title h1 {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .header-title span {
+            font-size: 12px;
+            font-weight: 300;
+            opacity: 0.8;
+            text-transform: uppercase;
+        }
+
+        .auth-bar {
+            background-color: var(--brand-dark);
+            padding: 10px 16px;
             border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: center;
             position: relative;
         }
 
-        .token-input {
-            background: rgba(255,255,255,0.1);
+        .auth-input {
+            width: 100%;
+            max-width: 260px;
+            background: rgba(255,255,255,0.12);
             border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 4px;
+            border-radius: 10px;
             color: white;
-            font-size: 14px;
-            font-weight: 900;
-            width: 200px;
-            outline: none;
-            text-transform: uppercase;
-            padding: 4px;
+            padding: 12px;
             text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            outline: none;
+            letter-spacing: 2px;
+            transition: all 0.3s;
         }
 
-        .status-dot {
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-            background-color: #777;
-            border: 2px solid white;
-            position: absolute;
-            right: 10px;
-            transition: 0.3s;
-        }
-
-        .status-dot.active {
-            background-color: var(--accent);
+        .auth-input:focus {
+            background: rgba(255,255,255,0.2);
+            border-color: white;
         }
 
         main {
-            display: none;
+            flex: 1;
             padding: 20px;
+            display: none; /* Скрыто до авторизации */
+            animation: fadeIn 0.4s ease-out;
         }
 
-        .card {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-card {
+            background: var(--white);
+            border-radius: 24px;
+            padding: 30px 20px;
             text-align: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(96, 69, 57, 0.1);
         }
 
-        button {
-            background: var(--header-bg);
+        .u-name {
+            font-size: 26px;
+            font-weight: 900;
+            color: var(--brand-dark);
+            margin: 0;
+        }
+
+        .u-role {
+            display: inline-block;
+            margin: 10px 0 30px 0;
+            background: #F3EFE9;
+            color: #8D766A;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .btn-action {
+            width: 100%;
+            background-color: var(--brand-dark);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
+            padding: 18px;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 800;
             cursor: pointer;
-            margin-top: 10px;
+            box-shadow: 0 6px 20px rgba(96, 69, 57, 0.2);
+            active: transform scale(0.96);
         }
 
-        #logConsole {
+        .btn-action:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        #statusConsole {
             margin-top: 20px;
-            background: #222;
-            color: #0f0;
-            padding: 10px;
+            background: #1e1e1e;
+            color: #4CAF50;
+            padding: 15px;
+            border-radius: 12px;
             font-family: monospace;
             font-size: 12px;
-            border-radius: 6px;
-            text-align: left;
-            max-height: 150px;
+            max-height: 120px;
             overflow-y: auto;
+            text-align: left;
             display: none;
+        }
+
+        .logout-btn {
+            margin-top: 30px;
+            background: none;
+            border: none;
+            color: #A59288;
+            font-size: 14px;
+            text-decoration: underline;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
 
     <header>
-        <div style="font-weight: bold;">[VN]</div>
-        <div style="text-align: right;">
-            <div style="font-size: 14px; font-weight: 900;">АДМИНСКИЕ МУТКИ</div>
-            <div style="font-size: 12px; font-weight: 300;">ВАНИЛЬНОГО НЕБА</div>
+        <div style="font-size: 28px;">☁️</div>
+        <div class="header-title">
+            <h1>Админские Мутки</h1>
+            <span>Ванильного Неба</span>
         </div>
     </header>
 
-    <div class="decorative-bar" id="loginUI">
-        <input type="password" id="tokenInput" class="token-input" placeholder="КОД ДОСТУПА">
-        <div id="statusDot" class="status-dot"></div>
+    <div class="auth-bar" id="loginArea">
+        <input type="password" id="entryCode" class="auth-input" placeholder="КОД ДОСТУПА" inputmode="text" spellcheck="false" autocomplete="off">
     </div>
 
-    <main id="mainApp">
-        <div class="card">
-            <h2 id="userNameDisplay">Привет!</h2>
-            <div id="userTypeDisplay" style="font-style: italic; color: #666; margin-bottom: 15px;">Тип</div>
-            
-            <div style="border-top: 1px solid #eee; padding-top: 15px;">
-                <p>Тестовая функция: запись времени входа в файл log.txt</p>
-                <button onclick="testWrite()">Записать в GitHub</button>
-            </div>
+    <main id="appInterface">
+        <div class="user-card">
+            <h2 class="u-name" id="userName">Пользователь</h2>
+            <div class="u-role" id="userRole">Роль</div>
 
-            <button onclick="logout()" style="background: #999; margin-top: 30px;">Выйти</button>
+            <button class="btn-action" id="submitBtn" onclick="sendReport()">ОТПРАВИТЬ ОТЧЕТ</button>
+
+            <button class="logout-btn" onclick="doLogout()">Сменить аккаунт</button>
         </div>
 
-        <div id="logConsole"></div>
+        <div id="statusConsole"></div>
     </main>
 
     <script>
-        // --- КОНФИГУРАЦИЯ ---
-        const GITHUB_CONFIG = {
-            pat: "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", // ВСТАВЬТЕ СЮДА ВАШ ТОКЕН
-            owner: "restoranvn",   // ВАШ ЛОГИН
-            repo: "vanilnoe_nebo"        // НАЗВАНИЕ ВАШЕГО ПРИВАТНОГО РЕПО
+        // ==========================================
+        // НАСТРОЙКИ (ЗАПОЛНИТЬ ПЕРЕД ИСПОЛЬЗОВАНИЕМ)
+        // ==========================================
+        const GH_CONFIG = {
+            token: "ghp_ВАШ_ТОКЕН_ЗДЕСЬ", 
+            owner: "ВАШ_ЛОГИН", 
+            repo: "ВАШ_РЕПО" 
         };
 
-        const USER_DB = {
+        const USERS = {
             "CATER-ILYA": { name: "Илья", type: "Кейтеринг" },
             "CATER-MIXA": { name: "Михаил", type: "Кейтеринг" },
             "CATER-ALEX": { name: "Александр", type: "Кейтеринг" },
@@ -157,95 +224,102 @@
             "BANK-LUBA":  { name: "Любовь", type: "Банкет" }
         };
 
-        const input = document.getElementById('tokenInput');
-        const dot = document.getElementById('statusDot');
+        const codeInput = document.getElementById('entryCode');
+        const loginArea = document.getElementById('loginArea');
+        const appInterface = document.getElementById('appInterface');
 
-        input.addEventListener('input', () => {
-            const val = input.value.trim().toUpperCase();
-            if (val.length > 0) dot.classList.add('active');
-            else dot.classList.remove('active');
-
-            if (USER_DB[val]) {
-                login(USER_DB[val]);
+        // Логика авторизации
+        codeInput.addEventListener('input', () => {
+            const code = codeInput.value.trim().toUpperCase();
+            if (USERS[code]) {
+                login(USERS[code]);
             }
         });
 
         function login(user) {
-            localStorage.setItem('mutki_user', JSON.stringify(user));
-            document.getElementById('loginUI').style.display = 'none';
-            document.getElementById('mainApp').style.display = 'block';
-            document.getElementById('userNameDisplay').innerText = `Привет, ${user.name}!`;
-            document.getElementById('userTypeDisplay').innerText = `Доступ: ${user.type}`;
+            localStorage.setItem('mutki_session_active', JSON.stringify(user));
+            renderUI(user);
         }
 
-        function logout() {
-            localStorage.removeItem('mutki_user');
+        function renderUI(user) {
+            loginArea.style.display = 'none';
+            appInterface.style.display = 'block';
+            document.getElementById('userName').innerText = user.name;
+            document.getElementById('userRole').innerText = user.type;
+        }
+
+        function doLogout() {
+            localStorage.removeItem('mutki_session_active');
             location.reload();
         }
 
-        // Проверка при загрузке
-        const saved = localStorage.getItem('mutki_user');
-        if (saved) login(JSON.parse(saved));
+        // Проверка сессии при открытии
+        const session = localStorage.getItem('mutki_session_active');
+        if (session) renderUI(JSON.parse(session));
 
-        // --- ЛОГИКА ВЗАИМОДЕЙСТВИЯ С GITHUB ---
+        // ==========================================
+        // GITHUB API
+        // ==========================================
+        async function sendReport() {
+            const user = JSON.parse(localStorage.getItem('mutki_session_active'));
+            const btn = document.getElementById('submitBtn');
+            const consoleBox = document.getElementById('statusConsole');
+            
+            const timestamp = new Date().toLocaleString('ru-RU');
+            const newLog = `[${timestamp}] ${user.name} (${user.type}) зафиксировал вход/отчет.\n`;
 
-        async function testWrite() {
-            const user = JSON.parse(localStorage.getItem('mutki_user'));
-            const content = `Пользователь ${user.name} (${user.type}) вошел в систему: ${new Date().toLocaleString()}\n`;
-            
-            showLog("Подключение к GitHub...");
-            
+            btn.disabled = true;
+            btn.innerText = "ОБРАБОТКА...";
+            consoleBox.style.display = 'block';
+            consoleBox.innerHTML = `<div>> Подключение к GitHub...</div>`;
+
             try {
-                const filename = "activity_log.txt";
-                const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${filename}`;
+                const path = "history.log";
+                const url = `https://api.github.com/repos/${GH_CONFIG.owner}/${GH_CONFIG.repo}/contents/${path}`;
                 
-                // 1. Пытаемся получить файл, чтобы взять его SHA
-                let sha = "";
-                const getRes = await fetch(url, {
-                    headers: { "Authorization": `token ${GITHUB_CONFIG.pat}` }
+                // 1. Пытаемся получить старый контент
+                const res = await fetch(url, {
+                    headers: { "Authorization": `token ${GH_CONFIG.token}` }
                 });
 
-                let existingContent = "";
-                if (getRes.status === 200) {
-                    const fileData = await getRes.json();
-                    sha = fileData.sha;
-                    existingContent = decodeURIComponent(escape(atob(fileData.content)));
+                let sha = null;
+                let oldContent = "";
+
+                if (res.ok) {
+                    const data = await res.json();
+                    sha = data.sha;
+                    oldContent = decodeURIComponent(escape(atob(data.content)));
                 }
 
-                // 2. Формируем новый контент (старый + новый заголовок)
-                const newFullContent = existingContent + content;
+                // 2. Отправляем обновленный контент
+                const updatedContent = oldContent + newLog;
 
-                // 3. Отправляем обновление
                 const putRes = await fetch(url, {
                     method: "PUT",
                     headers: {
-                        "Authorization": `token ${GITHUB_CONFIG.pat}`,
+                        "Authorization": `token ${GH_CONFIG.token}`,
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        message: `Log update by ${user.name}`,
-                        content: btoa(unescape(encodeURIComponent(newFullContent))),
+                        message: `Log: ${user.name}`,
+                        content: btoa(unescape(encodeURIComponent(updatedContent))),
                         sha: sha || undefined
                     })
                 });
 
                 if (putRes.ok) {
-                    showLog("Успешно записано в репозиторий!");
+                    consoleBox.innerHTML += `<div style="color: #8BC34A">> УСПЕШНО: Отчет в облаке!</div>`;
                 } else {
                     const err = await putRes.json();
-                    showLog("Ошибка: " + err.message);
+                    consoleBox.innerHTML += `<div style="color: #ff5722">> ОШИБКА: ${err.message}</div>`;
                 }
 
             } catch (e) {
-                showLog("Критическая ошибка: " + e.message);
+                consoleBox.innerHTML += `<div style="color: #ff5722">> ОШИБКА СЕТИ: ${e.message}</div>`;
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "ОТПРАВИТЬ ОТЧЕТ";
             }
-        }
-
-        function showLog(msg) {
-            const consoleEl = document.getElementById('logConsole');
-            consoleEl.style.display = 'block';
-            consoleEl.innerHTML += `> ${msg}<br>`;
-            consoleEl.scrollTop = consoleEl.scrollHeight;
         }
     </script>
 </body>
