@@ -38,7 +38,7 @@
             margin-top: 2px;
             display: flex;
             align-items: center;
-            position: relative; /* Для позиционирования элементов внутри */
+            position: relative;
             padding: 0 16px;
             box-sizing: border-box;
         }
@@ -46,23 +46,26 @@
         /* Поле ввода токена */
         .token-input {
             position: absolute;
-            left: 50%; /* Начинается от середины экрана */
-            right: 35px; /* Заканчивается за 35px от правого края */
+            left: 50%;
+            right: 35px;
             height: 22px;
-            background-color: rgba(255, 238, 210, 0.1);
-            border: 1px solid #FFEED2;
-            border-radius: 4px;
-            color: #FFEED2;
+            background-color: transparent; /* Убрана заливка или можно оставить прозрачную */
+            border: none; /* Убраны границы */
+            color: #FFFFFF;
             padding: 0 8px;
             font-size: 12px;
             outline: none;
             box-sizing: border-box;
+            text-align: center; /* Текст ввода по центру */
         }
 
+        /* Форматирование подсказки */
         .token-input::placeholder {
-            color: rgba(255, 238, 210, 0.5);
-            font-size: 10px;
+            color: #FFFFFF; /* Цвет подсказки белый */
+            font-size: 11px;
             text-transform: uppercase;
+            text-align: center; /* Подсказка по центру */
+            opacity: 1; /* Чтобы цвет был чистым белым */
         }
 
         /* Индикатор */
@@ -75,7 +78,7 @@
             background-color: transparent;
             flex-shrink: 0;
             position: absolute;
-            right: 5px; /* 5px от правого края экрана */
+            right: 5px;
         }
 
         .logo-container {
@@ -154,7 +157,8 @@
     </header>
 
     <div class="auth-bar">
-        <input type="password" class="token-input" placeholder="Введите токен...">
+        <!-- Подсказка изменена на "ВХОД", форматирование по центру -->
+        <input type="password" class="token-input" placeholder="ВХОД">
         <div class="status-indicator"></div>
     </div>
 
