@@ -13,39 +13,69 @@
             background-color: #FFEED2; /* Основной фон страницы */
         }
 
-        /* Стили хедера с уменьшенной высотой */
+        /* Стили хедера */
         header {
-            padding: 15px 20px; /* Отступы уменьшены в два раза (с 30px до 15px) */
-            text-align: center;
-            background-color: #1F1713; /* Цвет области хедера */
+            padding: 10px 40px; /* Увеличены боковые отступы для аккуратного прилегания к краям */
+            background-color: #604539; /* Новый цвет фона хедера */
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Распределяет логотип влево, а текст вправо */
+            min-height: 60px;
+        }
+
+        /* Контейнер для логотипа */
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-container img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%; /* Круглая форма */
+            border: 2px solid #FFEED2; /* Светлая обводка 2px */
+            object-fit: cover;
+        }
+
+        /* Контейнер для текста справа */
+        .text-container {
+            text-align: right; /* Выравнивание текста по правому краю */
         }
 
         /* Заголовок "АДМИНСКИЕ МУТКИ" */
         h1 {
             margin: 0;
-            font-size: 20px; /* Размер шрифта сохранен */
+            font-size: 20px;
             font-weight: 900;
-            color: #FFEED2; /* Цвет текста */
+            color: #FFEED2;
             text-transform: uppercase;
-            line-height: 1.2;
+            line-height: 1.1;
         }
 
         /* Подзаголовок "ВАНИЛЬНОГО НЕБА" */
         .subtitle {
-            margin-top: 4px; /* Уменьшен отступ между строками */
-            font-size: 20px; /* Размер шрифта сохранен */
+            margin-top: 2px;
+            font-size: 20px;
             font-weight: 300;
-            color: #FFEED2; /* Цвет текста */
+            color: #FFEED2;
             text-transform: uppercase;
-            line-height: 1.2;
+            line-height: 1.1;
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>АДМИНСКИЕ МУТКИ</h1>
-        <div class="subtitle">ВАНИЛЬНОГО НЕБА</div>
+        <div class="logo-container">
+            <!-- Логотип слева -->
+            <img src="catering-b.ico" alt="Логотип" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'width:50px;height:50px;border-radius:50%;border:2px solid #FFEED2;display:flex;align-items:center;justify-content:center;color:#FFEED2;font-size:10px\'>LOGO</div>'">
+        </div>
+
+        <div class="text-container">
+            <!-- Текст справа -->
+            <h1>АДМИНСКИЕ МУТКИ</h1>
+            <div class="subtitle">ВАНИЛЬНОГО НЕБА</div>
+        </div>
     </header>
 
 </body>
