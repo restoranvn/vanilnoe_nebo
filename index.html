@@ -43,29 +43,30 @@
             box-sizing: border-box;
         }
 
-        /* Поле ввода токена */
+        /* Поле ввода токена - по центру */
         .token-input {
             position: absolute;
             left: 50%;
-            right: 35px;
+            transform: translateX(-50%); /* Сдвиг на половину ширины влево для точного центрирования */
+            width: 200px; /* Задаем фиксированную ширину или используем max-width */
             height: 22px;
-            background-color: transparent; /* Убрана заливка или можно оставить прозрачную */
-            border: none; /* Убраны границы */
+            background-color: transparent;
+            border: none;
             color: #FFFFFF;
             padding: 0 8px;
             font-size: 12px;
             outline: none;
             box-sizing: border-box;
-            text-align: center; /* Текст ввода по центру */
+            text-align: center;
         }
 
         /* Форматирование подсказки */
         .token-input::placeholder {
-            color: #FFFFFF; /* Цвет подсказки белый */
+            color: #FFFFFF;
             font-size: 11px;
             text-transform: uppercase;
-            text-align: center; /* Подсказка по центру */
-            opacity: 1; /* Чтобы цвет был чистым белым */
+            text-align: center;
+            opacity: 1;
         }
 
         /* Индикатор */
@@ -157,7 +158,6 @@
     </header>
 
     <div class="auth-bar">
-        <!-- Подсказка изменена на "ВХОД", форматирование по центру -->
         <input type="password" class="token-input" placeholder="ВХОД">
         <div class="status-indicator"></div>
     </div>
