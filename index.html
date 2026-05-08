@@ -22,13 +22,26 @@
         }
 
         header {
-            padding: 10px 16px;
+            padding: 8px 16px;
             background-color: var(--header-bg);
             display: flex;
             align-items: center;
             justify-content: space-between;
             color: white;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            border-radius: 4px;
         }
 
         .decorative-bar {
@@ -152,7 +165,9 @@
 <body>
 
     <header>
-        <div style="font-weight: bold; letter-spacing: 1px;">[VN]</div>
+        <div class="logo-container">
+            <img src="catering-b.ico" alt="VN Logo" class="logo-img" onerror="this.style.display='none'">
+        </div>
         <div style="text-align: right;">
             <div style="font-size: 14px; font-weight: 900;">АДМИНСКИЕ МУТКИ</div>
             <div style="font-size: 11px; opacity: 0.8;">ВАНИЛЬНОГО НЕБА</div>
@@ -182,30 +197,26 @@
         <div id="logConsole" style="display: none;"></div>
     </main>
 
-    <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
         import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-        // КОНФИГУРАЦИЯ (Замените на свои данные из Firebase Console при необходимости)
-        // Но для теста я оставлю пустые заглушки
         const firebaseConfig = {
-  apiKey: "AIzaSyBEn2ZheCPUMgTKxuQmHw0MPehIu1B85Do",
-  authDomain: "vanilnoeneboapp.firebaseapp.com",
-  projectId: "vanilnoeneboapp",
-  storageBucket: "vanilnoeneboapp.firebasestorage.app",
-  messagingSenderId: "648309181653",
-  appId: "1:648309181653:web:64f690d6acb67ea8fea65c"
-};
-        // Инициализация (используем глобальные конфиги среды если доступны)
+            apiKey: "AIzaSyBEn2ZheCPUMgTKxuQmHw0MPehIu1B85Do",
+            authDomain: "vanilnoeneboapp.firebaseapp.com",
+            projectId: "vanilnoeneboapp",
+            storageBucket: "vanilnoeneboapp.firebasestorage.app",
+            messagingSenderId: "648309181653",
+            appId: "1:648309181653:web:64f690d6acb67ea8fea65c"
+        };
+        
         const actualConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : firebaseConfig;
         const app = initializeApp(actualConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'vn-mutki';
 
-        // База пользователей
         const USER_DB = {
             "CATER-ILYA": { name: "Илья", type: "Кейтеринг" },
             "CATER-MIXA": { name: "Михаил", type: "Кейтеринг" },
@@ -221,7 +232,6 @@
         const input = document.getElementById('tokenInput');
         const dot = document.getElementById('statusDot');
 
-        // Авторизация в Firebase
         async function initApp() {
             try {
                 await signInAnonymously(auth);
@@ -254,11 +264,9 @@
             location.reload();
         }
 
-        // Проверка при загрузке
         const saved = localStorage.getItem('mutki_user');
         if (saved) login(JSON.parse(saved));
 
-        // ЛОГИКА ЗАПИСИ
         window.logActivity = async function() {
             const user = JSON.parse(localStorage.getItem('mutki_user'));
             const btn = document.getElementById('btnWrite');
@@ -274,7 +282,6 @@
             showLog("Отправка данных в облако...");
 
             try {
-                // ПУТЬ: /artifacts/{appId}/public/data/logs
                 const logRef = collection(db, 'artifacts', appId, 'public', 'data', 'user_logs');
                 
                 await addDoc(logRef, {
