@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Админские Мутки</title>
+    
+    <!-- 1. Окрашивание статус-бара мобильного устройства -->
+    <!-- Для Android Chrome и современных браузеров -->
+    <meta name="theme-color" content="#604539">
+    <!-- Для iOS Safari -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- 2. Добавление favicon -->
+    <link rel="icon" type="image/x-icon" href="ico/catering-b.ico">
+
     <style>
         /* Общие стили для страницы */
         body {
@@ -22,6 +32,10 @@
             justify-content: space-between;
             min-height: 70px;
             box-sizing: border-box;
+            /* Плавный переход для iOS при прокрутке */
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
         /* Контейнер для логотипа (круг остается прежнего размера) */
