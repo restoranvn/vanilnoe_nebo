@@ -69,7 +69,7 @@
             width: 20px;
             height: 20px;
             border-radius: 50%;
-            border: 2px solid #FFFFFF;
+            border: 2px solid #FFFFFF; /* Белая рамка всегда */
             box-sizing: border-box;
             background-color: transparent;
             flex-shrink: 0;
@@ -78,9 +78,20 @@
             transition: all 0.3s ease;
         }
 
-        .status-indicator.valid { background-color: #4CAF50; border-color: #4CAF50; box-shadow: 0 0 10px #4CAF50; }
-        .status-indicator.invalid { background-color: #f44336; border-color: #f44336; }
-        .status-indicator.loading { border-top-color: transparent; animation: spin 1s linear infinite; }
+        /* Изменено: меняем только фон внутри, рамка остается белой */
+        .status-indicator.valid { 
+            background-color: #4CAF50; 
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.5); 
+        }
+        
+        .status-indicator.invalid { 
+            background-color: #f44336; 
+        }
+
+        .status-indicator.loading { 
+            border-top-color: rgba(255, 255, 255, 0.2); 
+            animation: spin 1s linear infinite; 
+        }
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -133,7 +144,7 @@
             padding: 20px;
             max-width: 800px;
             margin: 0 auto;
-            display: none; /* Скрыто по умолчанию */
+            display: none; 
             opacity: 0;
             transition: opacity 0.5s ease;
         }
@@ -156,7 +167,7 @@
 
         #login-overlay {
             position: fixed;
-            top: 92px; /* Под хедером и баром */
+            top: 92px; 
             left: 0; right: 0; bottom: 0;
             background-color: #FFEED2;
             display: flex;
@@ -221,7 +232,6 @@
         const contentArea = document.getElementById('content-area');
         const loginOverlay = document.getElementById('login-overlay');
 
-        // Функция запроса с экспоненциальной задержкой
         async function fetchGitHubUser(token, retries = 5, delay = 1000) {
             const url = 'https://api.github.com/user';
             
@@ -240,7 +250,6 @@
                         throw new Error('Unauthorized');
                     }
                     
-                    // Если ошибка сервера, ждем и пробуем снова
                     if (response.status >= 500) {
                         await new Promise(resolve => setTimeout(resolve, delay));
                         delay *= 2;
@@ -267,7 +276,6 @@
                 const userData = await fetchGitHubUser(token);
                 
                 if (userData) {
-                    // Успех
                     statusIndicator.className = 'status-indicator valid';
                     sessionStorage.setItem('gh_token', token);
                     showContent(userData);
@@ -285,7 +293,6 @@
             contentArea.style.display = 'block';
             setTimeout(() => { contentArea.style.opacity = '1'; }, 50);
 
-            // Заполняем данные профиля
             if (user.avatar_url) {
                 const avatar = document.getElementById('user-avatar');
                 avatar.src = user.avatar_url;
@@ -294,14 +301,12 @@
             document.getElementById('user-name').innerText = `Привет, ${user.login}!`;
         }
 
-        // Слушатель ввода
         tokenInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 validateToken(tokenInput.value.trim());
             }
         });
 
-        // Проверка при загрузке (если токен сохранен в сессии)
         window.onload = () => {
             const savedToken = sessionStorage.getItem('gh_token');
             if (savedToken) {
@@ -312,3 +317,5 @@
     </script>
 </body>
 </html>
+
+```
