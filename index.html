@@ -14,7 +14,6 @@
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #FFEED2;
-            transition: background-color 0.3s ease;
         }
 
         header {
@@ -30,69 +29,25 @@
             z-index: 1000;
         }
 
-        .auth-bar {
+        .decorative-bar {
             height: 34px; 
             background-color: #604539;
             margin-top: 2px;
             display: flex;
             align-items: center;
-            position: relative;
+            justify-content: center;
             padding: 0 16px;
             box-sizing: border-box;
             border-top: 1px solid rgba(255,255,255,0.1);
         }
 
-        .token-input {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 200px;
-            height: 22px;
-            background-color: transparent;
-            border: none;
-            color: #FFFFFF;
-            padding: 0 8px;
-            font-size: 12px;
-            outline: none;
-            box-sizing: border-box;
-            text-align: center;
-        }
-
-        .token-input::placeholder {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 11px;
-            text-transform: uppercase;
-            text-align: center;
-        }
-
-        .status-indicator {
-            width: 20px;
-            height: 20px;
+        .status-dot {
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
-            border: 2px solid #FFFFFF; /* Белая рамка всегда */
-            box-sizing: border-box;
-            background-color: transparent;
-            flex-shrink: 0;
-            position: absolute;
-            right: 16px;
-            transition: background-color 0.3s ease;
+            background-color: #4CAF50;
+            border: 2px solid #FFFFFF;
         }
-
-        /* Убрано свечение, оставлена только заливка */
-        .status-indicator.valid { 
-            background-color: #4CAF50; 
-        }
-        
-        .status-indicator.invalid { 
-            background-color: #f44336; 
-        }
-
-        .status-indicator.loading { 
-            border-top-color: rgba(255, 255, 255, 0.2); 
-            animation: spin 1s linear infinite; 
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
 
         .logo-container {
             width: 30px;
@@ -143,9 +98,6 @@
             padding: 20px;
             max-width: 800px;
             margin: 0 auto;
-            display: none; 
-            opacity: 0;
-            transition: opacity 0.5s ease;
         }
 
         .welcome-card {
@@ -156,38 +108,39 @@
             text-align: center;
         }
 
-        .profile-img {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            margin-bottom: 16px;
-            border: 3px solid #604539;
-        }
-
-        #login-overlay {
-            position: fixed;
-            top: 92px; 
-            left: 0; right: 0; bottom: 0;
-            background-color: #FFEED2;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 900;
-        }
-
-        .hint-text {
+        .welcome-card h2 {
             color: #604539;
-            font-size: 14px;
-            text-align: center;
-            max-width: 250px;
+            margin-top: 0;
+        }
+
+        .action-buttons {
             margin-top: 20px;
-            line-height: 1.4;
-            opacity: 0.7;
+            display: grid;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 12px;
+            background: #604539;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            transition: background 0.2s;
+        }
+
+        .btn:active {
+            background: #4a352c;
         }
 
         @media (min-width: 768px) {
             h1, .subtitle { font-size: 17.5px; }
+            .action-buttons {
+                grid-template-columns: 1fr 1fr;
+            }
         }
     </style>
 </head>
@@ -204,116 +157,23 @@
         </div>
     </header>
 
-    <div class="auth-bar">
-        <input type="password" id="gh-token" class="token-input" placeholder="ВХОД">
-        <div id="status" class="status-indicator"></div>
+    <div class="decorative-bar">
+        <div class="status-dot"></div>
     </div>
 
-    <div id="login-overlay">
-        <div class="hint-text">Введите GitHub Token для доступа к панели управления</div>
-    </div>
-
-    <main id="content-area">
+    <main>
         <div class="welcome-card">
-            <img id="user-avatar" src="" class="profile-img" alt="Avatar" style="display: none;">
-            <h2 id="user-name">Привет, Админ!</h2>
-            <p>Доступ разрешен. Теперь вы можете управлять проектами "Ванильного Неба".</p>
-            <div style="margin-top: 20px; display: grid; gap: 10px;">
-                <button style="padding: 12px; background: #604539; color: white; border: none; border-radius: 6px; cursor: pointer;">Управление заказами</button>
-                <button style="padding: 12px; background: #604539; color: white; border: none; border-radius: 6px; cursor: pointer;">Редактировать меню</button>
+            <h2>Привет, Илья!</h2>
+            <p>Добро пожаловать в панель управления кейтерингом. Все системы работают в штатном режиме.</p>
+            
+            <div class="action-buttons">
+                <button class="btn">Управление заказами</button>
+                <button class="btn">Редактировать меню</button>
+                <button class="btn">Статистика</button>
+                <button class="btn">Настройки</button>
             </div>
         </div>
     </main>
 
-    <script>
-        const tokenInput = document.getElementById('gh-token');
-        const statusIndicator = document.getElementById('status');
-        const contentArea = document.getElementById('content-area');
-        const loginOverlay = document.getElementById('login-overlay');
-
-        // GitHub API fetch with exponential backoff
-        async function fetchGitHubUser(token, retries = 5, delay = 1000) {
-            const url = 'https://api.github.com/user';
-            
-            for (let i = 0; i < retries; i++) {
-                try {
-                    const response = await fetch(url, {
-                        headers: {
-                            'Authorization': `token ${token}`,
-                            'Accept': 'application/vnd.github.v3+json'
-                        }
-                    });
-
-                    if (response.status === 200) {
-                        return await response.json();
-                    } else if (response.status === 401) {
-                        throw new Error('Unauthorized');
-                    }
-                    
-                    if (response.status >= 500) {
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                        delay *= 2;
-                        continue;
-                    }
-                    
-                    return null;
-                } catch (error) {
-                    if (error.message === 'Unauthorized') throw error;
-                    if (i === retries - 1) throw error;
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                    delay *= 2;
-                }
-            }
-            return null;
-        }
-
-        async function validateToken(token) {
-            if (!token) return;
-
-            statusIndicator.className = 'status-indicator loading';
-            
-            try {
-                const userData = await fetchGitHubUser(token);
-                
-                if (userData) {
-                    statusIndicator.className = 'status-indicator valid';
-                    sessionStorage.setItem('gh_token', token);
-                    showContent(userData);
-                } else {
-                    statusIndicator.className = 'status-indicator invalid';
-                }
-            } catch (err) {
-                statusIndicator.className = 'status-indicator invalid';
-                console.error('Auth error:', err);
-            }
-        }
-
-        function showContent(user) {
-            loginOverlay.style.display = 'none';
-            contentArea.style.display = 'block';
-            setTimeout(() => { contentArea.style.opacity = '1'; }, 50);
-
-            if (user.avatar_url) {
-                const avatar = document.getElementById('user-avatar');
-                avatar.src = user.avatar_url;
-                avatar.style.display = 'inline-block';
-            }
-            document.getElementById('user-name').innerText = `Привет, ${user.login}!`;
-        }
-
-        tokenInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                validateToken(tokenInput.value.trim());
-            }
-        });
-
-        window.onload = () => {
-            const savedToken = sessionStorage.getItem('gh_token');
-            if (savedToken) {
-                tokenInput.value = savedToken;
-                validateToken(savedToken);
-            }
-        };
-    </script>
 </body>
 </html>
