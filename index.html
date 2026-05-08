@@ -9,16 +9,26 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <style>
+        :root {
+            --primary-bg: #FFEED2;
+            --header-bg: #604539;
+            --accent: #4CAF50;
+            --text-light: #FFFFFF;
+        }
+
         body {
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #FFEED2;
+            background-color: var(--primary-bg);
+            color: #333;
+            overflow-x: hidden;
         }
 
+        /* Шапка */
         header {
             padding: 8px 16px;
-            background-color: #604539;
+            background-color: var(--header-bg);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -30,8 +40,8 @@
         }
 
         .decorative-bar {
-            height: 34px; 
-            background-color: #604539;
+            height: 40px; 
+            background-color: var(--header-bg);
             margin-top: 2px;
             display: flex;
             align-items: center;
@@ -43,50 +53,50 @@
         }
 
         .token-input {
-            background: transparent;
-            border: none;
-            color: #FFFFFF;
-            font-size: 13px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 4px;
+            color: var(--text-light);
+            font-size: 14px;
             font-weight: 900;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
             width: 100%;
-            max-width: 200px;
+            max-width: 220px;
             outline: none;
             text-transform: uppercase;
-            padding: 0;
+            padding: 4px 10px;
             text-align: center;
-            z-index: 2;
+            transition: all 0.3s ease;
         }
 
-        .token-input::placeholder {
-            color: rgba(255, 255, 255, 0.6);
-            font-weight: 900;
-            letter-spacing: 0.4px;
+        .token-input:focus {
+            background: rgba(255,255,255,0.2);
+            border-color: var(--text-light);
         }
 
         .status-dot {
-            width: 20px; /* Уменьшено до 20px */
-            height: 20px; /* Уменьшено до 20px */
+            width: 18px;
+            height: 18px;
             border-radius: 50%;
-            background-color: #604539;
+            background-color: #777;
             border: 2px solid #FFFFFF;
-            flex-shrink: 0;
             position: absolute;
-            right: 5px; /* Расстояние от правого края 5px */
-            transition: background-color 0.3s ease;
+            right: 15px;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
         }
 
         .status-dot.active {
-            background-color: #4CAF50;
+            background-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
         }
 
+        /* Лого и Текст */
         .logo-container {
-            width: 27px;
-            height: 27px;
+            width: 32px;
+            height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
         }
 
         .logo-img {
@@ -97,38 +107,69 @@
 
         .text-container {
             text-align: right;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
         }
 
         h1 {
             margin: 0;
-            font-size: 14.5px;
+            font-size: 14px;
             font-weight: 900;
-            color: #FFFFFF;
+            color: var(--text-light);
             text-transform: uppercase;
-            line-height: 1.1;
-            letter-spacing: 0.4px;
+            letter-spacing: 0.5px;
         }
 
         .subtitle {
-            margin-top: 1px;
-            font-size: 14.5px;
+            font-size: 13px;
             font-weight: 300;
-            color: #FFFFFF;
+            color: var(--text-light);
             text-transform: uppercase;
-            line-height: 1.1;
-            letter-spacing: 0.4px;
         }
 
-        main {
+        /* Контент после входа */
+        #appContent {
             display: none;
+            padding: 20px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .user-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 8px;
+            background: #eee;
+        }
+
+        .role-catering { background: #e3f2fd; color: #1976d2; }
+        .role-banket { background: #f3e5f5; color: #7b1fa2; }
+        .role-su { background: #fff3e0; color: #e65100; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .error-msg {
+            color: #d32f2f;
+            font-size: 12px;
+            margin-top: 10px;
+            display: none;
+            text-align: center;
         }
 
         @media (min-width: 768px) {
-            h1, .subtitle { font-size: 17.5px; }
-            .token-input { font-size: 15px; }
+            h1 { font-size: 18px; }
+            .subtitle { font-size: 16px; }
         }
     </style>
 </head>
@@ -136,7 +177,8 @@
 
     <header>
         <div class="logo-container">
-            <img src="ico/catering-b.ico" alt="Логотип" class="logo-img" onerror="this.style.display='none'">
+            <!-- Замените на реальный путь или SVG -->
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="white"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
         </div>
 
         <div class="text-container">
@@ -145,25 +187,127 @@
         </div>
     </header>
 
-    <div class="decorative-bar">
-        <input type="text" id="tokenInput" class="token-input" placeholder="ВХОД" spellcheck="false">
+    <div class="decorative-bar" id="loginBar">
+        <input type="password" id="tokenInput" class="token-input" placeholder="ВВЕДИТЕ КОД" spellcheck="false">
         <div id="statusDot" class="status-dot"></div>
     </div>
+    <div id="errorMsg" class="error-msg">Неверный код доступа</div>
+
+    <main id="appContent">
+        <div class="user-card">
+            <h2 id="welcomeText">Привет, Пользователь!</h2>
+            <div id="userRole" class="role-badge">Роль</div>
+            <p style="margin-top: 20px; color: #666;">
+                Вы успешно вошли в систему. Теперь вы можете управлять файлами через GitHub API.
+            </p>
+            <button onclick="logout()" style="margin-top: 20px; padding: 10px 20px; border: none; border-radius: 8px; background: #604539; color: white; cursor: pointer;">Выйти</button>
+        </div>
+    </main>
 
     <script>
+        /**
+         * БАЗА ДАННЫХ ПОЛЬЗОВАТЕЛЕЙ
+         * В реальном приложении лучше вынести в отдельный зашифрованный файл
+         * или использовать GitHub Secrets, если есть бэкенд.
+         * Здесь мы сопоставляем "Внутренний код" с данными.
+         */
+        const USER_DB = {
+            "CATER-ILYA": { name: "Илья", type: "Кейтеринг", class: "role-catering" },
+            "CATER-MIXA": { name: "Михаил", type: "Кейтеринг", class: "role-catering" },
+            "CATER-ALEX": { name: "Александр", type: "Кейтеринг", class: "role-catering" },
+            "CATER-IRA":  { name: "Ирина", type: "Кейтеринг", class: "role-catering" },
+            "BANK-MASHA": { name: "Мария", type: "Банкет", class: "role-banket" },
+            "BANK-RITA":  { name: "Маргарита", type: "Банкет", class: "role-banket" },
+            "BANK-KATYA": { name: "Екатерина", type: "Банкет", class: "role-banket" },
+            "BANK-ROMAN": { name: "Роман", type: "Банкет", class: "role-banket" },
+            "BANK-LUBA":  { name: "Любовь", type: "Банкет", class: "role-banket" },
+            "SUPER-ADMIN": { name: "Администратор", type: "SU", class: "role-su" }
+        };
+
         const input = document.getElementById('tokenInput');
         const dot = document.getElementById('statusDot');
+        const errorMsg = document.getElementById('errorMsg');
+        const appContent = document.getElementById('appContent');
+        const loginBar = document.getElementById('loginBar');
 
+        // Проверка при вводе
         input.addEventListener('input', () => {
-            if (input.value.trim().length > 0) {
+            const val = input.value.trim().toUpperCase();
+            
+            if (val.length > 0) {
                 dot.classList.add('active');
+                errorMsg.style.display = 'none';
+                
+                // Если код найден в базе
+                if (USER_DB[val]) {
+                    loginSuccess(USER_DB[val]);
+                }
             } else {
                 dot.classList.remove('active');
             }
         });
-    </script>
 
+        function loginSuccess(user) {
+            // Сохраняем сессию (простейший вариант)
+            localStorage.setItem('admin_user', JSON.stringify(user));
+            
+            // Визуальный переход
+            setTimeout(() => {
+                loginBar.style.display = 'none';
+                appContent.style.display = 'block';
+                document.getElementById('welcomeText').innerText = `Привет, ${user.name}!`;
+                const roleEl = document.getElementById('userRole');
+                roleEl.innerText = user.type;
+                roleEl.className = 'role-badge ' + user.class;
+            }, 500);
+        }
+
+        function logout() {
+            localStorage.removeItem('admin_user');
+            location.reload();
+        }
+
+        // Проверка существующей сессии при загрузке
+        window.onload = () => {
+            const savedUser = localStorage.getItem('admin_user');
+            if (savedUser) {
+                loginSuccess(JSON.parse(savedUser));
+            }
+        };
+
+        /**
+         * ИНСТРУКЦИЯ ПО GITHUB API:
+         * Для записи файлов вам понадобится GitHub Personal Access Token (PAT).
+         * Вы можете попросить пользователей создать свои или использовать один общий,
+         * зашифрованный внутри кода (не рекомендуется для публичных репо).
+         * * Пример функции для сохранения данных в GitHub:
+         */
+        async function saveToGitHub(filename, content, githubToken) {
+            const repo = "ВАШ_ЛОГИН/ВАШ_РЕПОЗИТОРИЙ";
+            const url = `https://api.github.com/repos/${repo}/contents/${filename}`;
+            
+            // Сначала нужно получить SHA текущего файла, если он существует
+            const res = await fetch(url, {
+                headers: { "Authorization": `token ${githubToken}` }
+            });
+            const fileData = await res.json();
+            const sha = fileData.sha;
+
+            const body = {
+                message: `Update ${filename} by ${JSON.parse(localStorage.getItem('admin_user')).name}`,
+                content: btoa(unescape(encodeURIComponent(content))), // Base64
+                sha: sha
+            };
+
+            return fetch(url, {
+                method: "PUT",
+                headers: { 
+                    "Authorization": `token ${githubToken}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(body)
+            });
+        }
+    </script>
 </body>
 </html>
-
-```
