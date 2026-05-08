@@ -3,143 +3,226 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Админские Мутки</title>
+    <title>Админские Мутки | Ванильное Небо</title>
     
     <meta name="theme-color" content="#604539">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-    <link rel="icon" type="image/x-icon" href="ico/catering-b.ico">
-
     <style>
+        :root {
+            --primary: #604539;
+            --accent: #FFEED2;
+            --text: #3d2b24;
+            --success: #4CAF50;
+            --error: #F44336;
+            --neutral: #FFFFFF;
+        }
+
         body {
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #FFEED2;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--accent);
+            color: var(--text);
+            transition: background-color 0.3s ease;
         }
 
         header {
-            padding: 8px 16px;
-            background-color: #604539;
+            padding: 12px 20px;
+            background-color: var(--primary);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            min-height: 56px; 
+            min-height: 64px; 
             box-sizing: border-box;
             position: sticky;
             top: 0;
             z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        /* Область авторизации */
         .auth-bar {
-            height: 34px; 
-            background-color: #604539;
-            margin-top: 2px;
-            display: flex;
-            align-items: center;
-            position: relative;
-            padding: 0 16px;
-            box-sizing: border-box;
-        }
-
-        /* Поле ввода токена - по центру */
-        .token-input {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%); /* Сдвиг на половину ширины влево для точного центрирования */
-            width: 200px; /* Задаем фиксированную ширину или используем max-width */
-            height: 22px;
-            background-color: transparent;
-            border: none;
-            color: #FFFFFF;
-            padding: 0 8px;
-            font-size: 12px;
-            outline: none;
-            box-sizing: border-box;
-            text-align: center;
-        }
-
-        /* Форматирование подсказки */
-        .token-input::placeholder {
-            color: #FFFFFF;
-            font-size: 11px;
-            text-transform: uppercase;
-            text-align: center;
-            opacity: 1;
-        }
-
-        /* Индикатор */
-        .status-indicator {
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            border: 2px solid #FFFFFF;
-            box-sizing: border-box;
-            background-color: transparent;
-            flex-shrink: 0;
-            position: absolute;
-            right: 5px;
-        }
-
-        .logo-container {
-            width: 29.33px;
-            height: 29.33px;
+            height: 40px; 
+            background-color: var(--primary);
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
+            position: relative;
+            padding: 0 16px;
+            box-sizing: border-box;
+            border-top: 1px solid rgba(255,255,255,0.1);
         }
 
-        .logo-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            display: block;
+        .token-input {
+            width: 180px;
+            height: 28px;
+            background-color: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 14px;
+            color: #FFFFFF;
+            padding: 0 12px;
+            font-size: 13px;
+            outline: none;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .token-input:focus {
+            background-color: rgba(255,255,255,0.25);
+            width: 220px;
+        }
+
+        .token-input::placeholder {
+            color: rgba(255,255,255,0.7);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid #FFFFFF;
+            background-color: var(--error);
+            position: absolute;
+            right: 20px;
+            transition: background-color 0.5s ease, box-shadow 0.5s ease;
+        }
+
+        .status-indicator.active {
+            background-color: var(--success);
+            box-shadow: 0 0 8px var(--success);
+        }
+
+        .logo-container {
+            width: 32px;
+            height: 32px;
+            background: var(--accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
         }
 
         .logo-placeholder {
-            color: #FFEED2;
-            font-size: 6px;
-            text-align: center;
+            font-size: 8px;
             font-weight: bold;
+            color: var(--primary);
         }
 
         .text-container {
             text-align: right;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
         }
 
         h1 {
             margin: 0;
-            font-size: 14.5px;
+            font-size: 16px;
             font-weight: 900;
             color: #FFFFFF;
             text-transform: uppercase;
-            line-height: 1.1;
-            letter-spacing: 0.4px;
+            letter-spacing: 0.5px;
         }
 
         .subtitle {
-            margin-top: 1px;
-            font-size: 14.5px;
+            font-size: 12px;
             font-weight: 300;
-            color: #FFFFFF;
+            color: rgba(255,255,255,0.9);
             text-transform: uppercase;
-            line-height: 1.1;
-            letter-spacing: 0.4px;
         }
 
-        @media (min-width: 768px) {
-            header, .auth-bar {
-                padding-left: 32px;
-                padding-right: 32px;
-            }
-            h1, .subtitle {
-                font-size: 17.5px;
-            }
+        main {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0.5;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        main.authenticated {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .card:active {
+            transform: scale(0.95);
+        }
+
+        .card i {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .ai-section {
+            margin-top: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        textarea {
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 10px;
+            box-sizing: border-box;
+            font-family: inherit;
+            resize: none;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        #ai-response {
+            margin-top: 15px;
+            font-size: 14px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            border-left: 3px solid var(--primary);
+            padding-left: 10px;
+            display: none;
+        }
+
+        .loading-dots:after {
+            content: ' .';
+            animation: dots 1s steps(5, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: ' .'; }
+            40% { content: ' . .'; }
+            60% { content: ' . . .'; }
+            80%, 100% { content: ''; }
         }
     </style>
 </head>
@@ -147,8 +230,7 @@
 
     <header>
         <div class="logo-container">
-            <img src="ico/catering-b.ico" alt="Логотип" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-            <div class="logo-placeholder" style="display: none;">LOGO</div>
+            <div class="logo-placeholder">☁️</div>
         </div>
 
         <div class="text-container">
@@ -158,13 +240,120 @@
     </header>
 
     <div class="auth-bar">
-        <input type="password" class="token-input" placeholder="ВХОД">
-        <div class="status-indicator"></div>
+        <input type="password" id="token" class="token-input" placeholder="Введите ключ">
+        <div id="indicator" class="status-indicator"></div>
     </div>
 
-    <main style="padding: 20px; text-align: center; color: #604539;">
-        <p>Добро пожаловать в административную панель.</p>
+    <main id="main-content">
+        <h2 style="text-align: center; font-weight: 300;">Панель управления</h2>
+        
+        <div class="grid">
+            <div class="card" onclick="ui.notify('Меню обновлено')">
+                <span>📜</span>
+                <strong>Меню</strong>
+            </div>
+            <div class="card" onclick="ui.notify('Заказы загружены')">
+                <span>🛍️</span>
+                <strong>Заказы</strong>
+            </div>
+            <div class="card" onclick="ui.notify('Сотрудники на месте')">
+                <span>👥</span>
+                <strong>Штат</strong>
+            </div>
+            <div class="card" onclick="ui.notify('Касса закрыта')">
+                <span>💰</span>
+                <strong>Финансы</strong>
+            </div>
+        </div>
+
+        <section class="ai-section">
+            <h3 style="margin-top: 0;">🤖 AI Помощник (Gemini)</h3>
+            <textarea id="ai-prompt" rows="3" placeholder="Спроси что-нибудь у ИИ..."></textarea>
+            <button id="ai-btn" onclick="askGemini()">Сгенерировать ответ</button>
+            <div id="ai-response"></div>
+        </section>
     </main>
 
+    <script>
+        // Имитация простой проверки токена
+        // В реальности здесь может быть запрос к API или сравнение с хешем
+        const SECRET_TOKEN = "sky2024"; 
+        const tokenInput = document.getElementById('token');
+        const indicator = document.getElementById('indicator');
+        const mainContent = document.getElementById('main-content');
+        const aiResponse = document.getElementById('ai-response');
+
+        tokenInput.addEventListener('input', (e) => {
+            if (e.target.value === SECRET_TOKEN) {
+                indicator.classList.add('active');
+                mainContent.classList.add('authenticated');
+            } else {
+                indicator.classList.remove('active');
+                mainContent.classList.remove('authenticated');
+            }
+        });
+
+        const ui = {
+            notify: (msg) => {
+                const toast = document.createElement('div');
+                toast.style = `
+                    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+                    background: #604539; color: white; padding: 10px 20px;
+                    border-radius: 20px; font-size: 14px; z-index: 10000;
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+                `;
+                toast.textContent = msg;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 2000);
+            }
+        };
+
+        async function askGemini() {
+            const prompt = document.getElementById('ai-prompt').value;
+            if (!prompt) return;
+
+            const btn = document.getElementById('ai-btn');
+            aiResponse.style.display = 'block';
+            aiResponse.innerHTML = '<span class="loading-dots">Думаю</span>';
+            btn.disabled = true;
+
+            const apiKey = ""; // Ключ подставляется средой автоматически
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+            try {
+                let response;
+                let retries = 0;
+                const maxRetries = 5;
+                
+                while (retries < maxRetries) {
+                    try {
+                        response = await fetch(url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                contents: [{ parts: [{ text: prompt }] }],
+                                systemInstruction: { parts: [{ text: "Ты — ассистент администратора сети кондитерских 'Ванильное Небо'. Отвечай кратко, профессионально и вежливо." }] }
+                            })
+                        });
+                        if (response.ok) break;
+                    } catch (e) {}
+                    
+                    retries++;
+                    await new Promise(r => setTimeout(r, Math.pow(2, retries) * 500));
+                }
+
+                if (!response || !response.ok) throw new Error("Ошибка связи");
+
+                const data = await response.json();
+                const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "Не удалось получить ответ.";
+                
+                aiResponse.textContent = text;
+            } catch (error) {
+                aiResponse.textContent = "Произошла ошибка при обращении к ИИ. Проверьте соединение.";
+            } finally {
+                btn.disabled = false;
+            }
+        }
+    </script>
 </body>
 </html>
