@@ -6,44 +6,40 @@
     <title>Админские Мутки</title>
     
     <!-- 1. Окрашивание статус-бара мобильного устройства -->
-    <!-- Для Android Chrome и современных браузеров -->
     <meta name="theme-color" content="#604539">
-    <!-- Для iOS Safari -->
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <!-- 2. Добавление favicon -->
     <link rel="icon" type="image/x-icon" href="ico/catering-b.ico">
 
     <style>
-        /* Общие стили для страницы */
         body {
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #FFEED2; /* Основной фон страницы */
+            background-color: #FFEED2;
         }
 
-        /* Стили хедера */
+        /* Уменьшенная высота хедера (было 70px -> стало ~56px) */
         header {
-            padding: 10px 20px;
-            background-color: #604539; /* Цвет фона хедера */
+            padding: 8px 16px;
+            background-color: #604539;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            min-height: 70px;
+            min-height: 56px; 
             box-sizing: border-box;
-            /* Плавный переход для iOS при прокрутке */
             position: sticky;
             top: 0;
             z-index: 1000;
         }
 
-        /* Контейнер для логотипа (круг остается прежнего размера) */
+        /* Уменьшенный контейнер логотипа (было 55px -> стало 44px) */
         .logo-container-circle {
-            width: 55px;
-            height: 55px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
-            border: 2px solid #FFEED2;
+            border: 1.6px solid #FFEED2; /* Толщина рамки также уменьшена пропорционально */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -52,23 +48,21 @@
             flex-shrink: 0;
         }
 
-        /* Само изображение (уменьшено на 20%) */
+        /* Сохраняем 80% заполнение внутри круга */
         .logo-container-circle img {
-            width: 80%; /* Уменьшение на 20% */
+            width: 80%;
             height: 80%;
             object-fit: contain;
             display: block;
         }
 
-        /* Заглушка для логотипа */
         .logo-placeholder {
             color: #FFEED2;
-            font-size: 10px;
+            font-size: 8px;
             text-align: center;
             font-weight: bold;
         }
 
-        /* Контейнер для текста справа */
         .text-container {
             text-align: right;
             display: flex;
@@ -76,35 +70,35 @@
             justify-content: center;
         }
 
-        /* Заголовок "АДМИНСКИЕ МУТКИ" */
+        /* Уменьшенный шрифт заголовка (было 18px -> стало ~14.5px) */
         h1 {
             margin: 0;
-            font-size: 18px;
+            font-size: 14.5px;
             font-weight: 900;
             color: #FFEED2;
             text-transform: uppercase;
             line-height: 1.1;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.4px;
         }
 
-        /* Подзаголовок "ВАНИЛЬНОГО НЕБА" */
+        /* Уменьшенный шрифт подзаголовка (было 18px -> стало ~14.5px) */
         .subtitle {
             margin-top: 1px;
-            font-size: 18px;
+            font-size: 14.5px;
             font-weight: 300;
             color: #FFEED2;
             text-transform: uppercase;
             line-height: 1.1;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.4px;
         }
 
-        /* Адаптивность для десктопов */
+        /* Адаптивность для десктопов (пропорционально уменьшено) */
         @media (min-width: 768px) {
             header {
-                padding: 10px 40px;
+                padding: 8px 32px;
             }
             h1, .subtitle {
-                font-size: 22px;
+                font-size: 17.5px; /* Было 22px -> стало ~17.5px */
             }
         }
     </style>
@@ -113,7 +107,6 @@
 
     <header>
         <div class="logo-container-circle">
-            <!-- Путь к логотипу. Изображение отцентрировано и уменьшено внутри круга -->
             <img src="ico/catering-b.ico" alt="Логотип" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
             <div class="logo-placeholder" style="display: none;">LOGO</div>
         </div>
