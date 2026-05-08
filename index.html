@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -35,7 +36,7 @@
             margin-top: 2px;
             display: flex;
             align-items: center;
-            justify-content: center; /* Центрирование содержимого */
+            justify-content: center;
             padding: 0 16px; 
             box-sizing: border-box;
             border-top: 1px solid rgba(255,255,255,0.1);
@@ -47,31 +48,37 @@
             border: none;
             color: #FFFFFF;
             font-size: 13px;
-            font-weight: 900; /* Жирный как у H1 */
+            font-weight: 900;
             letter-spacing: 1px;
             width: 100%;
-            max-width: 200px; /* Ограничение ширины для лучшего центрирования текста */
+            max-width: 200px;
             outline: none;
             text-transform: uppercase;
             padding: 0;
-            text-align: center; /* Текст по центру */
+            text-align: center;
+            z-index: 2;
         }
 
         .token-input::placeholder {
             color: rgba(255, 255, 255, 0.6);
-            font-weight: 900; /* Копируем жирность заголовка */
+            font-weight: 900;
             letter-spacing: 0.4px;
         }
 
         .status-dot {
-            width: 10px;
-            height: 10px;
+            width: 20px; /* Уменьшено до 20px */
+            height: 20px; /* Уменьшено до 20px */
             border-radius: 50%;
-            background-color: #4CAF50;
+            background-color: #604539;
             border: 2px solid #FFFFFF;
             flex-shrink: 0;
-            position: absolute; /* Точка прижата к правому краю, не мешая центрированию инпута */
-            right: 16px;
+            position: absolute;
+            right: 5px; /* Расстояние от правого края 5px */
+            transition: background-color 0.3s ease;
+        }
+
+        .status-dot.active {
+            background-color: #4CAF50;
         }
 
         .logo-container {
@@ -140,9 +147,24 @@
     </header>
 
     <div class="decorative-bar">
-        <input type="text" class="token-input" placeholder="ВХОД" spellcheck="false">
-        <div class="status-dot"></div>
+        <input type="text" id="tokenInput" class="token-input" placeholder="ВХОД" spellcheck="false">
+        <div id="statusDot" class="status-dot"></div>
     </div>
+
+    <script>
+        const input = document.getElementById('tokenInput');
+        const dot = document.getElementById('statusDot');
+
+        input.addEventListener('input', () => {
+            if (input.value.trim().length > 0) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
+            }
+        });
+    </script>
 
 </body>
 </html>
+
+```
