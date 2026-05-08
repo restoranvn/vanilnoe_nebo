@@ -16,7 +16,6 @@
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #FFEED2;
-            transition: background-color 0.3s ease;
         }
 
         header {
@@ -32,63 +31,55 @@
             z-index: 1000;
         }
 
+        /* Область авторизации */
         .auth-bar {
             height: 34px; 
-            background-color: #4a352c;
+            background-color: #604539;
+            margin-top: 2px;
             display: flex;
             align-items: center;
             position: relative;
             padding: 0 16px;
             box-sizing: border-box;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
         }
 
+        /* Поле ввода токена - по центру */
         .token-input {
             position: absolute;
             left: 50%;
-            transform: translateX(-50%);
-            width: 240px;
+            transform: translateX(-50%); /* Сдвиг на половину ширины влево для точного центрирования */
+            width: 200px; /* Задаем фиксированную ширину или используем max-width */
             height: 22px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
+            background-color: transparent;
+            border: none;
             color: #FFFFFF;
             padding: 0 8px;
             font-size: 12px;
             outline: none;
             box-sizing: border-box;
             text-align: center;
-            transition: all 0.3s ease;
         }
 
-        .token-input:focus {
-            background-color: rgba(255, 255, 255, 0.2);
-            width: 260px;
-        }
-
+        /* Форматирование подсказки */
         .token-input::placeholder {
-            color: rgba(255, 255, 255, 0.6);
+            color: #FFFFFF;
             font-size: 11px;
             text-transform: uppercase;
             text-align: center;
+            opacity: 1;
         }
 
+        /* Индикатор */
         .status-indicator {
-            width: 14px;
-            height: 14px;
+            width: 25px;
+            height: 25px;
             border-radius: 50%;
             border: 2px solid #FFFFFF;
             box-sizing: border-box;
-            background-color: #ff4444; /* Default: Red */
+            background-color: transparent;
             flex-shrink: 0;
             position: absolute;
-            right: 16px;
-            transition: background-color 0.4s ease, box-shadow 0.4s ease;
-        }
-
-        .status-indicator.active {
-            background-color: #00C851; /* Green */
-            box-shadow: 0 0 8px #00C851;
+            right: 5px;
         }
 
         .logo-container {
@@ -105,6 +96,13 @@
             height: 100%;
             object-fit: contain;
             display: block;
+        }
+
+        .logo-placeholder {
+            color: #FFEED2;
+            font-size: 6px;
+            text-align: center;
+            font-weight: bold;
         }
 
         .text-container {
@@ -134,37 +132,6 @@
             letter-spacing: 0.4px;
         }
 
-        main {
-            padding: 60px 20px;
-            text-align: center;
-            color: #604539;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        #welcome-message {
-            opacity: 0;
-            transform: translateY(10px);
-            transition: all 0.5s ease;
-        }
-
-        #welcome-message.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        h2 {
-            font-size: 24px;
-            margin-bottom: 10px;
-            letter-spacing: 1px;
-        }
-
-        p {
-            font-size: 16px;
-            line-height: 1.5;
-            opacity: 0.8;
-        }
-
         @media (min-width: 768px) {
             header, .auth-bar {
                 padding-left: 32px;
@@ -181,7 +148,7 @@
     <header>
         <div class="logo-container">
             <img src="ico/catering-b.ico" alt="Логотип" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-            <div class="logo-placeholder" style="display: none; color: white; font-size: 10px;">☁️</div>
+            <div class="logo-placeholder" style="display: none;">LOGO</div>
         </div>
 
         <div class="text-container">
@@ -191,64 +158,13 @@
     </header>
 
     <div class="auth-bar">
-        <input type="password" id="tokenInput" class="token-input" placeholder="ВВЕДИТЕ ТОКЕН">
-        <div id="statusIndicator" class="status-indicator"></div>
+        <input type="password" class="token-input" placeholder="ВХОД">
+        <div class="status-indicator"></div>
     </div>
 
-    <main>
-        <div id="welcome-message">
-            <h2 id="adminName">АВТОРИЗИРУЙТЕСЬ</h2>
-            <p id="adminStatus"></p>
-        </div>
+    <main style="padding: 20px; text-align: center; color: #604539;">
+        <p>Добро пожаловать в административную панель.</p>
     </main>
 
-    <script>
-        // Имитация базы данных из admin.json
-        const adminData = {
-            "admins": [
-                {
-                    "name": "ИЛЬЯ",
-                    "token": "Ghp_bY2Lg4TN5j5g7UeuahQ218v8ORYBo81yEjbJ"
-                }
-            ]
-        };
-
-        const tokenInput = document.getElementById('tokenInput');
-        const statusIndicator = document.getElementById('statusIndicator');
-        const welcomeMessage = document.getElementById('welcome-message');
-        const adminNameDisplay = document.getElementById('adminName');
-        const adminStatusDisplay = document.getElementById('adminStatus');
-
-        // Показываем начальное состояние
-        welcomeMessage.classList.add('show');
-
-        tokenInput.addEventListener('input', (e) => {
-            const val = e.target.value.trim();
-            
-            if (val === "") {
-                statusIndicator.classList.remove('active');
-                adminNameDisplay.textContent = "АВТОРИЗИРУЙТЕСЬ";
-                adminStatusDisplay.textContent = "";
-                tokenInput.style.borderColor = "rgba(255, 255, 255, 0.2)";
-                return;
-            }
-
-            const admin = adminData.admins.find(a => a.token === val);
-
-            if (admin) {
-                // Успешная авторизация
-                statusIndicator.classList.add('active');
-                adminNameDisplay.textContent = `ПРИВЕТ, ${admin.name}!`;
-                adminStatusDisplay.textContent = "Доступ разрешен. Все системы работают в штатном режиме.";
-                tokenInput.style.borderColor = "#00C851";
-            } else {
-                // Сброс состояния при неверном токене
-                statusIndicator.classList.remove('active');
-                adminNameDisplay.textContent = "ДОСТУП ОГРАНИЧЕН";
-                adminStatusDisplay.textContent = "Введите корректный токен администратора для управления системой.";
-                tokenInput.style.borderColor = "rgba(255, 255, 255, 0.2)";
-            }
-        });
-    </script>
 </body>
 </html>
