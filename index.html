@@ -24,23 +24,8 @@
             box-sizing: border-box;
         }
 
-        /* Контейнер для логотипа */
-        .logo-container {
-            display: flex;
-            align-items: center;
-        }
-
-        .logo-container img {
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            border: 2px solid #FFEED2;
-            object-fit: cover;
-            display: block;
-        }
-
-        /* Заглушка для логотипа, если файл не найден */
-        .logo-placeholder {
+        /* Контейнер для логотипа (круг остается прежнего размера) */
+        .logo-container-circle {
             width: 55px;
             height: 55px;
             border-radius: 50%;
@@ -48,8 +33,22 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow: hidden;
+            background-color: transparent;
+            flex-shrink: 0;
+        }
+
+        /* Само изображение (уменьшено на 20%) */
+        .logo-container-circle img {
+            width: 80%; /* Уменьшение на 20% */
+            height: 80%;
+            object-fit: contain;
+            display: block;
+        }
+
+        /* Заглушка для логотипа */
+        .logo-placeholder {
             color: #FFEED2;
-            background-color: #4a352c;
             font-size: 10px;
             text-align: center;
             font-weight: bold;
@@ -99,9 +98,9 @@
 <body>
 
     <header>
-        <div class="logo-container">
-            <!-- Исправленный путь к логотипу согласно вашему описанию -->
-            <img src="ico/catering-b.ico" alt="Логотип" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="logo-container-circle">
+            <!-- Путь к логотипу. Изображение отцентрировано и уменьшено внутри круга -->
+            <img src="ico/catering-b.ico" alt="Логотип" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
             <div class="logo-placeholder" style="display: none;">LOGO</div>
         </div>
 
@@ -112,7 +111,6 @@
     </header>
 
     <main style="padding: 20px; text-align: center; color: #604539;">
-        <!-- Сюда можно добавить основной контент сайта -->
         <p>Добро пожаловать в административную панель.</p>
     </main>
 
