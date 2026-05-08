@@ -191,11 +191,13 @@
         // КОНФИГУРАЦИЯ (Замените на свои данные из Firebase Console при необходимости)
         // Но для теста я оставлю пустые заглушки
         const firebaseConfig = {
-            apiKey: "", // Оставляем пустым, среда сама подставит ключ если есть
-            projectId: "vn-mutki-logs",
-            appId: typeof __app_id !== 'undefined' ? __app_id : 'default-app'
-        };
-
+  apiKey: "AIzaSyBEn2ZheCPUMgTKxuQmHw0MPehIu1B85Do",
+  authDomain: "vanilnoeneboapp.firebaseapp.com",
+  projectId: "vanilnoeneboapp",
+  storageBucket: "vanilnoeneboapp.firebasestorage.app",
+  messagingSenderId: "648309181653",
+  appId: "1:648309181653:web:64f690d6acb67ea8fea65c"
+};
         // Инициализация (используем глобальные конфиги среды если доступны)
         const actualConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : firebaseConfig;
         const app = initializeApp(actualConfig);
