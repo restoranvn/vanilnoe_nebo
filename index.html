@@ -15,12 +15,13 @@
 
         /* Стили хедера */
         header {
-            padding: 10px 40px; /* Увеличены боковые отступы для аккуратного прилегания к краям */
-            background-color: #604539; /* Новый цвет фона хедера */
+            padding: 10px 20px;
+            background-color: #604539; /* Цвет фона хедера */
             display: flex;
             align-items: center;
-            justify-content: space-between; /* Распределяет логотип влево, а текст вправо */
-            min-height: 60px;
+            justify-content: space-between;
+            min-height: 70px;
+            box-sizing: border-box;
         }
 
         /* Контейнер для логотипа */
@@ -30,36 +31,68 @@
         }
 
         .logo-container img {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%; /* Круглая форма */
-            border: 2px solid #FFEED2; /* Светлая обводка 2px */
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            border: 2px solid #FFEED2;
             object-fit: cover;
+            display: block;
+        }
+
+        /* Заглушка для логотипа, если файл не найден */
+        .logo-placeholder {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            border: 2px solid #FFEED2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFEED2;
+            background-color: #4a352c;
+            font-size: 10px;
+            text-align: center;
+            font-weight: bold;
         }
 
         /* Контейнер для текста справа */
         .text-container {
-            text-align: right; /* Выравнивание текста по правому краю */
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         /* Заголовок "АДМИНСКИЕ МУТКИ" */
         h1 {
             margin: 0;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 900;
             color: #FFEED2;
             text-transform: uppercase;
             line-height: 1.1;
+            letter-spacing: 0.5px;
         }
 
         /* Подзаголовок "ВАНИЛЬНОГО НЕБА" */
         .subtitle {
-            margin-top: 2px;
-            font-size: 20px;
+            margin-top: 1px;
+            font-size: 18px;
             font-weight: 300;
             color: #FFEED2;
             text-transform: uppercase;
             line-height: 1.1;
+            letter-spacing: 0.5px;
+        }
+
+        /* Адаптивность для десктопов */
+        @media (min-width: 768px) {
+            header {
+                padding: 10px 40px;
+            }
+            h1, .subtitle {
+                font-size: 22px;
+            }
         }
     </style>
 </head>
@@ -67,16 +100,21 @@
 
     <header>
         <div class="logo-container">
-            <!-- Логотип слева -->
-            <img src="catering-b.ico" alt="Логотип" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'width:50px;height:50px;border-radius:50%;border:2px solid #FFEED2;display:flex;align-items:center;justify-content:center;color:#FFEED2;font-size:10px\'>LOGO</div>'">
+            <!-- Исправленный путь к логотипу согласно вашему описанию -->
+            <img src="ico/catering-b.ico" alt="Логотип" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="logo-placeholder" style="display: none;">LOGO</div>
         </div>
 
         <div class="text-container">
-            <!-- Текст справа -->
             <h1>АДМИНСКИЕ МУТКИ</h1>
             <div class="subtitle">ВАНИЛЬНОГО НЕБА</div>
         </div>
     </header>
+
+    <main style="padding: 20px; text-align: center; color: #604539;">
+        <!-- Сюда можно добавить основной контент сайта -->
+        <p>Добро пожаловать в административную панель.</p>
+    </main>
 
 </body>
 </html>
