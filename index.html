@@ -8,19 +8,27 @@
     <meta name="theme-color" content="#604539">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-    <link rel="icon" type="image/x-icon" href="ico/catering-b.ico">
-
     <style>
+        :root {
+            --primary-bg: #FFEED2;
+            --accent-brown: #604539;
+            --white: #FFFFFF;
+            --error: #ff4d4d;
+            --success: #4CAF50;
+        }
+
         body {
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #FFEED2;
+            background-color: var(--primary-bg);
+            color: var(--accent-brown);
+            overflow-x: hidden;
         }
 
         header {
             padding: 8px 16px;
-            background-color: #604539;
+            background-color: var(--accent-brown);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -29,62 +37,78 @@
             position: sticky;
             top: 0;
             z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
         /* Область авторизации */
         .auth-bar {
-            height: 34px; 
-            background-color: #604539;
-            margin-top: 2px;
+            height: 40px; 
+            background-color: var(--accent-brown);
             display: flex;
             align-items: center;
             position: relative;
             padding: 0 16px;
             box-sizing: border-box;
+            transition: all 0.5s ease;
+            border-top: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* Поле ввода токена - по центру */
+        .auth-bar.hidden {
+            height: 0;
+            padding: 0;
+            overflow: hidden;
+            opacity: 0;
+        }
+
+        /* Поле ввода токена */
         .token-input {
             position: absolute;
             left: 50%;
-            transform: translateX(-50%); /* Сдвиг на половину ширины влево для точного центрирования */
-            width: 200px; /* Задаем фиксированную ширину или используем max-width */
-            height: 22px;
-            background-color: transparent;
-            border: none;
-            color: #FFFFFF;
-            padding: 0 8px;
-            font-size: 12px;
+            transform: translateX(-50%);
+            width: 180px;
+            height: 28px;
+            background-color: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 4px;
+            color: var(--white);
+            padding: 0 10px;
+            font-size: 14px;
             outline: none;
             box-sizing: border-box;
             text-align: center;
+            transition: border-color 0.3s;
         }
 
-        /* Форматирование подсказки */
+        .token-input:focus {
+            border-color: var(--white);
+        }
+
         .token-input::placeholder {
-            color: #FFFFFF;
+            color: rgba(255,255,255,0.6);
             font-size: 11px;
             text-transform: uppercase;
-            text-align: center;
-            opacity: 1;
+            letter-spacing: 1px;
         }
 
         /* Индикатор */
         .status-indicator {
-            width: 25px;
-            height: 25px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
-            border: 2px solid #FFFFFF;
+            border: 2px solid var(--white);
             box-sizing: border-box;
             background-color: transparent;
-            flex-shrink: 0;
             position: absolute;
-            right: 5px;
+            right: 16px;
+            transition: background-color 0.3s, transform 0.3s;
         }
 
+        .status-indicator.invalid { background-color: var(--error); border-color: var(--error); }
+        .status-indicator.valid { background-color: var(--success); border-color: var(--success); transform: scale(1.2); }
+
         .logo-container {
-            width: 29.33px;
-            height: 29.33px;
+            width: 32px;
+            height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -95,14 +119,6 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
-            display: block;
-        }
-
-        .logo-placeholder {
-            color: #FFEED2;
-            font-size: 6px;
-            text-align: center;
-            font-weight: bold;
         }
 
         .text-container {
@@ -114,32 +130,59 @@
 
         h1 {
             margin: 0;
-            font-size: 14.5px;
+            font-size: 14px;
             font-weight: 900;
-            color: #FFFFFF;
+            color: var(--white);
             text-transform: uppercase;
             line-height: 1.1;
-            letter-spacing: 0.4px;
+            letter-spacing: 0.5px;
         }
 
         .subtitle {
             margin-top: 1px;
-            font-size: 14.5px;
+            font-size: 13px;
             font-weight: 300;
-            color: #FFFFFF;
+            color: var(--white);
             text-transform: uppercase;
             line-height: 1.1;
-            letter-spacing: 0.4px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Основной контент */
+        #main-content {
+            padding: 40px 20px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease;
+            display: none;
+        }
+
+        #main-content.visible {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #lock-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: calc(100vh - 96px);
+            transition: opacity 0.5s;
+        }
+
+        .lock-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            opacity: 0.5;
         }
 
         @media (min-width: 768px) {
-            header, .auth-bar {
-                padding-left: 32px;
-                padding-right: 32px;
-            }
-            h1, .subtitle {
-                font-size: 17.5px;
-            }
+            header, .auth-bar { padding-left: 32px; padding-right: 32px; }
+            h1 { font-size: 18px; }
+            .subtitle { font-size: 16px; }
         }
     </style>
 </head>
@@ -147,8 +190,9 @@
 
     <header>
         <div class="logo-container">
-            <img src="ico/catering-b.ico" alt="Логотип" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-            <div class="logo-placeholder" style="display: none;">LOGO</div>
+            <!-- Замените URL на ваш реальный логотип -->
+            <img src="https://cdn-icons-png.flaticon.com/512/3572/3572181.png" alt="Лого" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <div style="display: none; color: white; font-weight: bold; font-size: 10px;">VN</div>
         </div>
 
         <div class="text-container">
@@ -157,14 +201,90 @@
         </div>
     </header>
 
-    <div class="auth-bar">
-        <input type="password" class="token-input" placeholder="ВХОД">
-        <div class="status-indicator"></div>
+    <div class="auth-bar" id="authBar">
+        <input type="password" class="token-input" id="tokenInput" placeholder="ВВЕДИТЕ ТОКЕН" autofocus>
+        <div class="status-indicator" id="indicator"></div>
     </div>
 
-    <main style="padding: 20px; text-align: center; color: #604539;">
-        <p>АВТОРИЗИРУЙТЕСЬ</p>
+    <!-- Заглушка до авторизации -->
+    <div id="lock-screen">
+        <div class="lock-icon">🔒</div>
+        <p style="font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Доступ ограничен</p>
+        <p style="font-size: 12px; opacity: 0.7;">Пожалуйста, введите ключ доступа выше</p>
+    </div>
+
+    <!-- Основной защищенный контент -->
+    <main id="main-content">
+        <h2 style="text-transform: uppercase;">Добро пожаловать в админку</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 30px;">
+            <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <h3>📦 Заказы</h3>
+                <p>Управление текущими</p>
+            </div>
+            <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <h3>👨‍🍳 Кухня</h3>
+                <p>Статус готовности</p>
+            </div>
+            <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <h3>📈 Отчеты</h3>
+                <p>Статистика за день</p>
+            </div>
+        </div>
     </main>
+
+    <script>
+        // Здесь задается ваш секретный токен
+        const SECRET_TOKEN = "sky2024"; 
+
+        const input = document.getElementById('tokenInput');
+        const indicator = document.getElementById('indicator');
+        const authBar = document.getElementById('authBar');
+        const lockScreen = document.getElementById('lock-screen');
+        const mainContent = document.getElementById('main-content');
+
+        input.addEventListener('input', (e) => {
+            const val = e.target.value;
+
+            if (val.length === 0) {
+                indicator.className = 'status-indicator';
+                return;
+            }
+
+            if (val === SECRET_TOKEN) {
+                // Успешный вход
+                indicator.className = 'status-indicator valid';
+                setTimeout(unlockApp, 500);
+            } else {
+                // Ошибка (если введено достаточно символов)
+                if (val.length >= SECRET_TOKEN.length) {
+                    indicator.className = 'status-indicator invalid';
+                } else {
+                    indicator.className = 'status-indicator';
+                }
+            }
+        });
+
+        function unlockApp() {
+            // Скрываем элементы ввода
+            authBar.classList.add('hidden');
+            lockScreen.style.opacity = '0';
+            
+            setTimeout(() => {
+                lockScreen.style.display = 'none';
+                // Показываем контент
+                mainContent.classList.add('visible');
+                document.body.style.backgroundColor = '#f7f7f7'; // Немного меняем фон для рабочего режима
+            }, 500);
+        }
+
+        // Поддержка Enter
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && input.value !== SECRET_TOKEN) {
+                indicator.classList.add('invalid');
+                setTimeout(() => indicator.classList.remove('invalid'), 500);
+            }
+        });
+    </script>
 
 </body>
 </html>
