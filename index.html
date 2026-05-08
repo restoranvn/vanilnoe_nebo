@@ -46,7 +46,7 @@
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
-            width: 200px;
+            width: 250px; /* Немного увеличил для длинных имен */
             height: 22px;
             background-color: transparent;
             border: none;
@@ -56,6 +56,7 @@
             outline: none;
             box-sizing: border-box;
             text-align: center;
+            transition: all 0.3s ease;
         }
 
         .token-input::placeholder {
@@ -69,7 +70,7 @@
             width: 20px;
             height: 20px;
             border-radius: 50%;
-            border: 2px solid #FFFFFF; /* Белая рамка всегда */
+            border: 2px solid #FFFFFF;
             box-sizing: border-box;
             background-color: transparent;
             flex-shrink: 0;
@@ -78,15 +79,8 @@
             transition: background-color 0.3s ease;
         }
 
-        /* Убрано свечение, оставлена только заливка */
-        .status-indicator.valid { 
-            background-color: #4CAF50; 
-        }
-        
-        .status-indicator.invalid { 
-            background-color: #f44336; 
-        }
-
+        .status-indicator.valid { background-color: #4CAF50; }
+        .status-indicator.invalid { background-color: #f44336; }
         .status-indicator.loading { 
             border-top-color: rgba(255, 255, 255, 0.2); 
             animation: spin 1s linear infinite; 
@@ -205,7 +199,7 @@
     </header>
 
     <div class="auth-bar">
-        <input type="password" id="gh-token" class="token-input" placeholder="ВХОД">
+        <input type="password" id="gh-token" class="token-input" placeholder="ВХОД" autocomplete="off">
         <div id="status" class="status-indicator"></div>
     </div>
 
@@ -231,10 +225,15 @@
         const contentArea = document.getElementById('content-area');
         const loginOverlay = document.getElementById('login-overlay');
 
-        // GitHub API fetch with exponential backoff
+        // Маппинг токенов на имена
+        const TOKEN_NAMES = {
+            "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": "Илья (кейтеринг)"
+        };
+
+        let lastValidatedToken = "";
+
         async function fetchGitHubUser(token, retries = 5, delay = 1000) {
             const url = 'https://api.github.com/user';
-            
             for (let i = 0; i < retries; i++) {
                 try {
                     const response = await fetch(url, {
@@ -243,24 +242,16 @@
                             'Accept': 'application/vnd.github.v3+json'
                         }
                     });
-
-                    if (response.status === 200) {
-                        return await response.json();
-                    } else if (response.status === 401) {
-                        throw new Error('Unauthorized');
-                    }
-                    
+                    if (response.status === 200) return await response.json();
+                    if (response.status === 401) throw new Error('Unauthorized');
                     if (response.status >= 500) {
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                        delay *= 2;
-                        continue;
+                        await new Promise(r => setTimeout(r, delay));
+                        delay *= 2; continue;
                     }
-                    
                     return null;
                 } catch (error) {
-                    if (error.message === 'Unauthorized') throw error;
-                    if (i === retries - 1) throw error;
-                    await new Promise(resolve => setTimeout(resolve, delay));
+                    if (error.message === 'Unauthorized' || i === retries - 1) throw error;
+                    await new Promise(r => setTimeout(r, delay));
                     delay *= 2;
                 }
             }
@@ -268,23 +259,31 @@
         }
 
         async function validateToken(token) {
-            if (!token) return;
-
+            if (!token || token.length < 10 || token === lastValidatedToken) return;
+            
+            lastValidatedToken = token;
             statusIndicator.className = 'status-indicator loading';
             
             try {
                 const userData = await fetchGitHubUser(token);
-                
                 if (userData) {
                     statusIndicator.className = 'status-indicator valid';
                     sessionStorage.setItem('gh_token', token);
+                    
+                    // Если токен именной — отображаем имя вместо точек
+                    if (TOKEN_NAMES[token]) {
+                        tokenInput.type = "text";
+                        tokenInput.value = TOKEN_NAMES[token];
+                        tokenInput.blur(); // Убираем фокус после успеха
+                    }
+                    
                     showContent(userData);
                 } else {
                     statusIndicator.className = 'status-indicator invalid';
                 }
             } catch (err) {
                 statusIndicator.className = 'status-indicator invalid';
-                console.error('Auth error:', err);
+                lastValidatedToken = ""; // Сбрасываем, чтобы можно было попробовать снова
             }
         }
 
@@ -301,16 +300,30 @@
             document.getElementById('user-name').innerText = `Привет, ${user.login}!`;
         }
 
-        tokenInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                validateToken(tokenInput.value.trim());
+        // Автоматическая проверка при вводе
+        tokenInput.addEventListener('input', (e) => {
+            const val = e.target.value.trim();
+            // GitHub PAT обычно 40 символов. Начинаем проверку при вставке или вводе длинной строки
+            if (val.length >= 40) {
+                validateToken(val);
             }
+        });
+
+        // Также оставляем поддержку Enter на всякий случай
+        tokenInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') validateToken(tokenInput.value.trim());
         });
 
         window.onload = () => {
             const savedToken = sessionStorage.getItem('gh_token');
             if (savedToken) {
-                tokenInput.value = savedToken;
+                // Если сохраненный токен именной — сразу ставим тип text
+                if (TOKEN_NAMES[savedToken]) {
+                    tokenInput.type = "text";
+                    tokenInput.value = TOKEN_NAMES[savedToken];
+                } else {
+                    tokenInput.value = savedToken;
+                }
                 validateToken(savedToken);
             }
         };
