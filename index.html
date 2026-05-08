@@ -135,7 +135,7 @@
         }
 
         main {
-            padding: 40px 20px;
+            padding: 60px 20px;
             text-align: center;
             color: #604539;
             max-width: 600px;
@@ -151,6 +151,18 @@
         #welcome-message.show {
             opacity: 1;
             transform: translateY(0);
+        }
+
+        h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.5;
+            opacity: 0.8;
         }
 
         @media (min-width: 768px) {
@@ -186,7 +198,7 @@
     <main>
         <div id="welcome-message">
             <h2 id="adminName">АВТОРИЗИРУЙТЕСЬ</h2>
-            <p id="adminStatus">для доступа</p>
+            <p id="adminStatus"></p>
         </div>
     </main>
 
@@ -212,22 +224,28 @@
 
         tokenInput.addEventListener('input', (e) => {
             const val = e.target.value.trim();
+            
+            if (val === "") {
+                statusIndicator.classList.remove('active');
+                adminNameDisplay.textContent = "АВТОРИЗИРУЙТЕСЬ";
+                adminStatusDisplay.textContent = "";
+                tokenInput.style.borderColor = "rgba(255, 255, 255, 0.2)";
+                return;
+            }
+
             const admin = adminData.admins.find(a => a.token === val);
 
             if (admin) {
                 // Успешная авторизация
                 statusIndicator.classList.add('active');
-                adminNameDisplay.textContent = `Привет, ${admin.name}!`;
+                adminNameDisplay.textContent = `ПРИВЕТ, ${admin.name}!`;
                 adminStatusDisplay.textContent = "Доступ разрешен. Все системы работают в штатном режиме.";
                 tokenInput.style.borderColor = "#00C851";
-                
-                // Можно добавить сохранение в сессию, если нужно
-                console.log(`Авторизован админ: ${admin.name}`);
             } else {
-                // Сброс состояния
+                // Сброс состояния при неверном токене
                 statusIndicator.classList.remove('active');
-                adminNameDisplay.textContent = "Доступ ограничен";
-                adminStatusDisplay.textContent = "Пожалуйста, введите корректный токен администратора для управления системой.";
+                adminNameDisplay.textContent = "ДОСТУП ОГРАНИЧЕН";
+                adminStatusDisplay.textContent = "Введите корректный токен администратора для управления системой.";
                 tokenInput.style.borderColor = "rgba(255, 255, 255, 0.2)";
             }
         });
