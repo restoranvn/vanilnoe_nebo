@@ -44,71 +44,85 @@
         }
 
         .decorative-bar {
-            height: 30px; /* Уменьшено до 30px */
+            height: 30px;
             background-color: var(--header-bg);
             display: flex;
-            flex-direction: row; /* Изменено на горизонтальное для компактности при 30px */
+            flex-direction: row;
             align-items: center;
             justify-content: center;
             padding: 0 16px; 
-            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 2px;
             position: relative;
             gap: 10px;
-        }
-
-        /* Обновленный стиль заголовка авторизации для высоты 30px */
-        .auth-label {
             color: white;
             font-size: 11px;
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            white-space: nowrap;
+        }
+
+        #loginBtn {
+            cursor: pointer;
+            text-decoration: underline;
+            transition: opacity 0.2s;
+        }
+
+        #loginBtn:hover {
+            opacity: 0.8;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px; /* Уменьшены отступы для компактности */
+            border-radius: 12px;
+            width: 100%;
+            max-width: 280px; /* Немного уже */
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .modal-title {
+            margin-top: 0;
+            font-size: 16px; /* Чуть меньше шрифт */
+            color: var(--header-bg);
+            margin-bottom: 15px;
         }
 
         .token-input {
-            background: transparent;
-            border: none;
-            border-bottom: 1px solid rgba(255,255,255,0.3);
-            border-radius: 0;
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
-            width: 40%; /* Немного компактнее */
-            max-width: 180px;
-            outline: none;
-            text-transform: uppercase;
-            padding: 2px 0;
+            width: 100%;
+            box-sizing: border-box;
+            background: #f5f5f5;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 18px;
             text-align: center;
-            transition: all 0.3s;
+            font-weight: bold;
+            text-transform: uppercase;
+            outline: none;
+            transition: border-color 0.3s;
         }
 
         .token-input:focus {
-            border-bottom: 1px solid var(--accent);
+            border-color: var(--header-bg);
         }
 
-        .token-input::placeholder {
-            color: transparent;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: #777;
-            border: 2px solid white;
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            transition: 0.3s;
-        }
-
-        .status-dot.active {
-            background-color: var(--accent);
-            box-shadow: 0 0 8px var(--accent);
-        }
-
+        /* Main UI */
         main {
             display: none;
             padding: 20px;
@@ -124,17 +138,21 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.1);
         }
 
-        .user-type {
-            display: inline-block;
-            background: #eee;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 20px;
+        .user-info-text {
+            color: #fff;
+            font-size: 11px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
         }
 
-        button {
+        .role-tag {
+            background: rgba(255,255,255,0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        button.action-btn {
             background: var(--header-bg);
             color: white;
             border: none;
@@ -145,24 +163,6 @@
             width: 100%;
             margin-top: 10px;
             transition: opacity 0.2s;
-        }
-
-        button:active {
-            opacity: 0.8;
-        }
-
-        #logConsole {
-            margin-top: 20px;
-            background: #1a1a1a;
-            color: #00ff41;
-            padding: 15px;
-            font-family: 'Consolas', monospace;
-            font-size: 12px;
-            border-radius: 8px;
-            text-align: left;
-            max-height: 200px;
-            overflow-y: auto;
-            border: 1px solid #333;
         }
 
         .loading-spinner {
@@ -177,6 +177,20 @@
         }
 
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        #logConsole {
+            margin-top: 20px;
+            background: #1a1a1a;
+            color: #00ff41;
+            padding: 15px;
+            font-family: 'Consolas', monospace;
+            font-size: 12px;
+            border-radius: 8px;
+            text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #333;
+        }
     </style>
 </head>
 <body>
@@ -191,25 +205,35 @@
         </div>
     </header>
 
-    <div class="decorative-bar" id="loginUI">
-        <div class="auth-label">Авторизация:</div>
-        <input type="password" id="tokenInput" class="token-input" autocomplete="off">
-        <div id="statusDot" class="status-dot"></div>
+    <div class="decorative-bar" id="authBar">
+        <div id="loginBtn" onclick="openLoginModal()">ВХОД</div>
+        <div id="userInfoDisplay" class="user-info-text" style="display: none;">
+            <span id="barUserName"></span>
+            <span id="barUserRole" class="role-tag"></span>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModal" onclick="closeLoginModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h3 class="modal-title">Код доступа</h3>
+            <input type="password" id="tokenInput" class="token-input" placeholder="••••" autocomplete="off">
+            <!-- Надпись "вход произойдет автоматически" удалена -->
+        </div>
     </div>
 
     <main id="mainApp">
         <div class="card">
-            <h2 id="userNameDisplay" style="margin-bottom: 5px;">Привет!</h2>
-            <div id="userTypeDisplay" class="user-type">Тип</div>
+            <h2 id="welcomeText" style="margin-bottom: 25px;">Система готова</h2>
             
-            <div style="border-top: 1px solid #eee; padding-top: 20px; margin-top: 10px;">
-                <p style="font-size: 14px; color: #555;">Система готова к записи активности.</p>
-                <button id="btnWrite" onclick="logActivity()">
+            <div style="border-top: 1px solid #eee; padding-top: 20px;">
+                <p style="font-size: 14px; color: #555;">Зафиксировать ваше присутствие в системе:</p>
+                <button id="btnWrite" class="action-btn" onclick="logActivity()">
                     <span id="btnText">Записать вход в систему</span>
                 </button>
             </div>
 
-            <button onclick="logout()" style="background: #ececec; color: #666; margin-top: 20px; font-size: 13px;">Выйти</button>
+            <button onclick="logout()" style="background: #ececec; color: #666; margin-top: 20px; font-size: 13px; border:none; padding:8px; border-radius:6px; cursor:pointer; width:100%;">Выйти из профиля</button>
         </div>
 
         <div id="logConsole" style="display: none;"></div>
@@ -244,37 +268,47 @@
             "BANK-RITA":  { name: "Маргарита", type: "Банкет" },
             "BANK-KATYA": { name: "Екатерина", type: "Банкет" },
             "BANK-ROMAN": { name: "Роман", type: "Банкет" },
-            "BANK-LUBA":  { name: "Любовь", type: "Банкет" }
+            "BANK-LUBA":  { name: "Любовь", type: "Банкет" },
+            "ADMIN-SU":   { name: "Admin", type: "SU" }
         };
 
         const input = document.getElementById('tokenInput');
-        const dot = document.getElementById('statusDot');
+        const modal = document.getElementById('loginModal');
 
         async function initAuth() {
-            try {
-                await signInAnonymously(auth);
-            } catch (e) {
-                console.error("Auth error", e);
-            }
+            try { await signInAnonymously(auth); } catch (e) {}
         }
         initAuth();
 
+        window.openLoginModal = () => {
+            modal.style.display = 'flex';
+            input.focus();
+        };
+
+        window.closeLoginModal = (e) => {
+            if (e.target === modal) modal.style.display = 'none';
+        };
+
         input.addEventListener('input', () => {
             const val = input.value.trim().toUpperCase();
-            if (val.length > 0) dot.classList.add('active');
-            else dot.classList.remove('active');
-
             if (USER_DB[val]) {
                 login(USER_DB[val]);
+                input.value = ""; 
+                modal.style.display = 'none'; 
             }
         });
 
         function login(user) {
             localStorage.setItem('mutki_user', JSON.stringify(user));
-            document.getElementById('loginUI').style.display = 'none';
+            
+            document.getElementById('loginBtn').style.display = 'none';
+            const display = document.getElementById('userInfoDisplay');
+            display.style.display = 'flex';
+            document.getElementById('barUserName').innerText = user.name.toUpperCase();
+            document.getElementById('barUserRole').innerText = user.type;
+
             document.getElementById('mainApp').style.display = 'block';
-            document.getElementById('userNameDisplay').innerText = `Привет, ${user.name}!`;
-            document.getElementById('userTypeDisplay').innerText = user.type;
+            document.getElementById('welcomeText').innerText = `Привет, ${user.name}!`;
         }
 
         window.logout = function() {
@@ -291,13 +325,12 @@
             const btnText = document.getElementById('btnText');
             
             if (!auth.currentUser) {
-                showLog("Ошибка: Нет соединения с сервером.");
+                showLog("Ошибка: Нет соединения.");
                 return;
             }
 
             btn.disabled = true;
             btnText.innerHTML = '<span class="loading-spinner"></span>Записываю...';
-            showLog("Отправка данных в облако...");
 
             try {
                 const logRef = collection(db, 'artifacts', appId, 'public', 'data', 'user_logs');
@@ -308,7 +341,7 @@
                     device: navigator.userAgent.slice(0, 50)
                 });
 
-                showLog("Успешно сохранено в базу данных!");
+                showLog("Успешно записано: " + user.name);
                 btnText.innerText = "Записано ✓";
                 btn.style.backgroundColor = "#4CAF50";
                 
@@ -319,7 +352,7 @@
                 }, 3000);
 
             } catch (e) {
-                showLog("Ошибка записи: " + e.message);
+                showLog("Ошибка: " + e.message);
                 btn.disabled = false;
                 btnText.innerText = "Попробовать снова";
             }
