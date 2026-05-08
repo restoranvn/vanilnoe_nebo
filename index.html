@@ -75,13 +75,12 @@
             flex-shrink: 0;
             position: absolute;
             right: 16px;
-            transition: all 0.3s ease;
+            transition: background-color 0.3s ease;
         }
 
-        /* Изменено: меняем только фон внутри, рамка остается белой */
+        /* Убрано свечение, оставлена только заливка */
         .status-indicator.valid { 
             background-color: #4CAF50; 
-            box-shadow: 0 0 8px rgba(76, 175, 80, 0.5); 
         }
         
         .status-indicator.invalid { 
@@ -232,6 +231,7 @@
         const contentArea = document.getElementById('content-area');
         const loginOverlay = document.getElementById('login-overlay');
 
+        // GitHub API fetch with exponential backoff
         async function fetchGitHubUser(token, retries = 5, delay = 1000) {
             const url = 'https://api.github.com/user';
             
@@ -317,5 +317,3 @@
     </script>
 </body>
 </html>
-
-```
