@@ -38,9 +38,10 @@
             margin-top: 2px; /* Отступ в 2px от шапки */
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: flex-end; /* Выравнивание всего содержимого вправо */
             padding: 0 16px;
             box-sizing: border-box;
+            gap: 10px; /* Расстояние между текстом и индикатором */
         }
 
         /* Индикатор */
@@ -51,9 +52,10 @@
             border: 2px solid #FFFFFF;
             box-sizing: border-box;
             background-color: transparent;
-            /* Смещение влево: 5px от края экрана */
-            /* Учитываем padding родителя (16px), поэтому используем отрицательный margin или перебиваем его */
-            margin-left: -11px; 
+            flex-shrink: 0;
+            /* Смещение вправо: 5px от края экрана */
+            /* Учитываем padding родителя (16px), поэтому margin-right отрицательный */
+            margin-right: -11px; 
         }
 
         .auth-bar span {
@@ -119,9 +121,9 @@
                 padding-left: 32px;
                 padding-right: 32px;
             }
-            /* Корректировка отступа для десктопа, чтобы оставалось 5px от края */
+            /* Корректировка отступа для десктопа (32px padding - 27px margin = 5px) */
             .status-indicator {
-                margin-left: -27px;
+                margin-right: -27px;
             }
             h1, .subtitle {
                 font-size: 17.5px;
@@ -144,8 +146,8 @@
     </header>
 
     <div class="auth-bar">
-        <div class="status-indicator"></div>
         <span>Авторизация</span>
+        <div class="status-indicator"></div>
     </div>
 
     <main style="padding: 20px; text-align: center; color: #604539;">
