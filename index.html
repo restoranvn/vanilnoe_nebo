@@ -33,14 +33,27 @@
 
         /* Область авторизации */
         .auth-bar {
-            height: 30px; 
+            height: 34px; 
             background-color: #604539;
             margin-top: 2px; /* Отступ в 2px от шапки */
             display: flex;
             align-items: center;
-            justify-content: flex-end;
+            justify-content: space-between;
             padding: 0 16px;
             box-sizing: border-box;
+        }
+
+        /* Индикатор */
+        .status-indicator {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            border: 2px solid #FFFFFF;
+            box-sizing: border-box;
+            background-color: transparent;
+            /* Смещение влево: 5px от края экрана */
+            /* Учитываем padding родителя (16px), поэтому используем отрицательный margin или перебиваем его */
+            margin-left: -11px; 
         }
 
         .auth-bar span {
@@ -85,7 +98,7 @@
             margin: 0;
             font-size: 14.5px;
             font-weight: 900;
-            color: #FFFFFF; /* Изменено на белый */
+            color: #FFFFFF;
             text-transform: uppercase;
             line-height: 1.1;
             letter-spacing: 0.4px;
@@ -95,7 +108,7 @@
             margin-top: 1px;
             font-size: 14.5px;
             font-weight: 300;
-            color: #FFFFFF; /* Изменено на белый */
+            color: #FFFFFF;
             text-transform: uppercase;
             line-height: 1.1;
             letter-spacing: 0.4px;
@@ -105,6 +118,10 @@
             header, .auth-bar {
                 padding-left: 32px;
                 padding-right: 32px;
+            }
+            /* Корректировка отступа для десктопа, чтобы оставалось 5px от края */
+            .status-indicator {
+                margin-left: -27px;
             }
             h1, .subtitle {
                 font-size: 17.5px;
@@ -127,6 +144,7 @@
     </header>
 
     <div class="auth-bar">
+        <div class="status-indicator"></div>
         <span>Авторизация</span>
     </div>
 
