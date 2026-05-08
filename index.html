@@ -44,40 +44,41 @@
         }
 
         .decorative-bar {
-            height: 60px; 
+            height: 30px; /* Уменьшено до 30px */
             background-color: var(--header-bg);
             display: flex;
-            flex-direction: column;
+            flex-direction: row; /* Изменено на горизонтальное для компактности при 30px */
             align-items: center;
             justify-content: center;
-            padding: 10px 16px; 
+            padding: 0 16px; 
             border-top: 1px solid rgba(255,255,255,0.1);
             position: relative;
+            gap: 10px;
         }
 
-        /* Обновленный контейнер и стиль заголовка авторизации */
+        /* Обновленный стиль заголовка авторизации для высоты 30px */
         .auth-label {
             color: white;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: bold;
-            margin-bottom: 4px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
         }
 
         .token-input {
-            background: transparent; /* Прозрачный фон */
-            border: none; /* Без рамок */
-            border-bottom: 1px solid rgba(255,255,255,0.3); /* Тонкая линия снизу для ориентира */
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
             border-radius: 0;
             color: white;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
-            width: 60%; /* Уменьшено на 20% (было 80%) */
-            max-width: 240px;
+            width: 40%; /* Немного компактнее */
+            max-width: 180px;
             outline: none;
             text-transform: uppercase;
-            padding: 4px 0;
+            padding: 2px 0;
             text-align: center;
             transition: all 0.3s;
         }
@@ -86,19 +87,18 @@
             border-bottom: 1px solid var(--accent);
         }
 
-        /* Убираем плейсхолдер, так как теперь есть текст сверху */
         .token-input::placeholder {
             color: transparent;
         }
 
         .status-dot {
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             background-color: #777;
             border: 2px solid white;
             position: absolute;
-            right: 20px;
+            right: 15px;
             top: 50%;
             transform: translateY(-50%);
             transition: 0.3s;
@@ -192,7 +192,7 @@
     </header>
 
     <div class="decorative-bar" id="loginUI">
-        <div class="auth-label">Авторизация</div>
+        <div class="auth-label">Авторизация:</div>
         <input type="password" id="tokenInput" class="token-input" autocomplete="off">
         <div id="statusDot" class="status-dot"></div>
     </div>
