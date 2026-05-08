@@ -11,12 +11,14 @@
             --header-bg: #604539;
             --accent: #4CAF50;
             --text-light: #FFFFFF;
+            --error: #ff4444;
         }
 
         body {
             margin: 0;
             font-family: 'Segoe UI', sans-serif;
             background-color: var(--primary-bg);
+            color: #333;
         }
 
         header {
@@ -26,10 +28,11 @@
             align-items: center;
             justify-content: space-between;
             color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
         .decorative-bar {
-            height: 40px; 
+            height: 50px; 
             background-color: var(--header-bg);
             display: flex;
             align-items: center;
@@ -42,77 +45,117 @@
         .token-input {
             background: rgba(255,255,255,0.1);
             border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 4px;
+            border-radius: 8px;
             color: white;
-            font-size: 14px;
-            font-weight: 900;
-            width: 200px;
+            font-size: 16px;
+            font-weight: bold;
+            width: 80%;
+            max-width: 300px;
             outline: none;
             text-transform: uppercase;
-            padding: 4px;
+            padding: 8px;
             text-align: center;
+            transition: all 0.3s;
+        }
+
+        .token-input:focus {
+            background: rgba(255,255,255,0.2);
+            border-color: var(--accent);
         }
 
         .status-dot {
-            width: 15px;
-            height: 15px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
             background-color: #777;
             border: 2px solid white;
             position: absolute;
-            right: 10px;
+            right: 20px;
             transition: 0.3s;
         }
 
         .status-dot.active {
             background-color: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
         }
 
         main {
             display: none;
             padding: 20px;
+            max-width: 500px;
+            margin: 0 auto;
         }
 
         .card {
             background: white;
-            padding: 20px;
-            border-radius: 12px;
+            padding: 25px;
+            border-radius: 16px;
             text-align: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .user-type {
+            display: inline-block;
+            background: #eee;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 20px;
         }
 
         button {
             background: var(--header-bg);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
+            padding: 12px 24px;
+            border-radius: 8px;
             cursor: pointer;
+            font-weight: bold;
+            width: 100%;
             margin-top: 10px;
+            transition: opacity 0.2s;
+        }
+
+        button:active {
+            opacity: 0.8;
         }
 
         #logConsole {
             margin-top: 20px;
-            background: #222;
-            color: #0f0;
-            padding: 10px;
-            font-family: monospace;
+            background: #1a1a1a;
+            color: #00ff41;
+            padding: 15px;
+            font-family: 'Consolas', monospace;
             font-size: 12px;
-            border-radius: 6px;
+            border-radius: 8px;
             text-align: left;
-            max-height: 150px;
+            max-height: 200px;
             overflow-y: auto;
-            display: none;
+            border: 1px solid #333;
         }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
     <header>
-        <div style="font-weight: bold;">[VN]</div>
+        <div style="font-weight: bold; letter-spacing: 1px;">[VN]</div>
         <div style="text-align: right;">
             <div style="font-size: 14px; font-weight: 900;">АДМИНСКИЕ МУТКИ</div>
-            <div style="font-size: 12px; font-weight: 300;">ВАНИЛЬНОГО НЕБА</div>
+            <div style="font-size: 11px; opacity: 0.8;">ВАНИЛЬНОГО НЕБА</div>
         </div>
     </header>
 
@@ -123,28 +166,44 @@
 
     <main id="mainApp">
         <div class="card">
-            <h2 id="userNameDisplay">Привет!</h2>
-            <div id="userTypeDisplay" style="font-style: italic; color: #666; margin-bottom: 15px;">Тип</div>
+            <h2 id="userNameDisplay" style="margin-bottom: 5px;">Привет!</h2>
+            <div id="userTypeDisplay" class="user-type">Тип</div>
             
-            <div style="border-top: 1px solid #eee; padding-top: 15px;">
-                <p>Тестовая функция: запись времени входа в файл log.txt</p>
-                <button onclick="testWrite()">Записать в GitHub</button>
+            <div style="border-top: 1px solid #eee; padding-top: 20px; margin-top: 10px;">
+                <p style="font-size: 14px; color: #555;">Система готова к записи активности.</p>
+                <button id="btnWrite" onclick="logActivity()">
+                    <span id="btnText">Записать вход в систему</span>
+                </button>
             </div>
 
-            <button onclick="logout()" style="background: #999; margin-top: 30px;">Выйти</button>
+            <button onclick="logout()" style="background: #ececec; color: #666; margin-top: 20px; font-size: 13px;">Выйти</button>
         </div>
 
-        <div id="logConsole"></div>
+        <div id="logConsole" style="display: none;"></div>
     </main>
 
-    <script>
-        // --- КОНФИГУРАЦИЯ ---
-        const GITHUB_CONFIG = {
-            pat: "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", // ВСТАВЬТЕ СЮДА ВАШ ТОКЕН
-            owner: "restoranvn",   // ВАШ ЛОГИН
-            repo: "vanilnoe_nebo"        // НАЗВАНИЕ ВАШЕГО ПРИВАТНОГО РЕПО
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+        // КОНФИГУРАЦИЯ (Замените на свои данные из Firebase Console при необходимости)
+        // Но для теста я оставлю пустые заглушки
+        const firebaseConfig = {
+            apiKey: "", // Оставляем пустым, среда сама подставит ключ если есть
+            projectId: "vn-mutki-logs",
+            appId: typeof __app_id !== 'undefined' ? __app_id : 'default-app'
         };
 
+        // Инициализация (используем глобальные конфиги среды если доступны)
+        const actualConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : firebaseConfig;
+        const app = initializeApp(actualConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'vn-mutki';
+
+        // База пользователей
         const USER_DB = {
             "CATER-ILYA": { name: "Илья", type: "Кейтеринг" },
             "CATER-MIXA": { name: "Михаил", type: "Кейтеринг" },
@@ -159,6 +218,16 @@
 
         const input = document.getElementById('tokenInput');
         const dot = document.getElementById('statusDot');
+
+        // Авторизация в Firebase
+        async function initApp() {
+            try {
+                await signInAnonymously(auth);
+            } catch (e) {
+                console.error("Auth error", e);
+            }
+        }
+        initApp();
 
         input.addEventListener('input', () => {
             const val = input.value.trim().toUpperCase();
@@ -175,10 +244,10 @@
             document.getElementById('loginUI').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
             document.getElementById('userNameDisplay').innerText = `Привет, ${user.name}!`;
-            document.getElementById('userTypeDisplay').innerText = `Доступ: ${user.type}`;
+            document.getElementById('userTypeDisplay').innerText = user.type;
         }
 
-        function logout() {
+        window.logout = function() {
             localStorage.removeItem('mutki_user');
             location.reload();
         }
@@ -187,64 +256,54 @@
         const saved = localStorage.getItem('mutki_user');
         if (saved) login(JSON.parse(saved));
 
-        // --- ЛОГИКА ВЗАИМОДЕЙСТВИЯ С GITHUB ---
-
-        async function testWrite() {
+        // ЛОГИКА ЗАПИСИ
+        window.logActivity = async function() {
             const user = JSON.parse(localStorage.getItem('mutki_user'));
-            const content = `Пользователь ${user.name} (${user.type}) вошел в систему: ${new Date().toLocaleString()}\n`;
+            const btn = document.getElementById('btnWrite');
+            const btnText = document.getElementById('btnText');
             
-            showLog("Подключение к GitHub...");
-            
+            if (!auth.currentUser) {
+                showLog("Ошибка: Нет соединения с сервером.");
+                return;
+            }
+
+            btn.disabled = true;
+            btnText.innerHTML = '<span class="loading-spinner"></span>Записываю...';
+            showLog("Отправка данных в облако...");
+
             try {
-                const filename = "activity_log.txt";
-                const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${filename}`;
+                // ПУТЬ: /artifacts/{appId}/public/data/logs
+                const logRef = collection(db, 'artifacts', appId, 'public', 'data', 'user_logs');
                 
-                // 1. Пытаемся получить файл, чтобы взять его SHA
-                let sha = "";
-                const getRes = await fetch(url, {
-                    headers: { "Authorization": `token ${GITHUB_CONFIG.pat}` }
+                await addDoc(logRef, {
+                    userName: user.name,
+                    userType: user.type,
+                    timestamp: serverTimestamp(),
+                    device: navigator.userAgent.slice(0, 50)
                 });
 
-                let existingContent = "";
-                if (getRes.status === 200) {
-                    const fileData = await getRes.json();
-                    sha = fileData.sha;
-                    existingContent = decodeURIComponent(escape(atob(fileData.content)));
-                }
-
-                // 2. Формируем новый контент (старый + новый заголовок)
-                const newFullContent = existingContent + content;
-
-                // 3. Отправляем обновление
-                const putRes = await fetch(url, {
-                    method: "PUT",
-                    headers: {
-                        "Authorization": `token ${GITHUB_CONFIG.pat}`,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        message: `Log update by ${user.name}`,
-                        content: btoa(unescape(encodeURIComponent(newFullContent))),
-                        sha: sha || undefined
-                    })
-                });
-
-                if (putRes.ok) {
-                    showLog("Успешно записано в репозиторий!");
-                } else {
-                    const err = await putRes.json();
-                    showLog("Ошибка: " + err.message);
-                }
+                showLog("Успешно сохранено в базу данных!");
+                btnText.innerText = "Записано ✓";
+                btn.style.backgroundColor = "#4CAF50";
+                
+                setTimeout(() => {
+                    btnText.innerText = "Записать еще раз";
+                    btn.disabled = false;
+                    btn.style.backgroundColor = "";
+                }, 3000);
 
             } catch (e) {
-                showLog("Критическая ошибка: " + e.message);
+                showLog("Ошибка записи: " + e.message);
+                btn.disabled = false;
+                btnText.innerText = "Попробовать снова";
             }
         }
 
         function showLog(msg) {
             const consoleEl = document.getElementById('logConsole');
             consoleEl.style.display = 'block';
-            consoleEl.innerHTML += `> ${msg}<br>`;
+            const time = new Date().toLocaleTimeString();
+            consoleEl.innerHTML += `<div><span style="color: #888">[${time}]</span> ${msg}</div>`;
             consoleEl.scrollTop = consoleEl.scrollHeight;
         }
     </script>
