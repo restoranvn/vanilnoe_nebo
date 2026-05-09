@@ -32,51 +32,39 @@
         }
 
         .decorative-bar {
-            height: 50px; 
+            height: 60px; 
             background-color: var(--header-bg);
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 0 16px; 
             border-top: 1px solid rgba(255,255,255,0.1);
-            position: relative;
         }
 
         .token-input {
             background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 8px;
+            border: 2px solid rgba(255,255,255,0.4); /* Ширина рамки 2px */
+            border-radius: 4px;
             color: white;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
-            width: 80%;
-            max-width: 300px;
+            width: 60%; /* Уменьшена ширина на 20% от предыдущих 80% */
+            height: 25px; /* Высота 25px */
             outline: none;
             text-transform: uppercase;
-            padding: 8px;
+            padding: 0 8px;
             text-align: center;
             transition: all 0.3s;
+        }
+
+        .token-input::placeholder {
+            color: #FFFFFF; /* Белый непрозрачный цвет */
+            opacity: 1;
         }
 
         .token-input:focus {
             background: rgba(255,255,255,0.2);
             border-color: var(--accent);
-        }
-
-        .status-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background-color: #777;
-            border: 2px solid white;
-            position: absolute;
-            right: 20px;
-            transition: 0.3s;
-        }
-
-        .status-dot.active {
-            background-color: var(--accent);
-            box-shadow: 0 0 8px var(--accent);
         }
 
         main {
@@ -160,8 +148,8 @@
     </header>
 
     <div class="decorative-bar" id="loginUI">
-        <input type="password" id="tokenInput" class="token-input" placeholder="КОД ДОСТУПА">
-        <div id="statusDot" class="status-dot"></div>
+        <!-- Текст АВТОРИЗАЦИЯ, высота 25px, ширина 60%, рамка 2px -->
+        <input type="password" id="tokenInput" class="token-input" placeholder="АВТОРИЗАЦИЯ">
     </div>
 
     <main id="mainApp">
@@ -182,30 +170,26 @@
         <div id="logConsole" style="display: none;"></div>
     </main>
 
-    <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
         import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-        // КОНФИГУРАЦИЯ (Замените на свои данные из Firebase Console при необходимости)
-        // Но для теста я оставлю пустые заглушки
         const firebaseConfig = {
-  apiKey: "AIzaSyBEn2ZheCPUMgTKxuQmHw0MPehIu1B85Do",
-  authDomain: "vanilnoeneboapp.firebaseapp.com",
-  projectId: "vanilnoeneboapp",
-  storageBucket: "vanilnoeneboapp.firebasestorage.app",
-  messagingSenderId: "648309181653",
-  appId: "1:648309181653:web:64f690d6acb67ea8fea65c"
-};
-        // Инициализация (используем глобальные конфиги среды если доступны)
+            apiKey: "AIzaSyBEn2ZheCPUMgTKxuQmHw0MPehIu1B85Do",
+            authDomain: "vanilnoeneboapp.firebaseapp.com",
+            projectId: "vanilnoeneboapp",
+            storageBucket: "vanilnoeneboapp.firebasestorage.app",
+            messagingSenderId: "648309181653",
+            appId: "1:648309181653:web:64f690d6acb67ea8fea65c"
+        };
+
         const actualConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : firebaseConfig;
         const app = initializeApp(actualConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'vn-mutki';
 
-        // База пользователей
         const USER_DB = {
             "CATER-ILYA": { name: "Илья", type: "Кейтеринг" },
             "CATER-MIXA": { name: "Михаил", type: "Кейтеринг" },
@@ -219,9 +203,7 @@
         };
 
         const input = document.getElementById('tokenInput');
-        const dot = document.getElementById('statusDot');
 
-        // Авторизация в Firebase
         async function initApp() {
             try {
                 await signInAnonymously(auth);
@@ -233,9 +215,6 @@
 
         input.addEventListener('input', () => {
             const val = input.value.trim().toUpperCase();
-            if (val.length > 0) dot.classList.add('active');
-            else dot.classList.remove('active');
-
             if (USER_DB[val]) {
                 login(USER_DB[val]);
             }
@@ -254,13 +233,14 @@
             location.reload();
         }
 
-        // Проверка при загрузке
         const saved = localStorage.getItem('mutki_user');
         if (saved) login(JSON.parse(saved));
 
-        // ЛОГИКА ЗАПИСИ
         window.logActivity = async function() {
-            const user = JSON.parse(localStorage.getItem('mutki_user'));
+            const userString = localStorage.getItem('mutki_user');
+            if (!userString) return;
+            const user = JSON.parse(userString);
+            
             const btn = document.getElementById('btnWrite');
             const btnText = document.getElementById('btnText');
             
@@ -274,7 +254,6 @@
             showLog("Отправка данных в облако...");
 
             try {
-                // ПУТЬ: /artifacts/{appId}/public/data/logs
                 const logRef = collection(db, 'artifacts', appId, 'public', 'data', 'user_logs');
                 
                 await addDoc(logRef, {
