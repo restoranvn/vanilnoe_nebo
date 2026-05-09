@@ -12,357 +12,403 @@
             --accent: #4CAF50;
             --text-light: #FFFFFF;
             --error: #ff4444;
+            --modal-overlay: rgba(0, 0, 0, 0.6);
         }
 
-        body {
+        body, html {
             margin: 0;
-            font-family: 'Segoe UI', sans-serif;
+            padding: 0;
+            height: 100%;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--primary-bg);
             color: #333;
+            overflow: hidden; /* Предотвращаем скролл на странице входа */
+        }
+
+        /* Оболочка для центрирования */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
         }
 
         header {
-            padding: 8px 16px;
+            padding: 12px 20px;
             background-color: var(--header-bg);
             display: flex;
             align-items: center;
             justify-content: space-between;
             color: white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            z-index: 10;
+            flex-shrink: 0;
         }
 
-        .logo-box {
+        .logo-box { display: flex; align-items: center; }
+        .logo-img { height: 32px; width: auto; object-fit: contain; }
+
+        /* Центрирование формы входа */
+        #loginUI {
+            flex-grow: 1;
             display: flex;
-            align-items: center;
-        }
-
-        .logo-img {
-            height: 36px;
-            width: auto;
-            display: block;
-            object-fit: contain;
-        }
-
-        .decorative-bar {
-            height: 30px;
-            background-color: var(--header-bg);
-            display: flex;
-            flex-direction: row;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 0 16px; 
-            margin-top: 2px;
+            padding: 20px;
+            background: radial-gradient(circle at center, rgba(96, 69, 57, 0.05) 0%, transparent 70%);
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 320px;
+            text-align: center;
             position: relative;
-            gap: 10px;
-            color: white;
-            font-size: 11px;
+        }
+
+        .token-label {
+            font-size: 12px;
             font-weight: bold;
+            color: var(--header-bg);
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+            opacity: 0.7;
+        }
+
+        .input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .token-input {
+            background: white;
+            border: 2px solid var(--header-bg);
+            border-radius: 12px;
+            color: var(--header-bg);
+            font-size: 20px;
+            font-weight: bold;
+            width: 100%;
+            box-sizing: border-box;
+            outline: none;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            padding: 16px;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(96, 69, 57, 0.15);
         }
 
-        #loginBtn {
-            cursor: pointer;
-            text-decoration: underline;
-            transition: opacity 0.2s;
+        .token-input:focus {
+            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(96, 69, 57, 0.25);
         }
 
-        #loginBtn:hover {
-            opacity: 0.8;
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #ccc;
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: 0.3s;
+            border: 2px solid white;
         }
 
-        .modal-overlay {
+        .status-dot.active {
+            background-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        /* Основное приложение */
+        main {
             display: none;
+            padding: 20px;
+            max-width: 450px;
+            margin: 0 auto;
+            flex-grow: 1;
+            overflow-y: auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            margin-top: 20px;
+        }
+
+        .user-type {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #777;
+            margin-top: 8px;
+            font-weight: 600;
+        }
+
+        button {
+            background: var(--header-bg);
+            color: white;
+            border: none;
+            padding: 16px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 15px;
+            transition: transform 0.1s, opacity 0.2s;
+            font-size: 16px;
+        }
+
+        button:active { transform: scale(0.98); }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        /* Модальное окно */
+        .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 1000;
+            background: var(--modal-overlay);
+            backdrop-filter: blur(5px);
+            display: none;
             align-items: center;
             justify-content: center;
+            z-index: 1000;
             padding: 20px;
+            box-sizing: border-box;
         }
 
         .modal-content {
             background: white;
-            padding: 20px;
-            border-radius: 12px;
+            padding: 30px;
+            border-radius: 24px;
             width: 100%;
-            max-width: 280px;
+            max-width: 350px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
             text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .modal-title {
-            margin-top: 0;
-            font-size: 20px;
-            color: var(--header-bg);
-            margin-bottom: 15px;
+        @keyframes modalPop {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
 
-        .token-input {
-            width: 100%;
-            box-sizing: border-box;
-            background: #f5f5f5;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            padding: 10px;
-            font-size: 20px;
-            text-align: center;
-            font-weight: bold;
-            text-transform: uppercase;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-
-        .token-input:focus {
-            border-color: var(--header-bg);
-        }
-
-        main {
-            display: none;
-            padding: 20px;
-            max-width: 500px;
-            margin: 0 auto;
-        }
-
-        .card {
-            background: white;
-            padding: 25px;
-            border-radius: 16px;
-            text-align: center;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-        }
-
-        .user-info-text {
-            color: #fff;
-            font-size: 11px;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .role-tag {
-            background: rgba(255,255,255,0.2);
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
-
-        button.action-btn {
-            background: var(--header-bg);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            width: 100%;
-            margin-top: 10px;
-            transition: opacity 0.2s;
-        }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 8px;
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .modal-title { font-weight: bold; font-size: 20px; margin-bottom: 12px; color: var(--header-bg); }
+        .modal-text { font-size: 16px; color: #666; margin-bottom: 25px; line-height: 1.5; }
 
         #logConsole {
             margin-top: 20px;
             background: #1a1a1a;
             color: #00ff41;
             padding: 15px;
-            font-family: 'Consolas', monospace;
-            font-size: 12px;
-            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 11px;
+            border-radius: 12px;
             text-align: left;
-            max-height: 200px;
+            max-height: 120px;
             overflow-y: auto;
             border: 1px solid #333;
         }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 12px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="logo-box">
-            <img src="ico/catering-b.ico" alt="Logo" class="logo-img" onerror="this.alt='[VN]'">
-        </div>
-        <div style="text-align: right;">
-            <div style="font-size: 14px; font-weight: 900;">АДМИНСКИЕ МУТКИ</div>
-            <div style="font-size: 11px; opacity: 0.8;">ВАНИЛЬНОГО НЕБА</div>
-        </div>
-    </header>
+    <div class="app-container">
+        <header>
+            <div class="logo-box">
+                <img src="ico/catering-b.ico" alt="Logo" class="logo-img" onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='block'">
+                <div id="logoFallback" style="font-weight: 900; font-size: 20px; display: none; color: white;">VN</div>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 14px; font-weight: 900; letter-spacing: 0.5px;">АДМИНСКИЕ МУТКИ</div>
+                <div style="font-size: 10px; opacity: 0.8; text-transform: uppercase;">Система контроля</div>
+            </div>
+        </header>
 
-    <div class="decorative-bar" id="authBar">
-        <div id="loginBtn" onclick="openLoginModal()">ВОЙТИ</div>
-        <div id="userInfoDisplay" class="user-info-text" style="display: none;">
-            <span id="barUserName"></span>
-            <span id="barUserRole" class="role-tag"></span>
+        <!-- Центрированный вход -->
+        <div id="loginUI">
+            <div class="login-card">
+                <div class="token-label">ТРЕБУЕТСЯ АВТОРИЗАЦИЯ</div>
+                <div class="input-wrapper">
+                    <input type="password" id="tokenInput" class="token-input" placeholder="КОД ДОСТУПА" autocomplete="off">
+                    <div id="statusDot" class="status-dot"></div>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <div class="modal-overlay" id="loginModal" onclick="closeLoginModal(event)">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <h3 class="modal-title">Код доступа</h3>
-            <input type="password" id="tokenInput" class="token-input" placeholder="••••" autocomplete="off">
-        </div>
-    </div>
+        <!-- Основной контент -->
+        <main id="mainApp">
+            <div class="card">
+                <h2 id="userNameDisplay" style="margin: 0; font-size: 24px; color: var(--header-bg);">Привет!</h2>
+                <div id="userTypeDisplay" class="user-type">Загрузка...</div>
+                
+                <div style="border-top: 1px solid #f0f0f0; padding-top: 25px; margin-top: 25px;">
+                    <p style="font-size: 14px; color: #888; margin-bottom: 25px;">Нажмите для подтверждения присутствия на смене</p>
+                    <button id="btnWrite">
+                        <span id="btnText">Записать вход</span>
+                    </button>
+                </div>
 
-    <main id="mainApp">
-        <div class="card">
-            <h2 id="welcomeText" style="margin-bottom: 25px;">Система готова</h2>
-            
-            <div style="border-top: 1px solid #eee; padding-top: 20px;">
-                <p style="font-size: 14px; color: #555;">Зафиксировать ваше присутствие в системе:</p>
-                <button id="btnWrite" class="action-btn" onclick="logActivity()">
-                    <span id="btnText">Записать вход в систему</span>
+                <button onclick="logout()" style="background: transparent; color: #bbb; margin-top: 25px; font-size: 13px; font-weight: 500; border: 1px solid #eee; padding: 10px;">
+                    Выйти из системы
                 </button>
             </div>
 
-            <button onclick="logout()" style="background: #ececec; color: #666; margin-top: 20px; font-size: 13px; border:none; padding:8px; border-radius:6px; cursor:pointer; width:100%;">Выйти из профиля</button>
-        </div>
+            <div id="logConsole" style="display: none;"></div>
+        </main>
+    </div>
 
-        <div id="logConsole" style="display: none;"></div>
-    </main>
+    <!-- Модальное окно -->
+    <div id="modalOverlay" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-title" id="modalTitle">Система</div>
+            <div class="modal-text" id="modalText">...</div>
+            <button onclick="closeModal()" style="margin-top: 0;">Понятно</button>
+        </div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
         import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBEn2ZheCPUMgTKxuQmHw0MPehIu1B85Do",
-            authDomain: "vanilnoeneboapp.firebaseapp.com",
-            projectId: "vanilnoeneboapp",
-            storageBucket: "vanilnoeneboapp.firebasestorage.app",
-            messagingSenderId: "648309181653",
-            appId: "1:648309181653:web:64f690d6acb67ea8fea65c"
-        };
-
-        const actualConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : firebaseConfig;
-        const app = initializeApp(actualConfig);
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'vn-mutki';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'vn-admin-mutki';
 
         const USER_DB = {
-            "ILYA-ukSKpqdEwAQ8fRQ": { name: "Илья", type: "Кейтеринг" },
-            "MIHAIL-K2izu0N8uPiow": { name: "Михаил", type: "Кейтеринг" },
-            "ALEXANDER-fgPIAE68dw": { name: "Александр", type: "Кейтеринг" },
-            "IRINA-arSbZ8VVWGqoWA": { name: "Ирина", type: "Кейтеринг" },
-            "SVETLANA-RiQmLTG9Rek": { name: "Светлана", type: "Кейтеринг" },
-            "MARIYA-yuH0qvTT4mKzn": { name: "Мария", type: "Банкет" },
-            "MARGARITA-wdR4Wely0L": { name: "Маргарита", type: "Банкет" },
-            "EKATERINA-3xkFrZCMAC": { name: "Екатерина", type: "Банкет" },
-            "ROMAN-vZd2krVSe4h4Rz": { name: "Роман", type: "Банкет" },
-            "LUBOV-8jNxajISB38CsM": { name: "Любовь", type: "Банкет" },
-            "BANKET-CzeZR9BBCdIe0": { name: "Комп в админке", type: "Банкет" },
-            "9PpfloMqdqsGMRwReN46": { name: "Суперюзер", type: "SU" }
+            "CATER-ILYA": { name: "Илья", type: "Кейтеринг" },
+            "CATER-MIXA": { name: "Михаил", type: "Кейтеринг" },
+            "CATER-IRA":  { name: "Ирина", type: "Кейтеринг" },
+            "BANK-MASHA": { name: "Мария", type: "Банкет" },
+            "BANK-RITA":  { name: "Маргарита", type: "Банкет" },
+            "BANK-KATYA": { name: "Екатерина", type: "Банкет" }
         };
+
+        let currentUser = null;
 
         const input = document.getElementById('tokenInput');
-        const modal = document.getElementById('loginModal');
+        const dot = document.getElementById('statusDot');
+        const modal = document.getElementById('modalOverlay');
+        const btnWrite = document.getElementById('btnWrite');
 
-        async function initAuth() {
-            try { await signInAnonymously(auth); } catch (e) {}
-        }
-        initAuth();
-
-        window.openLoginModal = () => {
+        window.showModal = (title, text) => {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalText').innerText = text;
             modal.style.display = 'flex';
-            input.focus();
         };
 
-        window.closeLoginModal = (e) => {
-            if (e.target === modal) modal.style.display = 'none';
+        window.closeModal = () => {
+            modal.style.display = 'none';
         };
 
-        input.addEventListener('input', () => {
-            const val = input.value.trim().toUpperCase();
-            if (USER_DB[val]) {
-                login(USER_DB[val]);
-                input.value = ""; 
-                modal.style.display = 'none'; 
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                signInAnonymously(auth).catch(err => console.error("Auth error", err));
             }
         });
 
-        function login(user) {
-            localStorage.setItem('mutki_user', JSON.stringify(user));
-            
-            document.getElementById('loginBtn').style.display = 'none';
-            const display = document.getElementById('userInfoDisplay');
-            display.style.display = 'flex';
-            document.getElementById('barUserName').innerText = user.name.toUpperCase();
-            document.getElementById('barUserRole').innerText = user.type;
+        input.addEventListener('input', () => {
+            const val = input.value.trim().toUpperCase();
+            if (val.length > 0) dot.classList.add('active');
+            else dot.classList.remove('active');
 
+            if (USER_DB[val]) {
+                const user = USER_DB[val];
+                localStorage.setItem('mutki_user', JSON.stringify(user));
+                renderApp(user);
+            }
+        });
+
+        function renderApp(user) {
+            currentUser = user;
+            document.getElementById('loginUI').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
-            document.getElementById('welcomeText').innerText = `Привет, ${user.name}!`;
+            document.body.style.overflow = 'auto'; // Разрешаем скролл внутри приложения
+            document.getElementById('userNameDisplay').innerText = `Привет, ${user.name}!`;
+            document.getElementById('userTypeDisplay').innerText = user.type;
         }
 
-        window.logout = function() {
+        window.logout = () => {
             localStorage.removeItem('mutki_user');
             location.reload();
-        }
+        };
 
-        const saved = localStorage.getItem('mutki_user');
-        if (saved) login(JSON.parse(saved));
-
-        window.logActivity = async function() {
-            const user = JSON.parse(localStorage.getItem('mutki_user'));
-            const btn = document.getElementById('btnWrite');
-            const btnText = document.getElementById('btnText');
-            
-            if (!auth.currentUser) {
-                showLog("Ошибка: Нет соединения.");
+        btnWrite.onclick = async () => {
+            if (!currentUser || !auth.currentUser) {
+                showModal("Ошибка", "Авторизация не завершена. Попробуйте снова через секунду.");
                 return;
             }
 
-            btn.disabled = true;
-            btnText.innerHTML = '<span class="loading-spinner"></span>Записываю...';
+            const btnText = document.getElementById('btnText');
+            btnWrite.disabled = true;
+            btnText.innerHTML = '<span class="loading-spinner"></span>Обработка...';
 
             try {
-                const logRef = collection(db, 'artifacts', appId, 'public', 'data', 'user_logs');
+                const logRef = collection(db, 'artifacts', appId, 'public', 'data', 'activity_logs');
+                
                 await addDoc(logRef, {
-                    userName: user.name,
-                    userType: user.type,
+                    uid: auth.currentUser.uid,
+                    userName: currentUser.name,
+                    userType: currentUser.type,
                     timestamp: serverTimestamp(),
-                    device: navigator.userAgent.slice(0, 50)
+                    action: "Login_Confirmed"
                 });
 
-                showLog("Успешно записано: " + user.name);
-                btnText.innerText = "Записано ✓";
-                btn.style.backgroundColor = "#4CAF50";
+                showLog(`Запись создана: ${currentUser.name}`);
+                showModal("Успешно", "Данные сохранены в системе. Хорошей смены!");
                 
+                btnText.innerText = "Готово ✓";
+                btnWrite.style.backgroundColor = "#4CAF50";
+
                 setTimeout(() => {
                     btnText.innerText = "Записать еще раз";
-                    btn.disabled = false;
-                    btn.style.backgroundColor = "";
+                    btnWrite.disabled = false;
+                    btnWrite.style.backgroundColor = "";
                 }, 3000);
 
             } catch (e) {
-                showLog("Ошибка: " + e.message);
-                btn.disabled = false;
-                btnText.innerText = "Попробовать снова";
+                showModal("Ошибка", "Сбой базы данных: " + e.message);
+                btnWrite.disabled = false;
+                btnText.innerText = "Повторить попытку";
             }
-        }
+        };
 
         function showLog(msg) {
             const consoleEl = document.getElementById('logConsole');
             consoleEl.style.display = 'block';
             const time = new Date().toLocaleTimeString();
-            consoleEl.innerHTML += `<div><span style="color: #888">[${time}]</span> ${msg}</div>`;
+            consoleEl.innerHTML += `<div><span style="color: #666">[${time}]</span> ${msg}</div>`;
             consoleEl.scrollTop = consoleEl.scrollHeight;
         }
+
+        const saved = localStorage.getItem('mutki_user');
+        if (saved) renderApp(JSON.parse(saved));
+
     </script>
 </body>
 </html>
