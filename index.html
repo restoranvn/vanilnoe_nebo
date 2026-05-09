@@ -44,25 +44,24 @@
         }
 
         .decorative-bar {
-            height: 35px; /* Высота области авторизации увеличена до 35px */
+            height: 35px;
             background-color: var(--header-bg);
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 0 16px; 
-            margin-top: 2px; /* Расстояние между хедером и областью авторизации */
+            margin-top: 2px;
             border-top: 1px solid rgba(255,255,255,0.1);
         }
 
         .token-input {
-            background: rgba(255,255,255,0.1);
-            border: 2px solid rgba(255,255,255,0.4);
-            border-radius: 4px;
+            background: transparent; /* Полностью прозрачный фон */
+            border: none; /* Убрано обрамление */
             color: white;
-            font-size: 14px; /* Размер шрифта сохранен */
+            font-size: 14px;
             font-weight: bold;
             width: 60%; 
-            height: 25px; /* Высота самого поля ввода сохранена 25px */
+            height: 25px;
             outline: none;
             text-transform: uppercase;
             padding: 0 8px;
@@ -76,8 +75,9 @@
         }
 
         .token-input:focus {
-            background: rgba(255,255,255,0.2);
-            border-color: var(--accent);
+            /* Фокус без рамки, можно добавить легкое свечение текста если нужно, 
+               но по запросу просто убираем обрамление */
+            background: rgba(255,255,255,0.05); 
         }
 
         main {
@@ -155,7 +155,7 @@
     <header>
         <div class="logo-container">
             <img src="ico/catering-b.ico" alt="Logo" class="logo-img" onerror="this.style.display='none'">
-            <div style="font-weight: bold; letter-spacing: 1px;">[VN]</div>
+            <!-- Надпись [VN] удалена -->
         </div>
         <div style="text-align: right;">
             <div style="font-size: 14px; font-weight: 900;">АДМИНСКИЕ МУТКИ</div>
