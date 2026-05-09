@@ -9,6 +9,7 @@
         :root {
             --primary-bg: #FFEED2;
             --header-bg: #604539;
+            --auth-area-bg: #604539; /* Единый цвет для области авторизации */
             --accent: #4CAF50;
             --text-light: #FFFFFF;
             --error: #ff4444;
@@ -46,17 +47,17 @@
             object-fit: contain;
         }
 
-        /* Информационная панель / Панель ввода */
+        /* Область авторизации / Статус-бар */
         .status-bar {
             height: 48px;
-            background-color: #533b31;
+            background-color: var(--auth-area-bg);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             position: relative;
-            transition: all 0.3s ease;
-            box-shadow: inset 0 -2px 5px rgba(0,0,0,0.1);
+            box-shadow: inset 0 -2px 10px rgba(0,0,0,0.15);
+            border-top: 1px solid rgba(255,255,255,0.05);
         }
 
         .token-input {
@@ -70,36 +71,43 @@
             outline: none;
             text-transform: uppercase;
             text-align: center;
+            transition: all 0.3s ease;
         }
 
         .token-input::placeholder {
-            color: rgba(255,255,255,0.6);
+            color: rgba(255,255,255,0.5);
         }
 
         .user-info-badge {
             font-size: 16px;
             font-weight: 600;
             display: flex;
-            gap: 8px;
+            gap: 10px;
             align-items: center;
             justify-content: center;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .user-info-badge .type-tag {
-            background: rgba(255,255,255,0.2);
-            padding: 2px 8px;
+            background: rgba(255,255,255,0.15);
+            padding: 3px 8px;
             border-radius: 4px;
             font-size: 10px;
             text-transform: uppercase;
-            vertical-align: middle;
+            letter-spacing: 0.5px;
         }
 
-        /* Мигающий индикатор записи */
+        /* Индикаторы */
         .record-indicator {
             position: absolute;
             right: 16px;
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             background-color: #4CAF50;
             border-radius: 50%;
             display: none;
@@ -115,18 +123,17 @@
             display: block;
             animation: none;
             opacity: 0.8;
-            box-shadow: none;
         }
 
         .record-error {
             display: block;
             background-color: var(--error);
-            animation: none;
+            box-shadow: 0 0 8px var(--error);
         }
 
         @keyframes pulse {
-            from { opacity: 1; transform: scale(1); }
-            to { opacity: 0.3; transform: scale(0.8); }
+            from { opacity: 1; transform: scale(1.1); }
+            to { opacity: 0.4; transform: scale(0.8); }
         }
 
         main {
@@ -144,17 +151,17 @@
 
         .card {
             background: white;
-            padding: 40px 20px;
-            border-radius: 24px;
+            padding: 40px 24px;
+            border-radius: 28px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+            box-shadow: 0 15px 35px rgba(96, 69, 57, 0.08);
         }
 
         .welcome-msg {
-            font-size: 20px;
+            font-size: 22px;
             color: #604539;
-            font-weight: 700;
-            margin-bottom: 10px;
+            font-weight: 800;
+            margin-bottom: 12px;
         }
 
         .status-indicator {
@@ -164,22 +171,26 @@
             color: var(--accent);
             font-weight: 600;
             font-size: 15px;
-            margin-top: 15px;
+            margin-top: 20px;
+            padding: 8px 16px;
+            background: #f0faf1;
+            border-radius: 20px;
         }
 
         .logout-link {
             display: inline-block;
-            margin-top: 40px;
+            margin-top: 45px;
             color: #b5a49d;
             font-size: 13px;
             text-decoration: none;
             border-bottom: 1px dashed #d1c5bf;
             cursor: pointer;
-            transition: color 0.2s;
+            transition: all 0.2s;
         }
 
         .logout-link:hover {
             color: var(--header-bg);
+            border-bottom-color: var(--header-bg);
         }
     </style>
 </head>
@@ -196,14 +207,15 @@
     </header>
 
     <div class="status-bar" id="statusBar">
+        <!-- По умолчанию инпут, при входе заменяется на данные юзера -->
         <input type="password" id="tokenInput" class="token-input" placeholder="ВВЕДИТЕ ТОКЕН ДОСТУПА">
         <div id="recordIndicator" class="record-indicator"></div>
     </div>
 
     <main id="mainApp">
         <div class="card">
-            <div class="welcome-msg">Добро пожаловать!</div>
-            <div style="font-size: 15px; color: #888;">Ваш вход успешно авторизован и зафиксирован в системе.</div>
+            <div class="welcome-msg">Доступ разрешен</div>
+            <div style="font-size: 15px; color: #7c6a61; line-height: 1.5;">Ваш вход успешно авторизован.<br>Активность зафиксирована в журнале событий.</div>
             
             <div class="status-indicator" id="syncStatus">
                 <span id="syncIcon">✓</span>
@@ -244,16 +256,19 @@
             "BANK-KATYA": { name: "Екатерина", type: "Банкет" },
             "BANK-ROMAN": { name: "Роман", type: "Банкет" },
             "BANK-LUBA": { name: "Любовь", type: "Банкет" },
-            "SU-ROOT": { name: "Суперюзер", type: "Админ" }
+            "SU-ROOT": { name: "Администратор", type: "ROOT" }
         }
 
         const input = document.getElementById('tokenInput');
         const statusBar = document.getElementById('statusBar');
         const mainApp = document.getElementById('mainApp');
-        const indicator = document.getElementById('recordIndicator');
 
         async function initAuth() {
-            try { await signInAnonymously(auth); } catch (e) { console.error(e); }
+            try { 
+                await signInAnonymously(auth); 
+            } catch (e) { 
+                console.error("Auth Error:", e); 
+            }
         }
         initAuth();
 
@@ -267,7 +282,7 @@
         function login(user) {
             localStorage.setItem('mutki_user', JSON.stringify(user));
             
-            // Очищаем и центрируем имя
+            // Область авторизации остается цвета #604539, меняем только контент
             statusBar.innerHTML = `
                 <div class="user-info-badge">
                     <span>${user.name}</span>
@@ -275,10 +290,8 @@
                 </div>
                 <div id="recordIndicator" class="record-indicator"></div>
             `;
-            statusBar.style.backgroundColor = '#4a352c';
             
             mainApp.style.display = 'block';
-
             autoLogActivity(user);
         }
 
@@ -299,10 +312,9 @@
                     userName: user.name,
                     userType: user.type,
                     timestamp: serverTimestamp(),
-                    event: "AUTO_LOGIN"
+                    event: "SESSION_START"
                 });
 
-                // Останавливаем мигание при успехе
                 if (currentIndicator) {
                     currentIndicator.className = 'record-indicator recorded';
                 }
@@ -311,13 +323,14 @@
                 syncText.innerText = "Активность записана";
 
             } catch (e) {
-                console.error(e);
+                console.error("Log Error:", e);
                 if (currentIndicator) {
                     currentIndicator.className = 'record-indicator record-error';
                 }
                 syncIcon.innerText = "✕";
-                syncText.innerText = "Ошибка синхронизации";
-                syncText.parentElement.style.color = "#ff4444";
+                syncText.innerText = "Сбой синхронизации";
+                syncStatus.style.background = "#fff5f5";
+                syncStatus.style.color = "#ff4444";
             }
         }
 
@@ -326,6 +339,7 @@
             location.reload();
         }
 
+        // Проверка сессии при загрузке
         const saved = localStorage.getItem('mutki_user');
         if (saved) {
             login(JSON.parse(saved));
