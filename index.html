@@ -31,25 +31,38 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+        }
+
         .decorative-bar {
-            height: 60px; 
+            height: 35px; /* Высота области авторизации увеличена до 35px */
             background-color: var(--header-bg);
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 0 16px; 
+            margin-top: 2px; /* Расстояние между хедером и областью авторизации */
             border-top: 1px solid rgba(255,255,255,0.1);
         }
 
         .token-input {
             background: rgba(255,255,255,0.1);
-            border: 2px solid rgba(255,255,255,0.4); /* Ширина рамки 2px */
+            border: 2px solid rgba(255,255,255,0.4);
             border-radius: 4px;
             color: white;
-            font-size: 14px;
+            font-size: 14px; /* Размер шрифта сохранен */
             font-weight: bold;
-            width: 60%; /* Уменьшена ширина на 20% от предыдущих 80% */
-            height: 25px; /* Высота 25px */
+            width: 60%; 
+            height: 25px; /* Высота самого поля ввода сохранена 25px */
             outline: none;
             text-transform: uppercase;
             padding: 0 8px;
@@ -58,7 +71,7 @@
         }
 
         .token-input::placeholder {
-            color: #FFFFFF; /* Белый непрозрачный цвет */
+            color: #FFFFFF;
             opacity: 1;
         }
 
@@ -140,7 +153,10 @@
 <body>
 
     <header>
-        <div style="font-weight: bold; letter-spacing: 1px;">[VN]</div>
+        <div class="logo-container">
+            <img src="ico/catering-b.ico" alt="Logo" class="logo-img" onerror="this.style.display='none'">
+            <div style="font-weight: bold; letter-spacing: 1px;">[VN]</div>
+        </div>
         <div style="text-align: right;">
             <div style="font-size: 14px; font-weight: 900;">АДМИНСКИЕ МУТКИ</div>
             <div style="font-size: 11px; opacity: 0.8;">ВАНИЛЬНОГО НЕБА</div>
@@ -148,7 +164,6 @@
     </header>
 
     <div class="decorative-bar" id="loginUI">
-        <!-- Текст АВТОРИЗАЦИЯ, высота 25px, ширина 60%, рамка 2px -->
         <input type="password" id="tokenInput" class="token-input" placeholder="АВТОРИЗАЦИЯ">
     </div>
 
