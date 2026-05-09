@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Админские Мутки</title>
+    <title>Админские Мутки — Диагностика</title>
     <meta name="theme-color" content="#604539">
     <style>
         :root {
@@ -12,24 +12,21 @@
             --accent: #4CAF50;
             --text-light: #FFFFFF;
             --error: #ff4444;
-            --modal-overlay: rgba(0, 0, 0, 0.6);
         }
 
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             background-color: var(--primary-bg);
             color: #333;
-            overflow: hidden; /* Предотвращаем скролл на странице входа */
         }
 
-        /* Оболочка для центрирования */
         .app-container {
             display: flex;
             flex-direction: column;
-            height: 100vh;
+            min-height: 100vh;
         }
 
         header {
@@ -39,15 +36,10 @@
             align-items: center;
             justify-content: space-between;
             color: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            z-index: 10;
-            flex-shrink: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
 
-        .logo-box { display: flex; align-items: center; }
-        .logo-img { height: 32px; width: auto; object-fit: contain; }
-
-        /* Центрирование формы входа */
+        /* Центрированный вход */
         #loginUI {
             flex-grow: 1;
             display: flex;
@@ -55,78 +47,43 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
-            background: radial-gradient(circle at center, rgba(96, 69, 57, 0.05) 0%, transparent 70%);
         }
 
         .login-card {
             width: 100%;
-            max-width: 320px;
+            max-width: 340px;
             text-align: center;
-            position: relative;
-        }
-
-        .token-label {
-            font-size: 12px;
-            font-weight: bold;
-            color: var(--header-bg);
-            margin-bottom: 15px;
-            letter-spacing: 2px;
-            opacity: 0.7;
-        }
-
-        .input-wrapper {
-            position: relative;
-            width: 100%;
+            background: white;
+            padding: 40px 20px;
+            border-radius: 24px;
+            box-shadow: 0 10px 25px rgba(96, 69, 57, 0.1);
         }
 
         .token-input {
-            background: white;
-            border: 2px solid var(--header-bg);
+            background: #f9f9f9;
+            border: 2px solid #ddd;
             border-radius: 12px;
             color: var(--header-bg);
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
             width: 100%;
             box-sizing: border-box;
             outline: none;
             text-transform: uppercase;
-            padding: 16px;
+            padding: 15px;
             text-align: center;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 15px rgba(96, 69, 57, 0.15);
+            transition: border-color 0.3s;
         }
 
         .token-input:focus {
-            transform: scale(1.02);
-            box-shadow: 0 6px 20px rgba(96, 69, 57, 0.25);
+            border-color: var(--header-bg);
         }
 
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background-color: #ccc;
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            transition: 0.3s;
-            border: 2px solid white;
-        }
-
-        .status-dot.active {
-            background-color: var(--accent);
-            box-shadow: 0 0 10px var(--accent);
-        }
-
-        /* Основное приложение */
         main {
             display: none;
             padding: 20px;
             max-width: 450px;
             margin: 0 auto;
-            flex-grow: 1;
-            overflow-y: auto;
             width: 100%;
             box-sizing: border-box;
         }
@@ -136,157 +93,84 @@
             padding: 30px;
             border-radius: 24px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            margin-top: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
         }
 
-        .user-type {
+        .user-badge {
             display: inline-block;
-            background: #f0f0f0;
-            padding: 6px 16px;
+            background: #60453915;
+            padding: 6px 14px;
             border-radius: 20px;
-            font-size: 13px;
-            color: #777;
-            margin-top: 8px;
-            font-weight: 600;
+            font-size: 12px;
+            color: var(--header-bg);
+            font-weight: bold;
+            margin-top: 10px;
         }
 
         button {
             background: var(--header-bg);
             color: white;
             border: none;
-            padding: 16px 24px;
+            padding: 16px;
             border-radius: 12px;
             cursor: pointer;
             font-weight: bold;
             width: 100%;
-            margin-top: 15px;
-            transition: transform 0.1s, opacity 0.2s;
+            margin-top: 20px;
             font-size: 16px;
         }
 
-        button:active { transform: scale(0.98); }
-        button:disabled { opacity: 0.6; cursor: not-allowed; }
+        button:disabled { opacity: 0.5; }
 
-        /* Модальное окно */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--modal-overlay);
-            backdrop-filter: blur(5px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 24px;
-            width: 100%;
-            max-width: 350px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
-            text-align: center;
-            animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        @keyframes modalPop {
-            from { transform: scale(0.8); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .modal-title { font-weight: bold; font-size: 20px; margin-bottom: 12px; color: var(--header-bg); }
-        .modal-text { font-size: 16px; color: #666; margin-bottom: 25px; line-height: 1.5; }
-
-        #logConsole {
+        /* Логи для отладки */
+        #debugLog {
             margin-top: 20px;
-            background: #1a1a1a;
-            color: #00ff41;
+            background: #222;
+            color: #0f0;
             padding: 15px;
-            font-family: 'Consolas', 'Monaco', monospace;
+            font-family: monospace;
             font-size: 11px;
-            border-radius: 12px;
-            text-align: left;
-            max-height: 120px;
+            border-radius: 10px;
+            max-height: 200px;
             overflow-y: auto;
-            border: 1px solid #333;
+            text-align: left;
+            white-space: pre-wrap;
+            border: 1px solid #444;
         }
 
-        .loading-spinner {
-            display: inline-block;
-            width: 18px;
-            height: 18px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 0.8s linear infinite;
-            vertical-align: middle;
-            margin-right: 12px;
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .log-error { color: #ff5555; }
+        .log-success { color: #55ff55; }
     </style>
 </head>
 <body>
 
     <div class="app-container">
         <header>
-            <div class="logo-box">
-                <img src="ico/catering-b.ico" alt="Logo" class="logo-img" onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='block'">
-                <div id="logoFallback" style="font-weight: 900; font-size: 20px; display: none; color: white;">VN</div>
-            </div>
-            <div style="text-align: right;">
-                <div style="font-size: 14px; font-weight: 900; letter-spacing: 0.5px;">АДМИНСКИЕ МУТКИ</div>
-                <div style="font-size: 10px; opacity: 0.8; text-transform: uppercase;">Система контроля</div>
-            </div>
+            <div style="font-weight: 900;">VN ADMIN</div>
+            <div style="font-size: 10px; text-align: right; opacity: 0.8;">КОНТРОЛЬ ДОСТУПА</div>
         </header>
 
-        <!-- Центрированный вход -->
         <div id="loginUI">
             <div class="login-card">
-                <div class="token-label">ТРЕБУЕТСЯ АВТОРИЗАЦИЯ</div>
-                <div class="input-wrapper">
-                    <input type="password" id="tokenInput" class="token-input" placeholder="КОД ДОСТУПА" autocomplete="off">
-                    <div id="statusDot" class="status-dot"></div>
-                </div>
+                <div style="margin-bottom: 20px; font-size: 14px; color: #888;">Введите ваш персональный код:</div>
+                <input type="text" id="tokenInput" class="token-input" placeholder="XXXX-XXXX" spellcheck="false">
+                <div id="authStatus" style="font-size: 10px; margin-top: 10px; color: #999;">Проверка связи с Firebase...</div>
             </div>
         </div>
 
-        <!-- Основной контент -->
         <main id="mainApp">
             <div class="card">
-                <h2 id="userNameDisplay" style="margin: 0; font-size: 24px; color: var(--header-bg);">Привет!</h2>
-                <div id="userTypeDisplay" class="user-type">Загрузка...</div>
+                <h2 id="userName" style="margin: 0;">Привет!</h2>
+                <div id="userType" class="user-badge">Тип</div>
                 
-                <div style="border-top: 1px solid #f0f0f0; padding-top: 25px; margin-top: 25px;">
-                    <p style="font-size: 14px; color: #888; margin-bottom: 25px;">Нажмите для подтверждения присутствия на смене</p>
-                    <button id="btnWrite">
-                        <span id="btnText">Записать вход</span>
-                    </button>
+                <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+                    <button id="submitBtn">Зафиксировать активность</button>
+                    <button onclick="logout()" style="background: none; color: #999; font-size: 12px; border: 1px solid #ddd; margin-top: 10px;">Сменить пользователя</button>
                 </div>
-
-                <button onclick="logout()" style="background: transparent; color: #bbb; margin-top: 25px; font-size: 13px; font-weight: 500; border: 1px solid #eee; padding: 10px;">
-                    Выйти из системы
-                </button>
             </div>
 
-            <div id="logConsole" style="display: none;"></div>
+            <div id="debugLog"></div>
         </main>
-    </div>
-
-    <!-- Модальное окно -->
-    <div id="modalOverlay" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-title" id="modalTitle">Система</div>
-            <div class="modal-text" id="modalText">...</div>
-            <button onclick="closeModal()" style="margin-top: 0;">Понятно</button>
-        </div>
     </div>
 
     <script type="module">
@@ -309,48 +193,49 @@
             "BANK-KATYA": { name: "Екатерина", type: "Банкет" }
         };
 
-        let currentUser = null;
+        const logEl = document.getElementById('debugLog');
+        const authStatus = document.getElementById('authStatus');
 
-        const input = document.getElementById('tokenInput');
-        const dot = document.getElementById('statusDot');
-        const modal = document.getElementById('modalOverlay');
-        const btnWrite = document.getElementById('btnWrite');
+        function addLog(msg, type = '') {
+            const div = document.createElement('div');
+            if (type) div.className = `log-${type}`;
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            logEl.appendChild(div);
+            logEl.scrollTop = logEl.scrollHeight;
+        }
 
-        window.showModal = (title, text) => {
-            document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalText').innerText = text;
-            modal.style.display = 'flex';
-        };
-
-        window.closeModal = () => {
-            modal.style.display = 'none';
-        };
-
+        // 1. Инициализация Auth
         onAuthStateChanged(auth, (user) => {
-            if (!user) {
-                signInAnonymously(auth).catch(err => console.error("Auth error", err));
+            if (user) {
+                addLog(`Firebase: Авторизован (ID: ${user.uid.substring(0,8)}...)`, 'success');
+                authStatus.textContent = "Связь установлена ✅";
+                authStatus.style.color = "green";
+            } else {
+                addLog("Firebase: Попытка анонимного входа...");
+                signInAnonymously(auth).catch(err => {
+                    addLog(`ОШИБКА AUTH: ${err.code} - ${err.message}`, 'error');
+                    authStatus.textContent = "Ошибка связи ❌";
+                    authStatus.style.color = "red";
+                });
             }
         });
 
+        // 2. Логика входа по коду
+        const input = document.getElementById('tokenInput');
         input.addEventListener('input', () => {
             const val = input.value.trim().toUpperCase();
-            if (val.length > 0) dot.classList.add('active');
-            else dot.classList.remove('active');
-
             if (USER_DB[val]) {
-                const user = USER_DB[val];
-                localStorage.setItem('mutki_user', JSON.stringify(user));
-                renderApp(user);
+                localStorage.setItem('mutki_user', JSON.stringify(USER_DB[val]));
+                startApp(USER_DB[val]);
             }
         });
 
-        function renderApp(user) {
-            currentUser = user;
+        function startApp(user) {
             document.getElementById('loginUI').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
-            document.body.style.overflow = 'auto'; // Разрешаем скролл внутри приложения
-            document.getElementById('userNameDisplay').innerText = `Привет, ${user.name}!`;
-            document.getElementById('userTypeDisplay').innerText = user.type;
+            document.getElementById('userName').textContent = `Привет, ${user.name}!`;
+            document.getElementById('userType').textContent = user.type;
+            addLog(`Пользователь: ${user.name} (${user.type})`, 'success');
         }
 
         window.logout = () => {
@@ -358,56 +243,48 @@
             location.reload();
         };
 
-        btnWrite.onclick = async () => {
-            if (!currentUser || !auth.currentUser) {
-                showModal("Ошибка", "Авторизация не завершена. Попробуйте снова через секунду.");
+        // 3. Запись в БД
+        document.getElementById('submitBtn').onclick = async function() {
+            if (!auth.currentUser) {
+                addLog("Ошибка: Нет активной сессии Firebase!", "error");
                 return;
             }
 
-            const btnText = document.getElementById('btnText');
-            btnWrite.disabled = true;
-            btnText.innerHTML = '<span class="loading-spinner"></span>Обработка...';
-
+            this.disabled = true;
+            this.textContent = "Отправка...";
+            
             try {
-                const logRef = collection(db, 'artifacts', appId, 'public', 'data', 'activity_logs');
-                
-                await addDoc(logRef, {
-                    uid: auth.currentUser.uid,
-                    userName: currentUser.name,
-                    userType: currentUser.type,
+                // ПУТЬ СОГЛАСНО ПРАВИЛАМ ПЛАТФОРМЫ
+                const path = `artifacts/${appId}/public/data/activity_logs`;
+                addLog(`Попытка записи в: ${path}...`);
+
+                await addDoc(collection(db, path), {
+                    user_name: JSON.parse(localStorage.getItem('mutki_user')).name,
                     timestamp: serverTimestamp(),
-                    action: "Login_Confirmed"
+                    device_uid: auth.currentUser.uid
                 });
 
-                showLog(`Запись создана: ${currentUser.name}`);
-                showModal("Успешно", "Данные сохранены в системе. Хорошей смены!");
+                addLog("УСПЕХ: Данные сохранены в Firestore", "success");
+                this.textContent = "Записано ✅";
+                this.style.backgroundColor = "#4CAF50";
                 
-                btnText.innerText = "Готово ✓";
-                btnWrite.style.backgroundColor = "#4CAF50";
-
                 setTimeout(() => {
-                    btnText.innerText = "Записать еще раз";
-                    btnWrite.disabled = false;
-                    btnWrite.style.backgroundColor = "";
+                    this.disabled = false;
+                    this.textContent = "Зафиксировать активность";
+                    this.style.backgroundColor = "";
                 }, 3000);
 
-            } catch (e) {
-                showModal("Ошибка", "Сбой базы данных: " + e.message);
-                btnWrite.disabled = false;
-                btnText.innerText = "Повторить попытку";
+            } catch (err) {
+                addLog(`ОШИБКА FIRESTORE: ${err.code}`, 'error');
+                addLog(`ДЕТАЛИ: ${err.message}`, 'error');
+                this.disabled = false;
+                this.textContent = "Ошибка (см. лог)";
             }
         };
 
-        function showLog(msg) {
-            const consoleEl = document.getElementById('logConsole');
-            consoleEl.style.display = 'block';
-            const time = new Date().toLocaleTimeString();
-            consoleEl.innerHTML += `<div><span style="color: #666">[${time}]</span> ${msg}</div>`;
-            consoleEl.scrollTop = consoleEl.scrollHeight;
-        }
-
+        // Авто-вход
         const saved = localStorage.getItem('mutki_user');
-        if (saved) renderApp(JSON.parse(saved));
+        if (saved) startApp(JSON.parse(saved));
 
     </script>
 </body>
