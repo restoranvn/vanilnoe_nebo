@@ -10,8 +10,8 @@
             --primary-bg: #FFEED2;
             --header-bg: #604539;
             --accent: #4CAF50;
+            --warning: #FFC107;
             --text-light: #FFFFFF;
-            --error: #ff4444;
         }
 
         body {
@@ -19,6 +19,7 @@
             font-family: 'Segoe UI', sans-serif;
             background-color: var(--primary-bg);
             color: #333;
+            overflow-x: hidden;
         }
 
         header {
@@ -44,40 +45,61 @@
         }
 
         .decorative-bar {
-            height: 35px;
+            height: 40px;
             background-color: var(--header-bg);
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 0 16px; 
             margin-top: 2px;
             border-top: 1px solid rgba(255,255,255,0.1);
+            position: relative;
         }
 
         .token-input {
-            background: transparent; /* Полностью прозрачный фон */
-            border: none; /* Убрано обрамление */
+            background: transparent;
+            border: none;
             color: white;
             font-size: 14px;
             font-weight: bold;
-            width: 60%; 
-            height: 25px;
+            width: 80%; 
+            height: 100%;
             outline: none;
             text-transform: uppercase;
-            padding: 0 8px;
             text-align: center;
-            transition: all 0.3s;
         }
 
         .token-input::placeholder {
             color: #FFFFFF;
-            opacity: 1;
+            opacity: 0.7;
         }
 
-        .token-input:focus {
-            /* Фокус без рамки, можно добавить легкое свечение текста если нужно, 
-               но по запросу просто убираем обрамление */
-            background: rgba(255,255,255,0.05); 
+        /* Индикатор статуса */
+        .status-indicator {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid white;
+            background-color: transparent;
+            transition: background-color 0.4s ease;
+            display: none; /* По умолчанию скрыт */
+            margin-left: 10px;
+        }
+
+        .status-indicator.loading {
+            display: block;
+            background-color: var(--warning);
+            animation: pulse 1.5s infinite;
+        }
+
+        .status-indicator.success {
+            display: block;
+            background-color: var(--accent);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
         }
 
         main {
@@ -85,69 +107,53 @@
             padding: 20px;
             max-width: 500px;
             margin: 0 auto;
+            animation: fadeIn 0.5s ease;
         }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .card {
             background: white;
-            padding: 25px;
-            border-radius: 16px;
+            padding: 30px 20px;
+            border-radius: 20px;
             text-align: center;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
         }
 
         .user-type {
             display: inline-block;
-            background: #eee;
-            padding: 4px 12px;
+            background: #f0f0f0;
+            padding: 6px 16px;
             border-radius: 20px;
             font-size: 13px;
             color: #666;
-            margin-bottom: 20px;
+            margin-top: 8px;
+            font-weight: 600;
         }
 
-        button {
-            background: var(--header-bg);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
+        .welcome-msg {
+            font-size: 22px;
             font-weight: bold;
+            margin: 0;
+            color: #2c1e18;
+        }
+
+        .logout-btn {
+            background: transparent;
+            color: #999;
+            border: 1px solid #ddd;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
             width: 100%;
-            margin-top: 10px;
-            transition: opacity 0.2s;
+            margin-top: 40px;
+            font-size: 14px;
+            transition: all 0.2s;
         }
 
-        button:active {
-            opacity: 0.8;
+        .logout-btn:active {
+            background: #f5f5f5;
         }
-
-        #logConsole {
-            margin-top: 20px;
-            background: #1a1a1a;
-            color: #00ff41;
-            padding: 15px;
-            font-family: 'Consolas', monospace;
-            font-size: 12px;
-            border-radius: 8px;
-            text-align: left;
-            max-height: 200px;
-            overflow-y: auto;
-            border: 1px solid #333;
-        }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 8px;
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -155,34 +161,30 @@
     <header>
         <div class="logo-container">
             <img src="ico/catering-b.ico" alt="Logo" class="logo-img" onerror="this.style.display='none'">
-            <!-- Надпись [VN] удалена -->
         </div>
         <div style="text-align: right;">
-            <div style="font-size: 14px; font-weight: 900;">АДМИНСКИЕ МУТКИ</div>
+            <div style="font-size: 14px; font-weight: 900; letter-spacing: 0.5px;">АДМИНСКИЕ МУТКИ</div>
             <div style="font-size: 11px; opacity: 0.8;">ВАНИЛЬНОГО НЕБА</div>
         </div>
     </header>
 
-    <div class="decorative-bar" id="loginUI">
+    <div class="decorative-bar">
         <input type="password" id="tokenInput" class="token-input" placeholder="АВТОРИЗАЦИЯ">
+        <div id="statusIndicator" class="status-indicator"></div>
     </div>
 
     <main id="mainApp">
         <div class="card">
-            <h2 id="userNameDisplay" style="margin-bottom: 5px;">Привет!</h2>
-            <div id="userTypeDisplay" class="user-type">Тип</div>
+            <p class="welcome-msg" id="userNameDisplay">Привет!</p>
+            <div id="userTypeDisplay" class="user-type">Пользователь</div>
             
-            <div style="border-top: 1px solid #eee; padding-top: 20px; margin-top: 10px;">
-                <p style="font-size: 14px; color: #555;">Система готова к записи активности.</p>
-                <button id="btnWrite" onclick="logActivity()">
-                    <span id="btnText">Записать вход в систему</span>
-                </button>
+            <div style="margin-top: 30px; color: #888; font-size: 14px;">
+                <p>Вход зафиксирован автоматически.</p>
+                <div style="color: var(--accent); font-weight: bold;">Сессия активна ✓</div>
             </div>
 
-            <button onclick="logout()" style="background: #ececec; color: #666; margin-top: 20px; font-size: 13px;">Выйти</button>
+            <button class="logout-btn" onclick="logout()">Выйти из профиля</button>
         </div>
-
-        <div id="logConsole" style="display: none;"></div>
     </main>
 
     <script type="module">
@@ -191,7 +193,7 @@
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyBEn2ZheCPUMgTKxuQmHw0MPehIu1B85Do",
+            apiKey: "", // Оставляем пустым для среды исполнения
             authDomain: "vanilnoeneboapp.firebaseapp.com",
             projectId: "vanilnoeneboapp",
             storageBucket: "vanilnoeneboapp.firebasestorage.app",
@@ -199,6 +201,7 @@
             appId: "1:648309181653:web:64f690d6acb67ea8fea65c"
         };
 
+        // Инициализация Firebase
         const actualConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : firebaseConfig;
         const app = initializeApp(actualConfig);
         const db = getFirestore(app);
@@ -215,34 +218,64 @@
             "BANK-RITA": { name: "Маргарита", type: "Банкет" },
             "BANK-KATYA": { name: "Екатерина", type: "Банкет" },
             "BANK-ROMAN": { name: "Роман", type: "Банкет" },
-            "BANK-LUBA": { name: "Любовь", type: "Банкет" },
-            "BANK-LUBA": { name: "Суперюзер", type: "SU" }
-        }
+            "BANK-LUBOV": { name: "Любовь", type: "Банкет" },
+            "SU-ADMIN": { name: "Администратор", type: "SU" }
+        };
 
         const input = document.getElementById('tokenInput');
+        const indicator = document.getElementById('statusIndicator');
 
-        async function initApp() {
+        async function initAuth() {
             try {
                 await signInAnonymously(auth);
-            } catch (e) {
-                console.error("Auth error", e);
-            }
+            } catch (e) { console.error("Auth error", e); }
         }
-        initApp();
+        initAuth();
 
         input.addEventListener('input', () => {
             const val = input.value.trim().toUpperCase();
             if (USER_DB[val]) {
-                login(USER_DB[val]);
+                handleSuccessfulLogin(USER_DB[val]);
             }
         });
 
-        function login(user) {
+        async function handleSuccessfulLogin(user) {
+            // Сохраняем в память
             localStorage.setItem('mutki_user', JSON.stringify(user));
-            document.getElementById('loginUI').style.display = 'none';
+            
+            // UI переход
+            input.style.display = 'none';
+            indicator.className = 'status-indicator loading';
+            
+            // Отображаем интерфейс
             document.getElementById('mainApp').style.display = 'block';
             document.getElementById('userNameDisplay').innerText = `Привет, ${user.name}!`;
             document.getElementById('userTypeDisplay').innerText = user.type;
+
+            // Автоматическая запись
+            await logActivityToCloud(user);
+        }
+
+        async function logActivityToCloud(user) {
+            if (!auth.currentUser) return;
+
+            try {
+                const logRef = collection(db, 'artifacts', appId, 'public', 'data', 'user_logs');
+                await addDoc(logRef, {
+                    userName: user.name,
+                    userType: user.type,
+                    action: "AUTO_LOGIN",
+                    timestamp: serverTimestamp(),
+                    device: navigator.userAgent.slice(0, 80)
+                });
+
+                // Успех -> Зеленый
+                indicator.className = 'status-indicator success';
+            } catch (e) {
+                console.error("Cloud log error", e);
+                // В случае ошибки оставляем индикатор желтым или гасим через время
+                setTimeout(() => indicator.style.display = 'none', 3000);
+            }
         }
 
         window.logout = function() {
@@ -250,59 +283,15 @@
             location.reload();
         }
 
+        // Проверка сессии при загрузке
         const saved = localStorage.getItem('mutki_user');
-        if (saved) login(JSON.parse(saved));
-
-        window.logActivity = async function() {
-            const userString = localStorage.getItem('mutki_user');
-            if (!userString) return;
-            const user = JSON.parse(userString);
-            
-            const btn = document.getElementById('btnWrite');
-            const btnText = document.getElementById('btnText');
-            
-            if (!auth.currentUser) {
-                showLog("Ошибка: Нет соединения с сервером.");
-                return;
-            }
-
-            btn.disabled = true;
-            btnText.innerHTML = '<span class="loading-spinner"></span>Записываю...';
-            showLog("Отправка данных в облако...");
-
-            try {
-                const logRef = collection(db, 'artifacts', appId, 'public', 'data', 'user_logs');
-                
-                await addDoc(logRef, {
-                    userName: user.name,
-                    userType: user.type,
-                    timestamp: serverTimestamp(),
-                    device: navigator.userAgent.slice(0, 50)
-                });
-
-                showLog("Успешно сохранено в базу данных!");
-                btnText.innerText = "Записано ✓";
-                btn.style.backgroundColor = "#4CAF50";
-                
-                setTimeout(() => {
-                    btnText.innerText = "Записать еще раз";
-                    btn.disabled = false;
-                    btn.style.backgroundColor = "";
-                }, 3000);
-
-            } catch (e) {
-                showLog("Ошибка записи: " + e.message);
-                btn.disabled = false;
-                btnText.innerText = "Попробовать снова";
-            }
-        }
-
-        function showLog(msg) {
-            const consoleEl = document.getElementById('logConsole');
-            consoleEl.style.display = 'block';
-            const time = new Date().toLocaleTimeString();
-            consoleEl.innerHTML += `<div><span style="color: #888">[${time}]</span> ${msg}</div>`;
-            consoleEl.scrollTop = consoleEl.scrollHeight;
+        if (saved) {
+            const user = JSON.parse(saved);
+            input.style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            document.getElementById('userNameDisplay').innerText = `С возвращением, ${user.name}!`;
+            document.getElementById('userTypeDisplay').innerText = user.type;
+            indicator.className = 'status-indicator success';
         }
     </script>
 </body>
