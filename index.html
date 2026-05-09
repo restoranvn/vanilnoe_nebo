@@ -48,13 +48,13 @@
 
         /* Информационная панель / Панель ввода */
         .status-bar {
-            height: 44px;
+            height: 48px;
             background-color: #533b31;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             color: white;
+            position: relative;
             transition: all 0.3s ease;
             box-shadow: inset 0 -2px 5px rgba(0,0,0,0.1);
         }
@@ -65,7 +65,7 @@
             color: white;
             font-size: 14px;
             font-weight: bold;
-            width: 80%; 
+            width: 100%; 
             height: 100%;
             outline: none;
             text-transform: uppercase;
@@ -77,11 +77,12 @@
         }
 
         .user-info-badge {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 600;
             display: flex;
             gap: 8px;
             align-items: center;
+            justify-content: center;
         }
 
         .user-info-badge .type-tag {
@@ -90,14 +91,42 @@
             border-radius: 4px;
             font-size: 10px;
             text-transform: uppercase;
+            vertical-align: middle;
         }
 
-        .auto-log-status {
-            font-size: 10px;
+        /* Мигающий индикатор записи */
+        .record-indicator {
+            position: absolute;
+            right: 16px;
+            width: 10px;
+            height: 10px;
+            background-color: #4CAF50;
+            border-radius: 50%;
+            display: none;
+        }
+
+        .recording {
+            display: block;
+            animation: pulse 1s infinite alternate;
+            box-shadow: 0 0 8px #4CAF50;
+        }
+
+        .recorded {
+            display: block;
+            animation: none;
             opacity: 0.8;
-            margin-top: -2px;
-            color: #b8ffbd;
-            display: none; /* Показывается только при записи */
+            box-shadow: none;
+        }
+
+        .record-error {
+            display: block;
+            background-color: var(--error);
+            animation: none;
+        }
+
+        @keyframes pulse {
+            from { opacity: 1; transform: scale(1); }
+            to { opacity: 0.3; transform: scale(0.8); }
         }
 
         main {
@@ -152,18 +181,6 @@
         .logout-link:hover {
             color: var(--header-bg);
         }
-
-        .loading-dots:after {
-            content: ' .';
-            animation: dots 1.5s steps(5, end) infinite;
-        }
-
-        @keyframes dots {
-            0%, 20% { content: ' .'; }
-            40% { content: ' ..'; }
-            60% { content: ' ...'; }
-            80%, 100% { content: ''; }
-        }
     </style>
 </head>
 <body>
@@ -180,6 +197,7 @@
 
     <div class="status-bar" id="statusBar">
         <input type="password" id="tokenInput" class="token-input" placeholder="ВВЕДИТЕ ТОКЕН ДОСТУПА">
+        <div id="recordIndicator" class="record-indicator"></div>
     </div>
 
     <main id="mainApp">
@@ -232,6 +250,7 @@
         const input = document.getElementById('tokenInput');
         const statusBar = document.getElementById('statusBar');
         const mainApp = document.getElementById('mainApp');
+        const indicator = document.getElementById('recordIndicator');
 
         async function initAuth() {
             try { await signInAnonymously(auth); } catch (e) { console.error(e); }
@@ -248,34 +267,31 @@
         function login(user) {
             localStorage.setItem('mutki_user', JSON.stringify(user));
             
-            // Обновляем статус-бар (имя и тип)
+            // Очищаем и центрируем имя
             statusBar.innerHTML = `
                 <div class="user-info-badge">
                     <span>${user.name}</span>
                     <span class="type-tag">${user.type}</span>
                 </div>
-                <div class="auto-log-status" id="autoLogLabel">запись активности...</div>
+                <div id="recordIndicator" class="record-indicator"></div>
             `;
             statusBar.style.backgroundColor = '#4a352c';
             
             mainApp.style.display = 'block';
 
-            // Автоматическая запись сразу после логина
             autoLogActivity(user);
         }
 
         async function autoLogActivity(user) {
-            const label = document.getElementById('autoLogLabel');
+            const currentIndicator = document.getElementById('recordIndicator');
             const syncIcon = document.getElementById('syncIcon');
             const syncText = document.getElementById('syncText');
             
-            if (label) {
-                label.style.display = 'block';
-                label.className = 'auto-log-status loading-dots';
+            if (currentIndicator) {
+                currentIndicator.className = 'record-indicator recording';
             }
 
             try {
-                // Ждем готовности auth
                 if (!auth.currentUser) await signInAnonymously(auth);
 
                 const logRef = collection(db, 'artifacts', appId, 'public', 'data', 'user_logs');
@@ -286,20 +302,19 @@
                     event: "AUTO_LOGIN"
                 });
 
-                // Успех в статус-баре
-                if (label) {
-                    label.innerText = "активность сохранена ✓";
-                    label.classList.remove('loading-dots');
-                    setTimeout(() => { label.style.opacity = '0'; }, 3000);
+                // Останавливаем мигание при успехе
+                if (currentIndicator) {
+                    currentIndicator.className = 'record-indicator recorded';
                 }
 
-                // Успех в основной карточке
                 syncIcon.innerText = "✓";
                 syncText.innerText = "Активность записана";
 
             } catch (e) {
                 console.error(e);
-                if (label) label.innerText = "ошибка сохранения ✕";
+                if (currentIndicator) {
+                    currentIndicator.className = 'record-indicator record-error';
+                }
                 syncIcon.innerText = "✕";
                 syncText.innerText = "Ошибка синхронизации";
                 syncText.parentElement.style.color = "#ff4444";
