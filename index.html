@@ -14,7 +14,6 @@
             --error: #ff4444;
             --logout-bg: #1F1713;
             --logout-text: #FFEED2;
-            --dark-ui: #1F1713;
         }
 
         body {
@@ -125,12 +124,12 @@
             to { opacity: 0.4; transform: scale(0.8); }
         }
 
-        /* Основная область */
+        /* Обновленные стили основной области */
         main {
             display: none;
             margin: 12px;
             padding: 0 16px;
-            height: 80px; 
+            height: 60px; /* Увеличенная высота до 60px */
             background-color: var(--primary-bg);
             border: 1px solid var(--brand-color);
             border-radius: 12px;
@@ -138,105 +137,6 @@
             align-items: center;
             box-sizing: border-box;
             animation: fadeIn 0.4s ease-out;
-        }
-
-        /* Кнопка календаря */
-        .cal-btn {
-            width: 50px;
-            height: 50px;
-            background-color: var(--dark-ui);
-            border: none;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: transform 0.1s;
-        }
-
-        .cal-btn:active {
-            transform: scale(0.95);
-        }
-
-        .cal-btn svg {
-            width: 28px;
-            height: 28px;
-            fill: var(--logout-text);
-        }
-
-        /* Модальное окно */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.4);
-            z-index: 100;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background: white;
-            border: 1px solid var(--dark-ui);
-            width: 90%;
-            max-width: 320px;
-            padding: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            animation: slideUp 0.3s ease-out;
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            color: var(--dark-ui);
-            font-weight: bold;
-            font-size: 18px;
-        }
-
-        .close-modal {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: var(--dark-ui);
-            padding: 0;
-            line-height: 1;
-        }
-
-        /* Сетка календаря */
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
-            text-align: center;
-            color: var(--dark-ui);
-        }
-
-        .day-name {
-            font-size: 10px;
-            font-weight: bold;
-            opacity: 0.6;
-            margin-bottom: 5px;
-        }
-
-        .day {
-            padding: 8px 0;
-            font-size: 14px;
-        }
-
-        .today {
-            border: 1px solid var(--dark-ui);
-            font-weight: bold;
         }
 
         @keyframes fadeIn {
@@ -261,26 +161,8 @@
         <input type="password" id="tokenInput" class="token-input" placeholder="ВВЕДИТЕ ТОКЕН ДОСТУПА">
     </div>
 
-    <main id="mainApp" style="display: none;">
-        <button class="cal-btn" id="openCalendar">
-            <svg viewBox="0 0 24 24">
-                <path d="M19,4H18V2H16V4H8V2H6V4H5C3.89,4 3,4.9 3,6V20A2,2 0 0,0 5,22H19A2,2 0 0,0 21,20V6A2,2 0 0,0 19,4M19,20H5V10H19V20M19,8H5V6H19V8Z" />
-            </svg>
-        </button>
-    </main>
-
-    <!-- Диалог календаря -->
-    <div class="modal-overlay" id="calendarModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span id="currentDateTitle">--.--</span>
-                <button class="close-modal" id="closeCalendar">&times;</button>
-            </div>
-            <div class="calendar-grid" id="calendarGrid">
-                <!-- Заполняется JS -->
-            </div>
-        </div>
-    </div>
+    <!-- Основная область без текста -->
+    <main id="mainApp" style="display: none;"></main>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
@@ -288,7 +170,7 @@
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
         const firebaseConfig = {
-            apiKey: "", // Пустая строка как по инструкции
+            apiKey: "AIzaSyBEn2ZheCPUMgTKxuQmHw0MPehIu1B85Do",
             authDomain: "vanilnoeneboapp.firebaseapp.com",
             projectId: "vanilnoeneboapp",
             storageBucket: "vanilnoeneboapp.firebasestorage.app",
@@ -319,9 +201,6 @@
         const input = document.getElementById('tokenInput');
         const statusBar = document.getElementById('statusBar');
         const mainApp = document.getElementById('mainApp');
-        const modal = document.getElementById('calendarModal');
-        const calGrid = document.getElementById('calendarGrid');
-        const dateTitle = document.getElementById('currentDateTitle');
 
         async function initAuth() {
             try { await signInAnonymously(auth); } catch (e) { console.error(e); }
@@ -368,55 +247,6 @@
                 console.error(e);
                 if (currentIndicator) currentIndicator.className = 'record-indicator record-error';
             }
-        }
-
-        // Календарная логика
-        function buildCalendar() {
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = now.getMonth();
-            const today = now.getDate();
-
-            // Заголовок дд.мм
-            dateTitle.innerText = `${String(today).padStart(2, '0')}.${String(month + 1).padStart(2, '0')}`;
-
-            calGrid.innerHTML = '';
-            const daysShort = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-            daysShort.forEach(d => {
-                const el = document.createElement('div');
-                el.className = 'day-name';
-                el.innerText = d;
-                calGrid.appendChild(el);
-            });
-
-            const firstDay = new Date(year, month, 1).getDay();
-            const startingPoint = firstDay === 0 ? 6 : firstDay - 1; 
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-            for (let i = 0; i < startingPoint; i++) {
-                calGrid.appendChild(document.createElement('div'));
-            }
-
-            for (let d = 1; d <= daysInMonth; d++) {
-                const el = document.createElement('div');
-                el.className = 'day';
-                if (d === today) el.classList.add('today');
-                el.innerText = d;
-                calGrid.appendChild(el);
-            }
-        }
-
-        document.getElementById('openCalendar').addEventListener('click', () => {
-            buildCalendar();
-            modal.style.display = 'flex';
-        });
-
-        document.getElementById('closeCalendar').addEventListener('click', () => {
-            modal.style.display = 'none';
-        });
-
-        window.onclick = (event) => {
-            if (event.target == modal) modal.style.display = 'none';
         }
 
         window.logout = function() {
