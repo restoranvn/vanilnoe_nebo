@@ -149,10 +149,11 @@
             background: rgba(0,0,0,0.5);
             z-index: 100;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start; /* Фиксируем верх модалки */
             backdrop-filter: blur(2px);
-            padding: 12px;
+            padding: 80px 12px 12px 12px; /* Отступ сверху для фиксации положения */
             box-sizing: border-box;
+            overflow-y: auto;
         }
 
         .modal-content {
@@ -163,14 +164,10 @@
             max-width: 360px;
             padding: 16px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-            animation: slideUp 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            /* Убрана анимация slideUp для стабильности верха */
             box-sizing: border-box;
             position: relative;
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+            margin: 0 auto;
         }
 
         .modal-header {
@@ -200,11 +197,7 @@
             align-items: center;
             justify-content: center;
             border-radius: 50%;
-            transition: background 0.2s;
-        }
-
-        .nav-arrow:hover {
-            background: var(--day-bg);
+            /* Убрана анимация hover/transition */
         }
 
         .date-container {
@@ -212,14 +205,6 @@
             flex-direction: column;
             align-items: center;
             min-width: 140px;
-        }
-
-        .today-label {
-            font-size: 11px;
-            text-transform: uppercase;
-            font-weight: normal;
-            opacity: 0.6;
-            margin-bottom: -2px;
         }
 
         #currentDateTitle {
@@ -261,7 +246,7 @@
             background-color: var(--day-bg);
             border-radius: 6px;
             border: 1px solid transparent;
-            transition: all 0.2s;
+            transition: background 0.1s;
         }
 
         .today {
@@ -327,7 +312,6 @@
                 <div class="date-navigation">
                     <button class="nav-arrow" id="prevMonth" title="Предыдущий месяц">❮</button>
                     <div class="date-container">
-                        <span class="today-label" id="todayIndicator">Сегодня</span>
                         <span id="currentDateTitle">--.--</span>
                     </div>
                     <button class="nav-arrow" id="nextMonth" title="Следующий месяц">❯</button>
@@ -380,7 +364,6 @@
         const modal = document.getElementById('calendarModal');
         const calGrid = document.getElementById('calendarGrid');
         const dateTitle = document.getElementById('currentDateTitle');
-        const todayIndicator = document.getElementById('todayIndicator');
 
         // Глобальные переменные для навигации
         let displayedMonth = new Date().getMonth();
@@ -453,10 +436,8 @@
 
             // 1. Формируем заголовок
             if (isCurrentMonth) {
-                todayIndicator.style.display = 'block';
                 dateTitle.innerText = `${realToday} ${monthsGenitive[m]}`;
             } else {
-                todayIndicator.style.display = 'none';
                 let title = monthsNominative[m];
                 if (!isCurrentYear) title += ` ${y}`;
                 dateTitle.innerText = title;
