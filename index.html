@@ -173,12 +173,12 @@
 
         .event-item {
             font-size: 14px;
-            padding: 8px 0;
+            padding: 10px 0;
             border-bottom: 1px dashed rgba(31, 23, 19, 0.1);
             display: flex;
             gap: 8px;
             color: #1F1713;
-            align-items: center;
+            align-items: flex-start;
         }
 
         .event-item:last-child {
@@ -189,13 +189,28 @@
             font-weight: 800;
             white-space: nowrap;
             min-width: 42px;
+            margin-top: 2px;
+        }
+
+        .event-content-wrapper {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            overflow: hidden;
         }
 
         .event-desc {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            flex-grow: 1;
+            font-weight: 600;
+        }
+        
+        .event-subdesc {
+            font-size: 11px;
+            opacity: 0.7;
+            text-transform: uppercase;
         }
 
         .event-type-tag {
@@ -214,6 +229,7 @@
             align-items: center;
             justify-content: center;
             opacity: 0.7;
+            margin-top: 2px;
         }
 
         .edit-icon-btn:active { opacity: 1; }
@@ -258,7 +274,7 @@
             box-shadow: 0 5px 25px rgba(0,0,0,0.2);
             box-sizing: border-box;
             position: relative;
-            margin-top: 60px; /* Сдвинул чуть выше для мобилок */
+            margin-top: 60px;
             margin-bottom: 20px;
         }
 
@@ -306,7 +322,7 @@
             text-transform: uppercase;
         }
 
-        .form-input {
+        .form-input, .form-select {
             width: 100%;
             padding: 12px;
             border: 1px solid #ccc;
@@ -315,9 +331,10 @@
             box-sizing: border-box;
             outline: none;
             font-family: inherit;
+            background-color: #fff;
         }
 
-        .form-input:focus {
+        .form-input:focus, .form-select:focus {
             border-color: var(--brand-color);
             box-shadow: 0 0 0 2px rgba(96, 69, 57, 0.1);
         }
@@ -353,7 +370,6 @@
             gap: 15px;
         }
 
-        /* Настройка грида календаря */
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -370,7 +386,6 @@
             opacity: 0.7;
         }
 
-        /* Квадратные ячейки с использованием aspect-ratio */
         .day {
             aspect-ratio: 1 / 1;
             font-size: 14px;
@@ -471,6 +486,7 @@
         </div>
     </div>
 
+    <!-- МОДАЛКА КЕЙТЕРИНГ -->
     <div class="modal-overlay" id="cateringModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -483,7 +499,11 @@
             </div>
             <div class="form-group">
                 <label class="form-label">Название мероприятия</label>
-                <input type="text" class="form-input" id="cateringNameInput" placeholder="Введите название">
+                <input type="text" class="form-input" id="cateringNameInput" placeholder="Что проводим?">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Локация</label>
+                <input type="text" class="form-input" id="cateringLocationInput" placeholder="Где проводим?">
             </div>
             <button class="submit-btn" id="submitCatering">
                 <span>Добавить</span>
@@ -491,6 +511,7 @@
         </div>
     </div>
 
+    <!-- МОДАЛКА БАНКЕТ -->
     <div class="modal-overlay" id="banketModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -505,12 +526,23 @@
                 <label class="form-label">Заказчик</label>
                 <input type="text" class="form-input" id="banketCustomerInput" placeholder="ФИО или Организация">
             </div>
+            <div class="form-group">
+                <label class="form-label">Зал</label>
+                <select class="form-select" id="banketHallSelect">
+                    <option value="" disabled selected>Выберите зал</option>
+                    <option value="ББЗ">ББЗ</option>
+                    <option value="МБЗ">МБЗ</option>
+                    <option value="Волга">Волга</option>
+                    <option value="Чайка">Чайка</option>
+                </select>
+            </div>
             <button class="submit-btn" id="submitBanket">
                 <span>Добавить</span>
             </button>
         </div>
     </div>
 
+    <!-- МОДАЛКА РЕДАКТИРОВАНИЯ -->
     <div class="modal-overlay" id="editModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -524,8 +556,15 @@
                 <input type="text" id="editDate" class="form-input date-mask" placeholder="ДД.ММ.ГГГГ" inputmode="numeric">
             </div>
             <div class="form-group">
-                <label class="form-label" id="editLabel">Информация</label>
-                <input type="text" class="form-input" id="editInfoInput" placeholder="Введите данные">
+                <label class="form-label" id="editLabelInfo">Информация</label>
+                <input type="text" class="form-input" id="editInfoInput" placeholder="Основные данные">
+            </div>
+            <!-- Дополнительное поле для редактирования локации/зала -->
+            <div class="form-group" id="editExtraGroup">
+                <label class="form-label" id="editLabelExtra">Доп. информация</label>
+                <div id="editExtraContainer">
+                    <!-- Будет вставлен input или select динамически -->
+                </div>
             </div>
             <button class="submit-btn" id="saveEditBtn">
                 <span>Сохранить</span>
@@ -694,15 +733,22 @@
                 const item = document.createElement('div');
                 item.className = 'event-item';
                 const shortDate = e.date ? e.date.substring(0, 5) : "--.--";
-                const description = e.type === 'Кейтеринг' ? e.eventName : e.customer;
+                const description = e.type === 'Кейтеринг' ? (e.eventName || 'Без названия') : (e.customer || 'Без имени');
+                const subDescription = e.type === 'Кейтеринг' ? (e.location || 'Локация не указана') : (e.hall || 'Зал не выбран');
+                
                 let typePrefix = '';
                 if (currentUser && currentUser.type === "ROOT") {
                     typePrefix = `<span class="event-type-tag">[${e.type === 'Кейтеринг' ? 'К' : 'Б'}]</span>`;
                 }
+
                 item.innerHTML = `
                     <span class="event-date">${shortDate}</span>
-                    <div class="event-desc">${typePrefix}${description || 'Без названия'}</div>
+                    <div class="event-content-wrapper">
+                        <div class="event-desc">${typePrefix}${description}</div>
+                        <div class="event-subdesc">${subDescription}</div>
+                    </div>
                 `;
+
                 if (currentUser) {
                     const editBtn = document.createElement('button');
                     editBtn.className = 'edit-icon-btn';
@@ -726,14 +772,39 @@
             document.getElementById('editId').value = event.id;
             document.getElementById('editType').value = event.type;
             document.getElementById('editDate').value = event.date;
+            
             const infoInput = document.getElementById('editInfoInput');
-            const label = document.getElementById('editLabel');
+            const labelInfo = document.getElementById('editLabelInfo');
+            const labelExtra = document.getElementById('editLabelExtra');
+            const extraContainer = document.getElementById('editExtraContainer');
+            
+            extraContainer.innerHTML = '';
+
             if (event.type === 'Кейтеринг') {
-                label.innerText = 'Название мероприятия';
+                labelInfo.innerText = 'Название мероприятия';
                 infoInput.value = event.eventName || '';
+                labelExtra.innerText = 'Локация';
+                const locInput = document.createElement('input');
+                locInput.type = 'text';
+                locInput.className = 'form-input';
+                locInput.id = 'editExtraInput';
+                locInput.value = event.location || '';
+                extraContainer.appendChild(locInput);
             } else {
-                label.innerText = 'Заказчик';
+                labelInfo.innerText = 'Заказчик';
                 infoInput.value = event.customer || '';
+                labelExtra.innerText = 'Зал';
+                const hallSelect = document.createElement('select');
+                hallSelect.className = 'form-select';
+                hallSelect.id = 'editExtraInput';
+                ['ББЗ', 'МБЗ', 'Волга', 'Чайка'].forEach(h => {
+                    const opt = document.createElement('option');
+                    opt.value = h;
+                    opt.innerText = h;
+                    if (event.hall === h) opt.selected = true;
+                    hallSelect.appendChild(opt);
+                });
+                extraContainer.appendChild(hallSelect);
             }
             document.getElementById('editModal').style.display = 'flex';
         }
@@ -743,6 +814,8 @@
             const type = document.getElementById('editType').value;
             const date = document.getElementById('editDate').value;
             const info = document.getElementById('editInfoInput').value;
+            const extra = document.getElementById('editExtraInput').value;
+
             if (!date || !info) return;
             const btn = document.getElementById('saveEditBtn');
             btn.disabled = true;
@@ -754,8 +827,13 @@
                     updatedAt: serverTimestamp(),
                     updatedBy: currentUser.name
                 };
-                if (type === 'Кейтеринг') updateData.eventName = info;
-                else updateData.customer = info;
+                if (type === 'Кейтеринг') {
+                    updateData.eventName = info;
+                    updateData.location = extra;
+                } else {
+                    updateData.customer = info;
+                    updateData.hall = extra;
+                }
                 await updateDoc(docRef, updateData);
                 closeAllModals();
             } catch (e) { console.error(e); } finally {
@@ -897,20 +975,24 @@
         document.getElementById('submitCatering').onclick = () => {
             const date = document.getElementById('cateringDate').value;
             const name = document.getElementById('cateringNameInput').value;
+            const location = document.getElementById('cateringLocationInput').value;
             if (!date || !name) return;
-            saveData('Кейтеринг', { date, eventName: name });
+            saveData('Кейтеринг', { date, eventName: name, location: location });
         };
 
         document.getElementById('submitBanket').onclick = () => {
             const date = document.getElementById('banketDate').value;
             const customer = document.getElementById('banketCustomerInput').value;
-            if (!date || !customer) return;
-            saveData('Банкет', { date, customer });
+            const hall = document.getElementById('banketHallSelect').value;
+            if (!date || !customer || !hall) return;
+            saveData('Банкет', { date, customer, hall: hall });
         };
 
         window.closeAllModals = function() {
             document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
             document.querySelectorAll('.form-input').forEach(i => i.value = '');
+            const hallSelect = document.getElementById('banketHallSelect');
+            if(hallSelect) hallSelect.selectedIndex = 0;
         };
 
         document.getElementById('closeCalendar').onclick = closeAllModals;
