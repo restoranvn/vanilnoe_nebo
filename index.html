@@ -258,7 +258,7 @@
             box-shadow: 0 5px 25px rgba(0,0,0,0.2);
             box-sizing: border-box;
             position: relative;
-            margin-top: 100px;
+            margin-top: 60px; /* Сдвинул чуть выше для мобилок */
             margin-bottom: 20px;
         }
 
@@ -353,6 +353,7 @@
             gap: 15px;
         }
 
+        /* Настройка грида календаря */
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -364,36 +365,35 @@
         .day-name {
             font-size: 11px;
             font-weight: 800;
-            padding: 8px 0;
+            padding-bottom: 8px;
             text-transform: uppercase;
             opacity: 0.7;
         }
 
+        /* Квадратные ячейки с использованием aspect-ratio */
         .day {
-            padding: 12px 0;
+            aspect-ratio: 1 / 1;
             font-size: 14px;
             background-color: var(--day-bg);
-            /* Убрано border-radius для квадратности */
             border-radius: 0; 
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 40px;
+            position: relative;
         }
 
         .today {
             border: 1.5px solid var(--dark-ui);
             background-color: #fff;
             font-weight: 900;
+            z-index: 1;
         }
 
-        /* Стиль для дат с мероприятиями (КВАДРАТНЫЕ) */
         .day.has-event {
             background-color: #604539 !important;
             color: #FFEED2 !important;
             font-weight: bold;
-            border-radius: 0; 
         }
 
         .record-indicator {
@@ -471,7 +471,6 @@
         </div>
     </div>
 
-    <!-- Модальное Кейтеринг (Создание) -->
     <div class="modal-overlay" id="cateringModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -492,7 +491,6 @@
         </div>
     </div>
 
-    <!-- Модальное Банкет (Создание) -->
     <div class="modal-overlay" id="banketModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -513,7 +511,6 @@
         </div>
     </div>
 
-    <!-- Модальное окно РЕДАКТИРОВАНИЯ -->
     <div class="modal-overlay" id="editModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -647,7 +644,6 @@
 
         function subscribeToEvents() {
             const eventsRef = collection(db, 'artifacts', appId, 'public', 'data', 'events');
-            
             onSnapshot(eventsRef, (snapshot) => {
                 let events = [];
                 snapshot.forEach(doc => {
@@ -682,7 +678,6 @@
             };
 
             let filtered = events.filter(e => parseDate(e.date) >= todayTime);
-            
             if (currentUser && currentUser.type !== "ROOT") {
                 filtered = filtered.filter(e => e.type === currentUser.type);
             }
@@ -698,30 +693,24 @@
             limit.forEach(e => {
                 const item = document.createElement('div');
                 item.className = 'event-item';
-
                 const shortDate = e.date ? e.date.substring(0, 5) : "--.--";
                 const description = e.type === 'Кейтеринг' ? e.eventName : e.customer;
-                
                 let typePrefix = '';
                 if (currentUser && currentUser.type === "ROOT") {
                     typePrefix = `<span class="event-type-tag">[${e.type === 'Кейтеринг' ? 'К' : 'Б'}]</span>`;
                 }
-
                 item.innerHTML = `
                     <span class="event-date">${shortDate}</span>
                     <div class="event-desc">${typePrefix}${description || 'Без названия'}</div>
                 `;
-
                 if (currentUser) {
                     const editBtn = document.createElement('button');
                     editBtn.className = 'edit-icon-btn';
-                    
                     if (currentUser.type === 'ROOT') {
                         editBtn.classList.add('readonly');
                     } else {
                         editBtn.onclick = () => openEditModal(e);
                     }
-
                     editBtn.innerHTML = `
                         <svg viewBox="0 0 24 24">
                             <path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" />
@@ -729,7 +718,6 @@
                     `;
                     item.appendChild(editBtn);
                 }
-
                 upcomingList.appendChild(item);
             });
         }
@@ -738,10 +726,8 @@
             document.getElementById('editId').value = event.id;
             document.getElementById('editType').value = event.type;
             document.getElementById('editDate').value = event.date;
-            
             const infoInput = document.getElementById('editInfoInput');
             const label = document.getElementById('editLabel');
-            
             if (event.type === 'Кейтеринг') {
                 label.innerText = 'Название мероприятия';
                 infoInput.value = event.eventName || '';
@@ -749,7 +735,6 @@
                 label.innerText = 'Заказчик';
                 infoInput.value = event.customer || '';
             }
-            
             document.getElementById('editModal').style.display = 'flex';
         }
 
@@ -758,13 +743,10 @@
             const type = document.getElementById('editType').value;
             const date = document.getElementById('editDate').value;
             const info = document.getElementById('editInfoInput').value;
-            
             if (!date || !info) return;
-
             const btn = document.getElementById('saveEditBtn');
             btn.disabled = true;
             btn.innerText = "Сохранение...";
-
             try {
                 const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'events', id);
                 const updateData = { 
@@ -772,15 +754,11 @@
                     updatedAt: serverTimestamp(),
                     updatedBy: currentUser.name
                 };
-
                 if (type === 'Кейтеринг') updateData.eventName = info;
                 else updateData.customer = info;
-
                 await updateDoc(docRef, updateData);
                 closeAllModals();
-            } catch (e) {
-                console.error(e);
-            } finally {
+            } catch (e) { console.error(e); } finally {
                 btn.disabled = false;
                 btn.innerText = "Сохранить";
             }
@@ -804,7 +782,6 @@
                 }
                 e.target.value = formattedValue;
             });
-
             input.addEventListener('blur', (e) => {
                 const val = e.target.value;
                 if (val.length === 5 && val.includes('.')) {
@@ -833,22 +810,22 @@
 
             const firstDay = new Date(y, m, 1).getDay();
             const offset = firstDay === 0 ? 6 : firstDay - 1;
-            for (let i = 0; i < offset; i++) calGrid.appendChild(document.createElement('div'));
+            for (let i = 0; i < offset; i++) {
+                const empty = document.createElement('div');
+                empty.style.aspectRatio = "1/1";
+                calGrid.appendChild(empty);
+            }
 
             const daysInMonth = new Date(y, m + 1, 0).getDate();
-            
             const eventDates = new Set();
             globalEvents.forEach(ev => {
                 if (currentUser && currentUser.type !== "ROOT" && ev.type !== currentUser.type) return;
-                
                 const parts = ev.date.split('.');
                 if (parts.length === 3) {
                     const dVal = parseInt(parts[0]);
                     const mVal = parseInt(parts[1]) - 1;
                     const yVal = parseInt(parts[2]);
-                    if (mVal === m && yVal === y) {
-                        eventDates.add(dVal);
-                    }
+                    if (mVal === m && yVal === y) eventDates.add(dVal);
                 }
             });
 
@@ -856,11 +833,7 @@
                 const el = document.createElement('div');
                 el.className = 'day';
                 if (isCurrentMonth && d === realToday) el.classList.add('today');
-                
-                if (eventDates.has(d)) {
-                    el.classList.add('has-event');
-                }
-                
+                if (eventDates.has(d)) el.classList.add('has-event');
                 el.innerText = d;
                 calGrid.appendChild(el);
             }
@@ -906,7 +879,6 @@
             const btn = document.getElementById(btnId);
             btn.disabled = true;
             btn.innerText = "Сохранение...";
-
             try {
                 const eventsRef = collection(db, 'artifacts', appId, 'public', 'data', 'events');
                 await addDoc(eventsRef, {
@@ -953,4 +925,4 @@
         if (saved) login(JSON.parse(saved));
     </script>
 </body>
-</html>щ
+</html>
