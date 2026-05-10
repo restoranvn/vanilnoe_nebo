@@ -145,7 +145,6 @@
             fill: var(--logout-text);
         }
 
-        /* Общие стили для модалок */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -201,7 +200,6 @@
             line-height: 1;
         }
 
-        /* Стили для формы (заглушка) */
         .form-placeholder {
             padding: 20px 0;
             text-align: center;
@@ -209,7 +207,6 @@
             font-style: italic;
         }
 
-        /* Календарь специфично */
         .calendar-nav {
             display: flex;
             align-items: center;
@@ -321,7 +318,7 @@
     <div class="modal-overlay" id="cateringModal">
         <div class="modal-content">
             <div class="modal-header">
-                <span class="modal-title">Кейтеринг</span>
+                <span class="modal-title" id="cateringModalTitle">Кейтеринг</span>
                 <button class="close-modal" onclick="closeAllModals()">&times;</button>
             </div>
             <div class="form-placeholder">Интерфейс создания заявки на КЕЙТЕРИНГ...</div>
@@ -332,7 +329,7 @@
     <div class="modal-overlay" id="banketModal">
         <div class="modal-content">
             <div class="modal-header">
-                <span class="modal-title">Банкет</span>
+                <span class="modal-title" id="banketModalTitle">Банкет</span>
                 <button class="close-modal" onclick="closeAllModals()">&times;</button>
             </div>
             <div class="form-placeholder">Интерфейс создания заявки на БАНКЕТ...</div>
@@ -425,7 +422,6 @@
             }
         }
 
-        // Календарь Логика
         function buildCalendar(m, y) {
             const realNow = new Date();
             const realToday = realNow.getDate();
@@ -457,11 +453,9 @@
             }
         }
 
-        // Навигация Календаря
         document.getElementById('prevMonth').onclick = () => { displayedMonth--; if(displayedMonth<0){displayedMonth=11;displayedYear--} buildCalendar(displayedMonth, displayedYear); };
         document.getElementById('nextMonth').onclick = () => { displayedMonth++; if(displayedMonth>11){displayedMonth=0;displayedYear++} buildCalendar(displayedMonth, displayedYear); };
 
-        // Свайпы
         let tsX = 0;
         swipeArea.addEventListener('touchstart', e => tsX = e.changedTouches[0].screenX, {passive:true});
         swipeArea.addEventListener('touchend', e => {
@@ -470,7 +464,6 @@
             if (teX - tsX > 50) document.getElementById('prevMonth').click();
         }, {passive:true});
 
-        // Открытие модалок
         document.getElementById('openCalendar').onclick = () => {
             displayedMonth = new Date().getMonth();
             displayedYear = new Date().getFullYear();
@@ -478,22 +471,29 @@
             document.getElementById('calendarModal').style.display = 'flex';
         };
 
-        // ЛОГИКА КНОПКИ ПЛЮС
+        // ЛОГИКА КНОПКИ ПЛЮС С ОБНОВЛЕНИЕМ ЗАГОЛОВКА
         document.getElementById('addEntryBtn').onclick = () => {
             if (!currentUser) return;
             
+            const newTitle = "Новое мероприятие";
+            
             if (currentUser.type === "Кейтеринг") {
+                document.getElementById('cateringModalTitle').innerText = newTitle;
                 document.getElementById('cateringModal').style.display = 'flex';
             } else if (currentUser.type === "Банкет") {
+                document.getElementById('banketModalTitle').innerText = newTitle;
                 document.getElementById('banketModal').style.display = 'flex';
             } else if (currentUser.type === "ROOT") {
-                // Если ROOT, можно дать выбор или открыть что-то по умолчанию
+                document.getElementById('cateringModalTitle').innerText = newTitle;
                 document.getElementById('cateringModal').style.display = 'flex';
             }
         };
 
         window.closeAllModals = function() {
             document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
+            // Сброс заголовков при закрытии (опционально)
+            document.getElementById('cateringModalTitle').innerText = "Кейтеринг";
+            document.getElementById('banketModalTitle').innerText = "Банкет";
         };
 
         document.getElementById('closeCalendar').onclick = closeAllModals;
