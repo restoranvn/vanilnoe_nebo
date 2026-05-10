@@ -12,6 +12,7 @@
             --accent: #4CAF50;
             --text-light: #FFFFFF;
             --error: #ff4444;
+            --dialog-border: #1F1713;
         }
 
         body {
@@ -33,12 +34,6 @@
             z-index: 10;
         }
 
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
         .logo-img {
             width: 32px;
             height: 32px;
@@ -53,7 +48,7 @@
             justify-content: center;
             color: white;
             position: relative;
-            /* Полоска удалена (border-top убран) */
+            padding: 0 10px;
         }
 
         .token-input {
@@ -73,11 +68,8 @@
             color: #b5a49d;
         }
 
-        .exit-btn {
-            position: absolute;
-            right: 12px;
+        .nav-btn {
             cursor: pointer;
-            font-family: inherit;
             font-size: 11px;
             font-weight: 400;
             opacity: 0.9;
@@ -91,10 +83,13 @@
             text-transform: uppercase;
         }
 
-        .exit-btn:hover {
+        .nav-btn:hover {
             opacity: 1;
             background: rgba(255, 238, 210, 0.15);
         }
+
+        .settings-btn { position: absolute; left: 12px; }
+        .exit-btn { position: absolute; right: 12px; }
 
         .user-info-badge {
             font-size: 16px;
@@ -121,22 +116,11 @@
             background-color: #4CAF50;
             border-radius: 50%;
             display: none;
-            flex-shrink: 0;
         }
 
-        .recording {
-            display: block;
-            animation: pulse 1s infinite alternate;
-        }
-
-        .recorded {
-            display: block;
-        }
-
-        .record-error {
-            display: block;
-            background-color: var(--error);
-        }
+        .recording { display: block; animation: pulse 1s infinite alternate; }
+        .recorded { display: block; }
+        .record-error { display: block; background-color: var(--error); }
 
         @keyframes pulse {
             from { opacity: 1; transform: scale(1.1); }
@@ -164,24 +148,62 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
 
-        .welcome-msg {
-            font-size: 22px;
-            color: var(--brand-color);
-            font-weight: 800;
-            margin-bottom: 12px;
+        /* Modal Styles */
+        #modalOverlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
         }
 
-        .status-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--accent);
-            font-weight: 600;
-            font-size: 15px;
-            margin-top: 20px;
-            padding: 8px 16px;
-            background: #f0faf1;
-            border-radius: 20px;
+        .modal-content {
+            background: white;
+            border: 1px solid var(--dialog-border);
+            padding: 24px;
+            width: 100%;
+            max-width: 320px;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .modal-header h2 { margin: 0; font-size: 18px; color: var(--brand-color); }
+        .modal-header p { margin: 4px 0 20px; font-size: 12px; color: #888; text-transform: uppercase; }
+
+        .form-group { text-align: left; margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 12px; margin-bottom: 5px; font-weight: bold; }
+        
+        .styled-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        .save-btn {
+            background: var(--brand-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            width: 100%;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 20px;
+            color: #999;
         }
     </style>
 </head>
@@ -205,18 +227,30 @@
         <div class="card">
             <div class="welcome-msg">Доступ разрешен</div>
             <div style="font-size: 15px; color: #7c6a61; line-height: 1.5;">Ваш вход успешно авторизован.<br>Активность зафиксирована в журнале событий.</div>
-            
-            <div class="status-indicator" id="syncStatus">
-                <span id="syncIcon">✓</span>
-                <span id="syncText">Активность записана</span>
-            </div>
+            <div id="saveStatus" style="font-size: 12px; margin-top: 10px; color: var(--accent);"></div>
         </div>
     </main>
 
+    <!-- Modal for Settings -->
+    <div id="modalOverlay">
+        <div class="modal-content">
+            <span class="close-modal" onclick="toggleModal(false)">&times;</span>
+            <div class="modal-header">
+                <h2 id="modalUserName">Имя пользователя</h2>
+                <p id="modalUserType">Тип</p>
+            </div>
+            <div class="form-group">
+                <label>НОМЕР ТЕЛЕФОНА</label>
+                <input type="tel" id="phoneInput" class="styled-input" placeholder="+7 (___) ___-__-__">
+            </div>
+            <button class="save-btn" onclick="saveProfile()">СОХРАНИТЬ</button>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, getDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBEn2ZheCPUMgTKxuQmHw0MPehIu1B85Do",
@@ -249,12 +283,30 @@
 
         const statusBar = document.getElementById('statusBar');
         const mainApp = document.getElementById('mainApp');
+        const phoneInput = document.getElementById('phoneInput');
 
+        // Auth init
         async function initAuth() {
-            try { await signInAnonymously(auth); } catch (e) { console.error(e); }
+            try { 
+                await signInAnonymously(auth); 
+            } catch (e) { 
+                console.error("Auth error:", e); 
+            }
         }
         initAuth();
 
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const saved = localStorage.getItem('mutki_user');
+                if (saved) {
+                    const userData = JSON.parse(saved);
+                    login(userData);
+                    loadProfile(user.uid);
+                }
+            }
+        });
+
+        // Input Logic
         function setupInputListener() {
             const input = document.getElementById('tokenInput');
             if (input) {
@@ -268,20 +320,76 @@
         }
         setupInputListener();
 
+        // Phone Formatting Logic
+        phoneInput.addEventListener('input', (e) => {
+            let value = e.target.value;
+            if (value.startsWith('8')) {
+                value = '+7' + value.substring(1);
+            } else if (value.startsWith('9')) {
+                value = '+7' + value;
+            }
+            e.target.value = value;
+        });
+
         function login(user) {
             localStorage.setItem('mutki_user', JSON.stringify(user));
             
             statusBar.innerHTML = `
+                <div class="nav-btn settings-btn" onclick="toggleModal(true)">НАСТРОЙКИ</div>
                 <div class="user-info-badge">
                     <div id="recordIndicator" class="record-indicator"></div>
                     <span>${user.name}</span>
                     <span class="type-tag">${user.type}</span>
                 </div>
-                <div class="exit-btn" onclick="logout()">ВЫХОД</div>
+                <div class="nav-btn exit-btn" onclick="logout()">ВЫХОД</div>
             `;
+            
+            document.getElementById('modalUserName').innerText = user.name;
+            document.getElementById('modalUserType').innerText = user.type;
             
             mainApp.style.display = 'block';
             autoLogActivity(user);
+        }
+
+        async function loadProfile(uid) {
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'users', uid, 'profile');
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    phoneInput.value = docSnap.data().phone || "";
+                }
+            } catch (e) { console.error("Error loading profile:", e); }
+        }
+
+        window.toggleModal = function(show) {
+            document.getElementById('modalOverlay').style.display = show ? 'flex' : 'none';
+        }
+
+        window.saveProfile = async function() {
+            const user = auth.currentUser;
+            const userData = JSON.parse(localStorage.getItem('mutki_user'));
+            if (!user || !userData) return;
+
+            const phone = phoneInput.value.trim();
+            const statusEl = document.getElementById('saveStatus');
+
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'profile');
+                await setDoc(docRef, {
+                    name: userData.name,
+                    type: userData.type,
+                    phone: phone,
+                    updatedAt: serverTimestamp()
+                });
+                
+                statusEl.innerText = "Данные профиля обновлены";
+                toggleModal(false);
+                setTimeout(() => statusEl.innerText = "", 3000);
+            } catch (e) {
+                console.error("Save error:", e);
+                statusEl.innerText = "Ошибка сохранения";
+                statusEl.style.color = "red";
+            }
         }
 
         async function autoLogActivity(user) {
@@ -289,7 +397,6 @@
             if (currentIndicator) currentIndicator.className = 'record-indicator recording';
 
             try {
-                if (!auth.currentUser) await signInAnonymously(auth);
                 const logRef = collection(db, 'artifacts', appId, 'public', 'data', 'user_logs');
                 await addDoc(logRef, {
                     userName: user.name,
@@ -307,11 +414,6 @@
         window.logout = function() {
             localStorage.removeItem('mutki_user');
             location.reload();
-        }
-
-        const saved = localStorage.getItem('mutki_user');
-        if (saved) {
-            login(JSON.parse(saved));
         }
     </script>
 </body>
