@@ -173,12 +173,12 @@
 
         .event-item {
             font-size: 14px;
-            padding: 6px 0;
+            padding: 8px 0;
             border-bottom: 1px dashed rgba(31, 23, 19, 0.1);
             display: flex;
             gap: 8px;
             color: #1F1713;
-            align-items: baseline;
+            align-items: center;
         }
 
         .event-item:last-child {
@@ -204,6 +204,20 @@
             opacity: 0.6;
             margin-right: 4px;
         }
+
+        .edit-icon-btn {
+            background: none;
+            border: none;
+            padding: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.7;
+        }
+
+        .edit-icon-btn:active { opacity: 1; }
+        .edit-icon-btn svg { width: 18px; height: 18px; fill: var(--dark-ui); }
 
         .no-events {
             font-size: 12px;
@@ -242,11 +256,10 @@
             margin-bottom: 20px;
         }
 
-        /* Специальный стиль для компактного модального окна ROOT */
         .modal-content.root-mini {
             max-width: fit-content;
             padding: 20px 30px;
-            margin-top: 200px; /* Сдвигаем пониже */
+            margin-top: 200px;
         }
 
         .modal-header {
@@ -439,10 +452,11 @@
         </div>
     </div>
 
+    <!-- Модальное Кейтеринг (Создание) -->
     <div class="modal-overlay" id="cateringModal">
         <div class="modal-content">
             <div class="modal-header">
-                <span class="modal-title" id="cateringModalTitle">Кейтеринг</span>
+                <span class="modal-title">Кейтеринг</span>
                 <button class="close-modal" onclick="closeAllModals()">&times;</button>
             </div>
             <div class="form-group">
@@ -459,10 +473,11 @@
         </div>
     </div>
 
+    <!-- Модальное Банкет (Создание) -->
     <div class="modal-overlay" id="banketModal">
         <div class="modal-content">
             <div class="modal-header">
-                <span class="modal-title" id="banketModalTitle">Банкет</span>
+                <span class="modal-title">Банкет</span>
                 <button class="close-modal" onclick="closeAllModals()">&times;</button>
             </div>
             <div class="form-group">
@@ -479,9 +494,31 @@
         </div>
     </div>
 
+    <!-- Модальное окно РЕДАКТИРОВАНИЯ -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">Редактировать</span>
+                <button class="close-modal" onclick="closeAllModals()">&times;</button>
+            </div>
+            <input type="hidden" id="editId">
+            <input type="hidden" id="editType">
+            <div class="form-group">
+                <label class="form-label">Дата мероприятия</label>
+                <input type="text" id="editDate" class="form-input date-mask" placeholder="ДД.ММ.ГГГГ" inputmode="numeric">
+            </div>
+            <div class="form-group">
+                <label class="form-label" id="editLabel">Информация</label>
+                <input type="text" class="form-input" id="editInfoInput" placeholder="Введите данные">
+            </div>
+            <button class="submit-btn" id="saveEditBtn">
+                <span>Сохранить</span>
+            </button>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="rootModal">
         <div class="modal-content root-mini" style="text-align: center;">
-            <!-- Заголовок убран по просьбе пользователя -->
             <div style="font-size: 18px; font-weight: 800; padding: 10px 0; color: var(--dark-ui); text-transform: uppercase;">
                 Оно тебе зачем?
             </div>
@@ -490,7 +527,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, serverTimestamp, query, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, doc, updateDoc, serverTimestamp, query, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
         const firebaseConfig = {
@@ -531,6 +568,7 @@
         const upcomingList = document.getElementById('upcomingEventsList');
 
         let currentUser = null;
+        let globalEvents = [];
         let displayedMonth = new Date().getMonth();
         let displayedYear = new Date().getFullYear();
 
@@ -568,6 +606,8 @@
             `;
             controlsArea.style.display = 'block';
             autoLogActivity(user);
+            // Если события уже загружены, перерендерим их под права нового пользователя
+            if (globalEvents.length > 0) renderEvents(globalEvents);
         }
 
         async function autoLogActivity(user) {
@@ -604,27 +644,40 @@
                 };
 
                 events.sort((a, b) => parseDate(a.date) - parseDate(b.date));
-                const todayTime = new Date().setHours(0,0,0,0);
-                
-                let filtered = events.filter(e => parseDate(e.date) >= todayTime);
-                
-                if (currentUser && currentUser.type !== "ROOT") {
-                    filtered = filtered.filter(e => e.type === currentUser.type);
-                }
-
-                renderEvents(filtered.slice(0, 15));
+                globalEvents = events;
+                renderEvents(events);
             }, (error) => {
                 upcomingList.innerHTML = `<div class="no-events" style="color:red">Ошибка доступа</div>`;
             });
         }
 
         function renderEvents(events) {
-            if (events.length === 0) {
+            const todayTime = new Date().setHours(0,0,0,0);
+            const parseDate = (s) => {
+                if (!s) return 0;
+                const parts = s.split('.').map(Number);
+                if (parts.length < 3) return 0;
+                return new Date(parts[2], parts[1] - 1, parts[0]).getTime();
+            };
+
+            let filtered = events.filter(e => parseDate(e.date) >= todayTime);
+            
+            if (currentUser && currentUser.type !== "ROOT") {
+                filtered = filtered.filter(e => e.type === currentUser.type);
+            }
+
+            if (filtered.length === 0) {
                 upcomingList.innerHTML = `<div class="no-events">Мероприятий пока нет</div>`;
                 return;
             }
 
-            upcomingList.innerHTML = events.map(e => {
+            const limit = filtered.slice(0, 15);
+            upcomingList.innerHTML = '';
+
+            limit.forEach(e => {
+                const item = document.createElement('div');
+                item.className = 'event-item';
+
                 const shortDate = e.date ? e.date.substring(0, 5) : "--.--";
                 const description = e.type === 'Кейтеринг' ? e.eventName : e.customer;
                 
@@ -633,14 +686,81 @@
                     typePrefix = `<span class="event-type-tag">[${e.type === 'Кейтеринг' ? 'К' : 'Б'}]</span>`;
                 }
 
-                return `
-                    <div class="event-item">
-                        <span class="event-date">${shortDate}</span>
-                        <div class="event-desc">${typePrefix}${description || 'Без названия'}</div>
-                    </div>
+                item.innerHTML = `
+                    <span class="event-date">${shortDate}</span>
+                    <div class="event-desc">${typePrefix}${description || 'Без названия'}</div>
                 `;
-            }).join('');
+
+                // Кнопка редактирования доступна всем авторизованным (кроме ROOT, если это не его профиль, но в ТЗ сказано "для типов Кейтеринг и Банкет")
+                if (currentUser && (currentUser.type === 'Кейтеринг' || currentUser.type === 'Банкет' || currentUser.type === 'ROOT')) {
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'edit-icon-btn';
+                    editBtn.innerHTML = `
+                        <svg viewBox="0 0 24 24">
+                            <path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" />
+                        </svg>
+                    `;
+                    editBtn.onclick = () => openEditModal(e);
+                    item.appendChild(editBtn);
+                }
+
+                upcomingList.appendChild(item);
+            });
         }
+
+        function openEditModal(event) {
+            document.getElementById('editId').value = event.id;
+            document.getElementById('editType').value = event.type;
+            document.getElementById('editDate').value = event.date;
+            
+            const infoInput = document.getElementById('editInfoInput');
+            const label = document.getElementById('editLabel');
+            
+            if (event.type === 'Кейтеринг') {
+                label.innerText = 'Название мероприятия';
+                infoInput.value = event.eventName || '';
+            } else {
+                label.innerText = 'Заказчик';
+                infoInput.value = event.customer || '';
+            }
+            
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
+        async function saveEdit() {
+            const id = document.getElementById('editId').value;
+            const type = document.getElementById('editType').value;
+            const date = document.getElementById('editDate').value;
+            const info = document.getElementById('editInfoInput').value;
+            
+            if (!date || !info) return;
+
+            const btn = document.getElementById('saveEditBtn');
+            btn.disabled = true;
+            btn.innerText = "Сохранение...";
+
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'events', id);
+                const updateData = { 
+                    date: date,
+                    updatedAt: serverTimestamp(),
+                    updatedBy: currentUser.name
+                };
+
+                if (type === 'Кейтеринг') updateData.eventName = info;
+                else updateData.customer = info;
+
+                await updateDoc(docRef, updateData);
+                closeAllModals();
+            } catch (e) {
+                console.error(e);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Сохранить";
+            }
+        }
+
+        document.getElementById('saveEditBtn').onclick = saveEdit;
 
         // Логика маски и автоматического добавления года
         document.querySelectorAll('.date-mask').forEach(input => {
@@ -660,10 +780,8 @@
                 e.target.value = formattedValue;
             });
 
-            // Автоматическое добавление года при потере фокуса
             input.addEventListener('blur', (e) => {
                 const val = e.target.value;
-                // Если введено ровно 5 символов (ДД.ММ), добавляем текущий год
                 if (val.length === 5 && val.includes('.')) {
                     const currentYear = new Date().getFullYear();
                     e.target.value = val + '.' + currentYear;
