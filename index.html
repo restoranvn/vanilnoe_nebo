@@ -74,28 +74,22 @@
             color: #b5a49d;
         }
 
-        /* Кнопка выхода в виде иконки */
-        .exit-btn {
+        /* Кнопка выхода текстовая */
+        .exit-btn-text {
             position: absolute;
-            left: 12px;
-            width: 24px;
-            height: 24px;
+            left: 16px;
+            font-size: 11px;
+            opacity: 0.9;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0.8;
+            text-transform: uppercase;
+            padding: 8px 0;
             transition: opacity 0.2s;
+            font-weight: normal;
         }
 
-        .exit-btn:hover {
+        .exit-btn-text:hover {
             opacity: 1;
-        }
-
-        .exit-icon {
-            width: 20px;
-            height: 20px;
-            object-fit: contain;
+            text-decoration: underline;
         }
 
         .user-info-badge {
@@ -202,7 +196,6 @@
     </header>
 
     <div class="status-bar" id="statusBar">
-        <!-- По умолчанию поле ввода -->
         <input type="password" id="tokenInput" class="token-input" placeholder="ВВЕДИТЕ ТОКЕН ДОСТУПА">
         <div id="recordIndicator" class="record-indicator"></div>
     </div>
@@ -260,7 +253,6 @@
         }
         initAuth();
 
-        // Обработка ввода для первичного поля
         function setupInputListener() {
             const input = document.getElementById('tokenInput');
             if (input) {
@@ -277,11 +269,9 @@
         function login(user) {
             localStorage.setItem('mutki_user', JSON.stringify(user));
             
-            // Обновляем статус-бар: иконка выхода слева, инфо в центре
+            // Заменяем иконку на текст "ВЫХОД" со стилем из хедера
             statusBar.innerHTML = `
-                <div class="exit-btn" onclick="logout()" title="Выйти">
-                    <img src="ico/exit.png" alt="Exit" class="exit-icon" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1828/1828490.png'">
-                </div>
+                <div class="exit-btn-text" onclick="logout()">ВЫХОД</div>
                 <div class="user-info-badge">
                     <span>${user.name}</span>
                     <span class="type-tag">${user.type}</span>
@@ -318,7 +308,6 @@
             location.reload();
         }
 
-        // Проверка сохраненной сессии
         const saved = localStorage.getItem('mutki_user');
         if (saved) {
             login(JSON.parse(saved));
