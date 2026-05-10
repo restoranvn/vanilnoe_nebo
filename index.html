@@ -61,7 +61,8 @@
             justify-content: center;
             color: white;
             position: relative;
-            border-top: 1px solid rgba(255,255,255,0.1);
+            /* Граница удалена для бесшовного перехода */
+            border-top: none;
         }
 
         .token-input {
@@ -90,7 +91,6 @@
             position: relative;
         }
 
-        /* Кнопка ВЫХОД */
         .logout-btn {
             position: absolute;
             right: 12px;
@@ -113,7 +113,6 @@
             opacity: 0.8;
         }
 
-        /* Индикатор записи */
         .record-indicator {
             width: 8px;
             height: 8px;
@@ -173,7 +172,9 @@
     </div>
 
     <main id="mainApp">
-        <!-- Поле с информацией о записи удалено для минимализма -->
+        <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); text-align: center;">
+            <p style="color: #666;">Приложение готово к работе. Логирование сессии запущено.</p>
+        </div>
     </main>
 
     <script type="module">
