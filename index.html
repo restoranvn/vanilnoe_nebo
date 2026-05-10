@@ -12,7 +12,7 @@
             --accent: #4CAF50;
             --text-light: #FFFFFF;
             --error: #ff4444;
-            --logout-bg: #1F1713; /* Исправлено опечатку в цвете IF1713 -> 1F1713 */
+            --logout-bg: #1F1713;
             --logout-text: #FFEED2;
         }
 
@@ -87,6 +87,7 @@
             display: flex;
             gap: 10px;
             align-items: center;
+            position: relative;
         }
 
         .user-info-badge .type-tag {
@@ -99,7 +100,7 @@
             color: #eee;
         }
 
-        /* Новая кнопка ВЫХОД */
+        /* Кнопка ВЫХОД */
         .logout-btn {
             position: absolute;
             right: 12px;
@@ -111,7 +112,7 @@
             padding: 4px 10px;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 11px; /* Как у подзаголовка */
+            font-size: 11px;
             font-weight: normal;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -122,15 +123,14 @@
             opacity: 0.8;
         }
 
-        /* Индикатор записи */
+        /* Индикатор записи теперь находится внутри флекса перед именем */
         .record-indicator {
-            position: absolute;
-            right: 75px; /* Смещен, чтобы не перекрывать текстовую кнопку */
             width: 8px;
             height: 8px;
             background-color: #4CAF50;
             border-radius: 50%;
             display: none;
+            flex-shrink: 0;
         }
 
         .recording {
@@ -208,7 +208,7 @@
 
     <div class="status-bar" id="statusBar">
         <input type="password" id="tokenInput" class="token-input" placeholder="ВВЕДИТЕ ТОКЕН ДОСТУПА">
-        <div id="recordIndicator" class="record-indicator"></div>
+        <!-- В режиме ввода токена индикатор скрыт или пуст -->
     </div>
 
     <main id="mainApp">
@@ -275,13 +275,13 @@
         function login(user) {
             localStorage.setItem('mutki_user', JSON.stringify(user));
             
-            // Отрисовка статус-бара с новой кнопкой ВЫХОД
+            // Отрисовка статус-бара: индикатор теперь ПЕРЕД именем
             statusBar.innerHTML = `
                 <div class="user-info-badge">
+                    <div id="recordIndicator" class="record-indicator"></div>
                     <span>${user.name}</span>
                     <span class="type-tag">${user.type}</span>
                 </div>
-                <div id="recordIndicator" class="record-indicator"></div>
                 <button class="logout-btn" onclick="logout()">Выход</button>
             `;
             
