@@ -220,10 +220,16 @@
             margin-right: 4px;
         }
 
-        .edit-icon-btn {
+        .action-icons-container {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .edit-icon-btn, .info-icon-btn {
             background: none;
             border: none;
-            padding: 4px;
+            padding: 6px;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -231,8 +237,8 @@
             opacity: 0.7;
         }
 
-        .edit-icon-btn:active { opacity: 1; }
-        .edit-icon-btn svg { width: 18px; height: 18px; fill: var(--dark-ui); }
+        .edit-icon-btn:active, .info-icon-btn:active { opacity: 1; }
+        .edit-icon-btn svg, .info-icon-btn svg { width: 18px; height: 18px; fill: var(--dark-ui); }
 
         .edit-icon-btn.readonly {
             opacity: 0.2;
@@ -319,6 +325,32 @@
             margin-bottom: 5px;
             color: var(--brand-color);
             text-transform: uppercase;
+        }
+
+        .detail-row {
+            padding: 8px 0;
+            border-bottom: 1px dashed rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: var(--brand-color);
+            opacity: 0.7;
+        }
+
+        .detail-value {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--dark-ui);
         }
 
         .form-input, .form-select {
@@ -549,6 +581,19 @@
         </div>
     </div>
 
+    <!-- МОДАЛКА ПОДРОБНОСТЕЙ -->
+    <div class="modal-overlay" id="infoModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">Информация</span>
+                <button class="close-modal" onclick="closeAllModals()">&times;</button>
+            </div>
+            <div id="infoDetailsContainer">
+                <!-- Сюда вставляются детали динамически -->
+            </div>
+        </div>
+    </div>
+
     <!-- МОДАЛКА РЕДАКТИРОВАНИЯ -->
     <div class="modal-overlay" id="editModal">
         <div class="modal-content">
@@ -755,20 +800,12 @@
                 item.className = 'event-item';
                 const shortDate = e.date ? e.date.substring(0, 5) : "--.--";
                 
-                // --- НОВАЯ ЛОГИКА ОТОБРАЖЕНИЯ ---
                 let description = '';
                 if (e.type === 'Кейтеринг') {
-                    // 1. Для кейтеринга только название
                     description = e.eventName || 'Кейтеринг (без названия)';
                 } else {
-                    // 2. Для банкета только заказчик и зал
                     description = e.customer || 'Заказчик не указан';
                     if (e.hall) description += ` | ${e.hall}`;
-                }
-
-                // Опционально: сохраняем количество гостей в конце, если оно есть
-                if (e.guests) {
-                    description += ` | 👤 ${e.guests}`;
                 }
 
                 let typePrefix = '';
@@ -781,8 +818,24 @@
                     <div class="event-content-wrapper">
                         <div class="event-desc">${typePrefix}${description}</div>
                     </div>
+                    <div class="action-icons-container" id="actions-${e.id}"></div>
                 `;
 
+                upcomingList.appendChild(item);
+                const actionContainer = document.getElementById(`actions-${e.id}`);
+
+                // Кнопка ИНФОРМАЦИИ
+                const infoBtn = document.createElement('button');
+                infoBtn.className = 'info-icon-btn';
+                infoBtn.onclick = () => openInfoModal(e);
+                infoBtn.innerHTML = `
+                    <svg viewBox="0 0 24 24">
+                        <path d="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z" />
+                    </svg>
+                `;
+                actionContainer.appendChild(infoBtn);
+
+                // Кнопка РЕДАКТИРОВАНИЯ
                 if (currentUser) {
                     const editBtn = document.createElement('button');
                     editBtn.className = 'edit-icon-btn';
@@ -796,10 +849,61 @@
                             <path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" />
                         </svg>
                     `;
-                    item.appendChild(editBtn);
+                    actionContainer.appendChild(editBtn);
                 }
-                upcomingList.appendChild(item);
             });
+        }
+
+        function openInfoModal(event) {
+            const container = document.getElementById('infoDetailsContainer');
+            let content = `
+                <div class="detail-row">
+                    <span class="detail-label">Тип</span>
+                    <span class="detail-value">${event.type}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Дата</span>
+                    <span class="detail-value">${event.date}</span>
+                </div>
+            `;
+
+            if (event.type === 'Кейтеринг') {
+                content += `
+                    <div class="detail-row">
+                        <span class="detail-label">Название</span>
+                        <span class="detail-value">${event.eventName || '-'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Локация</span>
+                        <span class="detail-value">${event.location || '-'}</span>
+                    </div>
+                `;
+            } else {
+                content += `
+                    <div class="detail-row">
+                        <span class="detail-label">Заказчик</span>
+                        <span class="detail-value">${event.customer || '-'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Зал</span>
+                        <span class="detail-value">${event.hall || '-'}</span>
+                    </div>
+                `;
+            }
+
+            content += `
+                <div class="detail-row">
+                    <span class="detail-label">Гости</span>
+                    <span class="detail-value">${event.guests || 'Не указано'}</span>
+                </div>
+                <div class="detail-row" style="opacity: 0.5">
+                    <span class="detail-label">Создано</span>
+                    <span class="detail-value" style="font-size: 11px">${event.createdBy || 'Система'}</span>
+                </div>
+            `;
+
+            container.innerHTML = content;
+            document.getElementById('infoModal').style.display = 'flex';
         }
 
         function openEditModal(event) {
