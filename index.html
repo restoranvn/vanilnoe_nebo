@@ -200,11 +200,32 @@
             line-height: 1;
         }
 
-        .form-placeholder {
-            padding: 20px 0;
-            text-align: center;
-            color: #666;
-            font-style: italic;
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: var(--brand-color);
+            text-transform: uppercase;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: var(--brand-color);
         }
 
         .calendar-nav {
@@ -321,7 +342,11 @@
                 <span class="modal-title" id="cateringModalTitle">Кейтеринг</span>
                 <button class="close-modal" onclick="closeAllModals()">&times;</button>
             </div>
-            <div class="form-placeholder">Интерфейс создания заявки на КЕЙТЕРИНГ...</div>
+            <div class="form-group">
+                <label class="form-label">Дата мероприятия</label>
+                <input type="text" class="form-input date-mask" placeholder="ДД.ММ.ГГГГ" inputmode="numeric">
+            </div>
+            <div class="form-placeholder">Дополнительные поля кейтеринга...</div>
         </div>
     </div>
 
@@ -332,7 +357,11 @@
                 <span class="modal-title" id="banketModalTitle">Банкет</span>
                 <button class="close-modal" onclick="closeAllModals()">&times;</button>
             </div>
-            <div class="form-placeholder">Интерфейс создания заявки на БАНКЕТ...</div>
+            <div class="form-group">
+                <label class="form-label">Дата мероприятия</label>
+                <input type="text" class="form-input date-mask" placeholder="ДД.ММ.ГГГГ" inputmode="numeric">
+            </div>
+            <div class="form-placeholder">Дополнительные поля банкета...</div>
         </div>
     </div>
 
@@ -435,6 +464,26 @@
             }
         }
 
+        // МАСКА ДАТЫ (ДД.ММ.ГГГГ)
+        document.querySelectorAll('.date-mask').forEach(input => {
+            input.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\D/g, ''); // Удаляем всё кроме цифр
+                if (value.length > 8) value = value.slice(0, 8); // Ограничение длины
+                
+                let formattedValue = '';
+                if (value.length > 0) {
+                    formattedValue = value.slice(0, 2);
+                    if (value.length > 2) {
+                        formattedValue += '.' + value.slice(2, 4);
+                        if (value.length > 4) {
+                            formattedValue += '.' + value.slice(4, 8);
+                        }
+                    }
+                }
+                e.target.value = formattedValue;
+            });
+        });
+
         function buildCalendar(m, y) {
             const realNow = new Date();
             const realToday = realNow.getDate();
@@ -488,7 +537,6 @@
         document.getElementById('addEntryBtn').onclick = () => {
             if (!currentUser) return;
             
-            // Проверка для ROOT
             if (currentUser.type === "ROOT") {
                 document.getElementById('rootModal').style.display = 'flex';
                 return;
@@ -507,7 +555,8 @@
 
         window.closeAllModals = function() {
             document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
-            // Сброс заголовков
+            // Очистка полей даты при закрытии
+            document.querySelectorAll('.date-mask').forEach(i => i.value = '');
             document.getElementById('cateringModalTitle').innerText = "Кейтеринг";
             document.getElementById('banketModalTitle').innerText = "Банкет";
         };
