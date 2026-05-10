@@ -149,11 +149,10 @@
             background: rgba(0,0,0,0.5);
             z-index: 100;
             justify-content: center;
-            align-items: flex-start; /* Фиксируем верх модалки */
+            align-items: flex-end; /* Окно прижато к низу */
             backdrop-filter: blur(2px);
-            padding: 80px 12px 12px 12px; /* Отступ сверху для фиксации положения */
+            padding: 12px;
             box-sizing: border-box;
-            overflow-y: auto;
         }
 
         .modal-content {
@@ -163,11 +162,10 @@
             width: 100%;
             max-width: 360px;
             padding: 16px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-            /* Убрана анимация slideUp для стабильности верха */
+            box-shadow: 0 -5px 25px rgba(0,0,0,0.2);
             box-sizing: border-box;
             position: relative;
-            margin: 0 auto;
+            margin-bottom: 20px; /* Отступ от самого края экрана */
         }
 
         .modal-header {
@@ -197,7 +195,6 @@
             align-items: center;
             justify-content: center;
             border-radius: 50%;
-            /* Убрана анимация hover/transition */
         }
 
         .date-container {
@@ -247,6 +244,12 @@
             border-radius: 6px;
             border: 1px solid transparent;
             transition: background 0.1s;
+            cursor: pointer;
+        }
+
+        .day.selected {
+            background-color: var(--brand-color);
+            color: white;
         }
 
         .today {
@@ -257,6 +260,26 @@
 
         .empty-cell {
             background-color: transparent;
+        }
+
+        /* Новая кнопка перехода */
+        .go-to-date-btn {
+            margin-top: 16px;
+            width: 100%;
+            background-color: var(--dark-ui);
+            color: var(--logout-text);
+            border: 1px solid var(--logout-text);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .go-to-date-btn:active {
+            opacity: 0.8;
         }
 
         .record-indicator {
@@ -318,9 +341,12 @@
                 </div>
                 <button class="close-modal" id="closeCalendar">&times;</button>
             </div>
+            
             <div class="calendar-grid" id="calendarGrid">
                 <!-- JS Fill -->
             </div>
+
+            <button class="go-to-date-btn" id="goToDateBtn">ПЕРЕЙТИ К ДАТЕ</button>
         </div>
     </div>
 
@@ -365,9 +391,9 @@
         const calGrid = document.getElementById('calendarGrid');
         const dateTitle = document.getElementById('currentDateTitle');
 
-        // Глобальные переменные для навигации
         let displayedMonth = new Date().getMonth();
         let displayedYear = new Date().getFullYear();
+        let selectedDate = null;
 
         async function initAuth() {
             try { await signInAnonymously(auth); } catch (e) { console.error(e); }
@@ -383,7 +409,6 @@
 
         function login(user) {
             localStorage.setItem('mutki_user', JSON.stringify(user));
-            
             statusBar.innerHTML = `
                 <div class="user-info-badge">
                     <div id="recordIndicator" class="record-indicator"></div>
@@ -391,7 +416,6 @@
                 </div>
                 <button class="logout-btn" onclick="logout()">Выход</button>
             `;
-            
             controlsArea.style.display = 'block';
             autoLogActivity(user);
         }
@@ -399,7 +423,6 @@
         async function autoLogActivity(user) {
             const currentIndicator = document.getElementById('recordIndicator');
             if (currentIndicator) currentIndicator.className = 'record-indicator recording';
-
             try {
                 if (!auth.currentUser) await signInAnonymously(auth);
                 const logRef = collection(db, 'artifacts', appId, 'public', 'data', 'user_logs');
@@ -411,7 +434,6 @@
                 });
                 if (currentIndicator) currentIndicator.className = 'record-indicator recorded';
             } catch (e) {
-                console.error(e);
                 if (currentIndicator) currentIndicator.className = 'record-indicator record-error';
             }
         }
@@ -422,19 +444,12 @@
             const realMonth = realNow.getMonth();
             const realYear = realNow.getFullYear();
 
-            const monthsGenitive = [
-                "января", "февраля", "марта", "апреля", "мая", "июня",
-                "июля", "августа", "сентября", "октября", "ноября", "декабря"
-            ];
-            const monthsNominative = [
-                "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
-                "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
-            ];
+            const monthsGenitive = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+            const monthsNominative = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
 
             const isCurrentMonth = (m === realMonth && y === realYear);
             const isCurrentYear = (y === realYear);
 
-            // 1. Формируем заголовок
             if (isCurrentMonth) {
                 dateTitle.innerText = `${realToday} ${monthsGenitive[m]}`;
             } else {
@@ -443,7 +458,6 @@
                 dateTitle.innerText = title;
             }
 
-            // 2. Очистка и создание сетки
             calGrid.innerHTML = '';
             const daysShort = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
             daysShort.forEach(d => {
@@ -467,27 +481,26 @@
                 const el = document.createElement('div');
                 el.className = 'day';
                 if (isCurrentMonth && d === realToday) el.classList.add('today');
+                
                 el.innerText = d;
+                el.onclick = () => {
+                    document.querySelectorAll('.day').forEach(item => item.classList.remove('selected'));
+                    el.classList.add('selected');
+                    selectedDate = new Date(y, m, d);
+                };
                 calGrid.appendChild(el);
             }
         }
 
-        // Слушатели навигации
         document.getElementById('prevMonth').addEventListener('click', () => {
             displayedMonth--;
-            if (displayedMonth < 0) {
-                displayedMonth = 11;
-                displayedYear--;
-            }
+            if (displayedMonth < 0) { displayedMonth = 11; displayedYear--; }
             buildCalendar(displayedMonth, displayedYear);
         });
 
         document.getElementById('nextMonth').addEventListener('click', () => {
             displayedMonth++;
-            if (displayedMonth > 11) {
-                displayedMonth = 0;
-                displayedYear++;
-            }
+            if (displayedMonth > 11) { displayedMonth = 0; displayedYear++; }
             buildCalendar(displayedMonth, displayedYear);
         });
 
@@ -501,6 +514,16 @@
 
         document.getElementById('closeCalendar').addEventListener('click', () => {
             modal.style.display = 'none';
+        });
+
+        document.getElementById('goToDateBtn').addEventListener('click', () => {
+            if (selectedDate) {
+                const d = selectedDate.getDate();
+                const m = selectedDate.getMonth() + 1;
+                const y = selectedDate.getFullYear();
+                console.log(`Переход к дате: ${d}.${m}.${y}`);
+                modal.style.display = 'none';
+            }
         });
 
         window.onclick = (event) => {
