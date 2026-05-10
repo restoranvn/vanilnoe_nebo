@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -157,17 +158,10 @@
 
         .card {
             background: white;
-            padding: 40px 24px;
+            padding: 30px 24px;
             border-radius: 28px;
             text-align: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-        }
-
-        .welcome-msg {
-            font-size: 22px;
-            color: var(--brand-color);
-            font-weight: 800;
-            margin-bottom: 12px;
         }
 
         .status-indicator {
@@ -177,7 +171,6 @@
             color: var(--accent);
             font-weight: 600;
             font-size: 15px;
-            margin-top: 20px;
             padding: 8px 16px;
             background: #f0faf1;
             border-radius: 20px;
@@ -202,9 +195,7 @@
 
     <main id="mainApp">
         <div class="card">
-            <div class="welcome-msg">Доступ разрешен</div>
-            <div style="font-size: 15px; color: #7c6a61; line-height: 1.5;">Ваш вход успешно авторизован.<br>Активность зафиксирована в журнале событий.</div>
-            
+            <!-- Удален заголовок и описание, оставлен только индикатор синхронизации -->
             <div class="status-indicator" id="syncStatus">
                 <span id="syncIcon">✓</span>
                 <span id="syncText">Активность записана</span>
@@ -242,7 +233,7 @@
             "BANK-KATYA": { name: "Екатерина", type: "Банкет" },
             "BANK-ROMAN": { name: "Роман", type: "Банкет" },
             "BANK-LUBA": { name: "Любовь", type: "Банкет" },
-            "SU-ROOT": { name: "Суперюзер", type: "ROOT" }
+            "SU-ROOT": { name: "Администратор", type: "ROOT" }
         }
 
         const input = document.getElementById('tokenInput');
@@ -264,7 +255,6 @@
         function login(user) {
             localStorage.setItem('mutki_user', JSON.stringify(user));
             
-            // Теперь отображается только индикатор и имя
             statusBar.innerHTML = `
                 <div class="user-info-badge">
                     <div id="recordIndicator" class="record-indicator"></div>
@@ -307,3 +297,5 @@
     </script>
 </body>
 </html>
+
+```
