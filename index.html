@@ -181,6 +181,14 @@
             align-items: flex-start;
         }
 
+        /* Разделитель между разными датами */
+        .date-separator {
+            height: 1px;
+            background-color: #1F1713;
+            margin: 8px 0;
+            width: 100%;
+        }
+
         .event-item:last-child {
             border-bottom: none;
         }
@@ -729,11 +737,32 @@
             const limit = filtered.slice(0, 15);
             upcomingList.innerHTML = '';
 
+            let lastDate = null;
+
             limit.forEach(e => {
+                // Добавление разделителя, если дата сменилась
+                if (lastDate && lastDate !== e.date) {
+                    const separator = document.createElement('div');
+                    separator.className = 'date-separator';
+                    upcomingList.appendChild(separator);
+                }
+                lastDate = e.date;
+
                 const item = document.createElement('div');
                 item.className = 'event-item';
                 const shortDate = e.date ? e.date.substring(0, 5) : "--.--";
-                const description = e.type === 'Кейтеринг' ? (e.eventName || 'Без названия') : (e.customer || 'Без имени');
+                
+                // Для "Банкет" добавляем информацию о зале через "|"
+                let description = '';
+                if (e.type === 'Кейтеринг') {
+                    description = e.eventName || 'Без названия';
+                } else {
+                    description = e.customer || 'Без имени';
+                    if (e.hall) {
+                        description += ` | ${e.hall}`;
+                    }
+                }
+
                 const subDescription = e.type === 'Кейтеринг' ? (e.location || 'Локация не указана') : (e.hall || 'Зал не выбран');
                 
                 let typePrefix = '';
