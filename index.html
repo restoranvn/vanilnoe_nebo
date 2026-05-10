@@ -76,15 +76,17 @@
             transition: all 0.2s ease;
             color: white;
             text-decoration: none;
+            box-sizing: border-box;
         }
 
+        /* Настройки стиля рамки иконки, идентичные кнопке выхода */
         .settings-btn { 
             position: absolute; 
             left: 12px; 
             width: 32px;
-            height: 32px;
-            border: 1px solid rgba(255, 238, 210, 0.5);
-            border-radius: 50%;
+            height: 23px; /* Высота как у кнопки выхода (padding + font-size) */
+            border: 1px solid #FFEED2;
+            border-radius: 4px;
         }
         
         .exit-btn { 
@@ -299,7 +301,6 @@
         const mainApp = document.getElementById('mainApp');
         const phoneInput = document.getElementById('phoneInput');
 
-        // Auth init
         async function initAuth() {
             try { 
                 await signInAnonymously(auth); 
@@ -320,7 +321,6 @@
             }
         });
 
-        // Input Logic
         function setupInputListener() {
             const input = document.getElementById('tokenInput');
             if (input) {
@@ -334,7 +334,6 @@
         }
         setupInputListener();
 
-        // Phone Formatting Logic
         phoneInput.addEventListener('input', (e) => {
             let value = e.target.value;
             if (value.startsWith('8')) {
@@ -348,10 +347,9 @@
         function login(user) {
             localStorage.setItem('mutki_user', JSON.stringify(user));
             
-            // Заменяем текст "НАСТРОЙКИ" на SVG иконку контакта
             statusBar.innerHTML = `
                 <div class="nav-btn settings-btn" onclick="toggleModal(true)" title="Профиль">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
                         <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                     </svg>
                 </div>
