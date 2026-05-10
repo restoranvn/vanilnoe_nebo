@@ -149,9 +149,9 @@
             background: rgba(0,0,0,0.5);
             z-index: 100;
             justify-content: center;
-            align-items: flex-end; /* Окно прижато к низу */
+            align-items: flex-start; /* Выравнивание по верхнему краю */
             backdrop-filter: blur(2px);
-            padding: 12px;
+            padding: 0 12px;
             box-sizing: border-box;
         }
 
@@ -162,10 +162,11 @@
             width: 100%;
             max-width: 360px;
             padding: 16px;
-            box-shadow: 0 -5px 25px rgba(0,0,0,0.2);
+            box-shadow: 0 5px 25px rgba(0,0,0,0.2);
             box-sizing: border-box;
             position: relative;
-            margin-bottom: 20px; /* Отступ от самого края экрана */
+            margin-top: 70px; /* Фиксированный отступ сверху */
+            margin-bottom: 20px;
         }
 
         .modal-header {
@@ -262,7 +263,6 @@
             background-color: transparent;
         }
 
-        /* Новая кнопка перехода */
         .go-to-date-btn {
             margin-top: 16px;
             width: 100%;
