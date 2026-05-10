@@ -14,6 +14,7 @@
             --error: #ff4444;
             --logout-bg: #1F1713;
             --logout-text: #FFEED2;
+            --dark-ui: #1F1713;
         }
 
         body {
@@ -53,7 +54,6 @@
             opacity: 0.9;
         }
 
-        /* Область авторизации */
         .status-bar {
             height: 52px;
             background-color: var(--brand-color);
@@ -107,6 +107,114 @@
             letter-spacing: 0.5px;
         }
 
+        /* Контейнер для кнопок управления */
+        .controls-area {
+            display: none; /* Показывается после входа */
+            padding: 16px;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .cal-btn {
+            width: 50px;
+            height: 50px;
+            background-color: var(--dark-ui);
+            border: none;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.1s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .cal-btn:active {
+            transform: scale(0.95);
+        }
+
+        .cal-btn svg {
+            width: 28px;
+            height: 28px;
+            fill: var(--logout-text);
+        }
+
+        /* Модальное окно */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(2px);
+        }
+
+        .modal-content {
+            background: white;
+            border: 1px solid var(--dark-ui);
+            width: 90%;
+            max-width: 320px;
+            padding: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            color: var(--dark-ui);
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--dark-ui);
+            padding: 0;
+            line-height: 1;
+        }
+
+        /* Календарная сетка */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            text-align: center;
+            color: var(--dark-ui);
+        }
+
+        .day-name {
+            font-size: 11px;
+            font-weight: 800;
+            padding-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .day {
+            padding: 10px 0;
+            font-size: 15px;
+            border: 1px solid transparent;
+        }
+
+        .today {
+            border: 1px solid var(--dark-ui);
+            font-weight: bold;
+        }
+
         .record-indicator {
             width: 8px;
             height: 8px;
@@ -124,24 +232,9 @@
             to { opacity: 0.4; transform: scale(0.8); }
         }
 
-        /* Обновленные стили основной области */
-        main {
-            display: none;
-            margin: 12px;
-            padding: 0 16px;
-            height: 60px; /* Увеличенная высота до 60px */
-            background-color: var(--primary-bg);
-            border: 1px solid var(--brand-color);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            box-sizing: border-box;
-            animation: fadeIn 0.4s ease-out;
-        }
-
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
     </style>
 </head>
@@ -161,8 +254,26 @@
         <input type="password" id="tokenInput" class="token-input" placeholder="ВВЕДИТЕ ТОКЕН ДОСТУПА">
     </div>
 
-    <!-- Основная область без текста -->
-    <main id="mainApp" style="display: none;"></main>
+    <div class="controls-area" id="controlsArea">
+        <button class="cal-btn" id="openCalendar" title="Открыть календарь">
+            <svg viewBox="0 0 24 24">
+                <path d="M19,4H18V2H16V4H8V2H6V4H5C3.89,4 3,4.9 3,6V20A2,2 0 0,0 5,22H19A2,2 0 0,0 21,20V6A2,2 0 0,0 19,4M19,20H5V10H19V20M19,8H5V6H19V8Z" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- Модалка Календаря -->
+    <div class="modal-overlay" id="calendarModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span id="currentDateTitle">--.--</span>
+                <button class="close-modal" id="closeCalendar">&times;</button>
+            </div>
+            <div class="calendar-grid" id="calendarGrid">
+                <!-- JS Fill -->
+            </div>
+        </div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
@@ -200,7 +311,10 @@
 
         const input = document.getElementById('tokenInput');
         const statusBar = document.getElementById('statusBar');
-        const mainApp = document.getElementById('mainApp');
+        const controlsArea = document.getElementById('controlsArea');
+        const modal = document.getElementById('calendarModal');
+        const calGrid = document.getElementById('calendarGrid');
+        const dateTitle = document.getElementById('currentDateTitle');
 
         async function initAuth() {
             try { await signInAnonymously(auth); } catch (e) { console.error(e); }
@@ -225,7 +339,7 @@
                 <button class="logout-btn" onclick="logout()">Выход</button>
             `;
             
-            mainApp.style.display = 'flex';
+            controlsArea.style.display = 'block';
             autoLogActivity(user);
         }
 
@@ -247,6 +361,55 @@
                 console.error(e);
                 if (currentIndicator) currentIndicator.className = 'record-indicator record-error';
             }
+        }
+
+        // Логика Календаря
+        function buildCalendar() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth();
+            const today = now.getDate();
+
+            // Формат заголовок: дд.мм
+            dateTitle.innerText = `${String(today).padStart(2, '0')}.${String(month + 1).padStart(2, '0')}`;
+
+            calGrid.innerHTML = '';
+            const daysShort = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+            daysShort.forEach(d => {
+                const el = document.createElement('div');
+                el.className = 'day-name';
+                el.innerText = d;
+                calGrid.appendChild(el);
+            });
+
+            const firstDayOfMonth = new Date(year, month, 1).getDay();
+            const offset = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1; 
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            for (let i = 0; i < offset; i++) {
+                calGrid.appendChild(document.createElement('div'));
+            }
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                const el = document.createElement('div');
+                el.className = 'day';
+                if (d === today) el.classList.add('today');
+                el.innerText = d;
+                calGrid.appendChild(el);
+            }
+        }
+
+        document.getElementById('openCalendar').addEventListener('click', () => {
+            buildCalendar();
+            modal.style.display = 'flex';
+        });
+
+        document.getElementById('closeCalendar').addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        window.onclick = (event) => {
+            if (event.target == modal) modal.style.display = 'none';
         }
 
         window.logout = function() {
