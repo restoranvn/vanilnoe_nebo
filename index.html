@@ -242,6 +242,13 @@
             margin-bottom: 20px;
         }
 
+        /* Специальный стиль для компактного модального окна ROOT */
+        .modal-content.root-mini {
+            max-width: fit-content;
+            padding: 20px 30px;
+            margin-top: 200px; /* Сдвигаем пониже */
+        }
+
         .modal-header {
             display: flex;
             justify-content: space-between;
@@ -473,12 +480,9 @@
     </div>
 
     <div class="modal-overlay" id="rootModal">
-        <div class="modal-content" style="text-align: center;">
-            <div class="modal-header">
-                <span class="modal-title">Ограничение</span>
-                <button class="close-modal" onclick="closeAllModals()">&times;</button>
-            </div>
-            <div style="font-size: 24px; font-weight: 900; padding: 40px 0; color: var(--dark-ui);">
+        <div class="modal-content root-mini" style="text-align: center;">
+            <!-- Заголовок убран по просьбе пользователя -->
+            <div style="font-size: 18px; font-weight: 800; padding: 10px 0; color: var(--dark-ui); text-transform: uppercase;">
                 Оно тебе зачем?
             </div>
         </div>
