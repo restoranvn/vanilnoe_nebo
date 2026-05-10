@@ -45,7 +45,6 @@
             object-fit: contain;
         }
 
-        /* Область авторизации */
         .status-bar {
             height: 48px;
             background-color: var(--brand-color);
@@ -74,28 +73,26 @@
             color: #b5a49d;
         }
 
-        /* Кнопка выхода */
+        /* Кнопка ВЫХОД */
         .exit-btn {
             position: absolute;
             left: 12px;
-            width: 24px;
-            height: 24px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            background: rgba(255,255,255,0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
             opacity: 0.8;
-            transition: opacity 0.2s;
+            transition: all 0.2s;
+            color: white;
+            text-decoration: none;
         }
 
         .exit-btn:hover {
             opacity: 1;
-        }
-
-        .exit-icon {
-            width: 20px;
-            height: 20px;
-            object-fit: contain;
+            background: rgba(255,255,255,0.2);
         }
 
         .user-info-badge {
@@ -117,7 +114,6 @@
             color: #eee;
         }
 
-        /* Индикаторы записи - теперь внутри badge слева */
         .record-indicator {
             width: 8px;
             height: 8px;
@@ -274,11 +270,9 @@
         function login(user) {
             localStorage.setItem('mutki_user', JSON.stringify(user));
             
-            // Теперь индикатор находится внутри user-info-badge ПЕРЕД именем
+            // Заменили иконку на текстовую кнопку ВЫХОД
             statusBar.innerHTML = `
-                <div class="exit-btn" onclick="logout()" title="Выйти">
-                    <img src="ico/exit.png" alt="Exit" class="exit-icon" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1828/1828490.png'">
-                </div>
+                <div class="exit-btn" onclick="logout()">ВЫХОД</div>
                 <div class="user-info-badge">
                     <div id="recordIndicator" class="record-indicator"></div>
                     <span>${user.name}</span>
