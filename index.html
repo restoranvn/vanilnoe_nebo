@@ -74,22 +74,28 @@
             color: #b5a49d;
         }
 
-        /* Кнопка выхода текстовая */
-        .exit-btn-text {
+        /* Кнопка выхода */
+        .exit-btn {
             position: absolute;
-            left: 16px;
-            font-size: 11px;
-            opacity: 0.9;
+            left: 12px;
+            width: 24px;
+            height: 24px;
             cursor: pointer;
-            text-transform: uppercase;
-            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.8;
             transition: opacity 0.2s;
-            font-weight: normal;
         }
 
-        .exit-btn-text:hover {
+        .exit-btn:hover {
             opacity: 1;
-            text-decoration: underline;
+        }
+
+        .exit-icon {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
         }
 
         .user-info-badge {
@@ -111,15 +117,14 @@
             color: #eee;
         }
 
-        /* Индикаторы */
+        /* Индикаторы записи - теперь внутри badge слева */
         .record-indicator {
-            position: absolute;
-            right: 16px;
             width: 8px;
             height: 8px;
             background-color: #4CAF50;
             border-radius: 50%;
             display: none;
+            flex-shrink: 0;
         }
 
         .recording {
@@ -197,7 +202,6 @@
 
     <div class="status-bar" id="statusBar">
         <input type="password" id="tokenInput" class="token-input" placeholder="ВВЕДИТЕ ТОКЕН ДОСТУПА">
-        <div id="recordIndicator" class="record-indicator"></div>
     </div>
 
     <main id="mainApp">
@@ -270,14 +274,16 @@
         function login(user) {
             localStorage.setItem('mutki_user', JSON.stringify(user));
             
-            // Заменяем иконку на текст "ВЫХОД" со стилем из хедера
+            // Теперь индикатор находится внутри user-info-badge ПЕРЕД именем
             statusBar.innerHTML = `
-                <div class="exit-btn-text" onclick="logout()">ВЫХОД</div>
+                <div class="exit-btn" onclick="logout()" title="Выйти">
+                    <img src="ico/exit.png" alt="Exit" class="exit-icon" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1828/1828490.png'">
+                </div>
                 <div class="user-info-badge">
+                    <div id="recordIndicator" class="record-indicator"></div>
                     <span>${user.name}</span>
                     <span class="type-tag">${user.type}</span>
                 </div>
-                <div id="recordIndicator" class="record-indicator"></div>
             `;
             
             mainApp.style.display = 'block';
