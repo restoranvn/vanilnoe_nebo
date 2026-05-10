@@ -336,6 +336,19 @@
         </div>
     </div>
 
+    <!-- Модалка для ROOT -->
+    <div class="modal-overlay" id="rootModal">
+        <div class="modal-content" style="text-align: center;">
+            <div class="modal-header">
+                <span class="modal-title">Ограничение</span>
+                <button class="close-modal" onclick="closeAllModals()">&times;</button>
+            </div>
+            <div style="font-size: 24px; font-weight: 900; padding: 40px 0; color: var(--dark-ui);">
+                Оно тебе зачем?
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
         import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
@@ -471,10 +484,16 @@
             document.getElementById('calendarModal').style.display = 'flex';
         };
 
-        // ЛОГИКА КНОПКИ ПЛЮС С ОБНОВЛЕНИЕМ ЗАГОЛОВКА
+        // ЛОГИКА КНОПКИ ПЛЮС
         document.getElementById('addEntryBtn').onclick = () => {
             if (!currentUser) return;
             
+            // Проверка для ROOT
+            if (currentUser.type === "ROOT") {
+                document.getElementById('rootModal').style.display = 'flex';
+                return;
+            }
+
             const newTitle = "Новое мероприятие";
             
             if (currentUser.type === "Кейтеринг") {
@@ -483,15 +502,12 @@
             } else if (currentUser.type === "Банкет") {
                 document.getElementById('banketModalTitle').innerText = newTitle;
                 document.getElementById('banketModal').style.display = 'flex';
-            } else if (currentUser.type === "ROOT") {
-                document.getElementById('cateringModalTitle').innerText = newTitle;
-                document.getElementById('cateringModal').style.display = 'flex';
             }
         };
 
         window.closeAllModals = function() {
             document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
-            // Сброс заголовков при закрытии (опционально)
+            // Сброс заголовков
             document.getElementById('cateringModalTitle').innerText = "Кейтеринг";
             document.getElementById('banketModalTitle').innerText = "Банкет";
         };
