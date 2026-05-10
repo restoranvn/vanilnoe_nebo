@@ -22,6 +22,7 @@
             background-color: var(--primary-bg);
             color: #333;
             overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
         }
 
         header {
@@ -61,7 +62,6 @@
             justify-content: center;
             color: white;
             position: relative;
-            border-top: none;
         }
 
         .token-input {
@@ -105,11 +105,6 @@
             font-weight: normal;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            transition: opacity 0.2s;
-        }
-
-        .logout-btn:active {
-            opacity: 0.8;
         }
 
         .record-indicator {
@@ -118,38 +113,34 @@
             background-color: #4CAF50;
             border-radius: 50%;
             display: none;
-            flex-shrink: 0;
         }
 
-        .recording {
-            display: block;
-            animation: pulse 1s infinite alternate;
-        }
-
-        .recorded {
-            display: block;
-        }
-
-        .record-error {
-            display: block;
-            background-color: var(--error);
-        }
+        .recording { display: block; animation: pulse 1s infinite alternate; }
+        .recorded { display: block; }
+        .record-error { display: block; background-color: var(--error); }
 
         @keyframes pulse {
             from { opacity: 1; transform: scale(1.1); }
             to { opacity: 0.4; transform: scale(0.8); }
         }
 
+        /* Обновленные стили основной области */
         main {
             display: none;
-            padding: 24px 16px;
-            max-width: 500px;
-            margin: 0 auto;
+            margin: 12px; /* Отступ от краев и статус-бара */
+            padding: 0 16px;
+            height: 40px; /* Фиксированная высота */
+            background-color: var(--primary-bg);
+            border: 1px solid var(--brand-color); /* Рамка бренда */
+            border-radius: 12px; /* Закругление */
+            display: flex;
+            align-items: center;
+            box-sizing: border-box;
             animation: fadeIn 0.4s ease-out;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
         }
     </style>
@@ -170,8 +161,10 @@
         <input type="password" id="tokenInput" class="token-input" placeholder="ВВЕДИТЕ ТОКЕН ДОСТУПА">
     </div>
 
-    <main id="mainApp">
-        <!-- Область для основного контента приложения (сейчас пуста) -->
+    <main id="mainApp" style="display: none;">
+        <div id="content" style="font-size: 13px; font-weight: 500; color: var(--brand-color);">
+            Система готова к работе
+        </div>
     </main>
 
     <script type="module">
@@ -235,7 +228,7 @@
                 <button class="logout-btn" onclick="logout()">Выход</button>
             `;
             
-            mainApp.style.display = 'block';
+            mainApp.style.display = 'flex'; // Используем flex для центрирования контента внутри
             autoLogActivity(user);
         }
 
