@@ -12,7 +12,6 @@
             --accent: #4CAF50;
             --text-light: #FFFFFF;
             --error: #ff4444;
-            --dialog-border: #1F1713;
         }
 
         body {
@@ -34,6 +33,12 @@
             z-index: 10;
         }
 
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
         .logo-img {
             width: 32px;
             height: 32px;
@@ -48,7 +53,7 @@
             justify-content: center;
             color: white;
             position: relative;
-            padding: 0 10px;
+            border-top: 1px solid rgba(255,255,255,0.1);
         }
 
         .token-input {
@@ -66,44 +71,6 @@
 
         .token-input::placeholder {
             color: #b5a49d;
-        }
-
-        .nav-btn {
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-            color: white;
-            text-decoration: none;
-            box-sizing: border-box;
-        }
-
-        .settings-btn { 
-            position: absolute; 
-            left: 12px; 
-            width: 32px;
-            height: 23px; 
-            border: 1px solid #FFEED2;
-            border-radius: 4px;
-        }
-        
-        .exit-btn { 
-            position: absolute; 
-            right: 12px;
-            font-size: 11px;
-            font-weight: 400;
-            opacity: 0.9;
-            letter-spacing: 0.5px;
-            border: 1px solid #FFEED2;
-            padding: 4px 10px;
-            border-radius: 4px;
-            text-transform: uppercase;
-        }
-
-        .nav-btn:hover {
-            opacity: 1;
-            background: rgba(255, 238, 210, 0.15);
         }
 
         .user-info-badge {
@@ -125,7 +92,35 @@
             color: #eee;
         }
 
+        /* Кнопка выхода слева */
+        .exit-btn {
+            position: absolute;
+            left: 16px;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .exit-btn:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .exit-icon {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+        }
+
+        /* Индикаторы справа */
         .record-indicator {
+            position: absolute;
+            right: 16px;
             width: 8px;
             height: 8px;
             background-color: #4CAF50;
@@ -133,9 +128,19 @@
             display: none;
         }
 
-        .recording { display: block; animation: pulse 1s infinite alternate; }
-        .recorded { display: block; }
-        .record-error { display: block; background-color: var(--error); }
+        .recording {
+            display: block;
+            animation: pulse 1s infinite alternate;
+        }
+
+        .recorded {
+            display: block;
+        }
+
+        .record-error {
+            display: block;
+            background-color: var(--error);
+        }
 
         @keyframes pulse {
             from { opacity: 1; transform: scale(1.1); }
@@ -163,67 +168,34 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
 
-        /* Modal Styles */
-        #modalOverlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: none;
+        .welcome-msg {
+            font-size: 22px;
+            color: var(--brand-color);
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .status-indicator {
+            display: inline-flex;
             align-items: center;
-            justify-content: center;
-            z-index: 100;
-            padding: 20px;
+            gap: 8px;
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 15px;
+            margin-top: 20px;
+            padding: 8px 16px;
+            background: #f0faf1;
+            border-radius: 20px;
         }
 
-        .modal-content {
-            background: white;
-            border: 1px solid var(--dialog-border);
-            padding: 24px;
-            width: 100%;
-            max-width: 320px;
-            border-radius: 4px;
-            position: relative;
-        }
-
-        .modal-header h2 { margin: 0; font-size: 18px; color: var(--brand-color); }
-        .modal-header p { margin: 4px 0 20px; font-size: 12px; color: #888; text-transform: uppercase; }
-
-        .form-group { text-align: left; margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 12px; margin-bottom: 5px; font-weight: bold; }
-        
-        .styled-input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-
-        .save-btn {
-            background: var(--brand-color);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 4px;
-            width: 100%;
+        .logout-link {
+            display: inline-block;
+            margin-top: 45px;
+            color: #b5a49d;
+            font-size: 13px;
+            text-decoration: none;
+            border-bottom: 1px dashed #d1c5bf;
             cursor: pointer;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-
-        .save-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            cursor: pointer;
-            font-size: 20px;
-            color: #999;
         }
     </style>
 </head>
@@ -241,39 +213,31 @@
 
     <div class="status-bar" id="statusBar">
         <input type="password" id="tokenInput" class="token-input" placeholder="ВВЕДИТЕ ТОКЕН ДОСТУПА">
+        <div id="recordIndicator" class="record-indicator"></div>
     </div>
 
     <main id="mainApp">
         <div class="card">
             <div class="welcome-msg">Доступ разрешен</div>
             <div style="font-size: 15px; color: #7c6a61; line-height: 1.5;">Ваш вход успешно авторизован.<br>Активность зафиксирована в журнале событий.</div>
-            <div id="saveStatus" style="font-size: 12px; margin-top: 15px; font-weight: bold;"></div>
+            
+            <div class="status-indicator" id="syncStatus">
+                <span id="syncIcon">✓</span>
+                <span id="syncText">Активность записана</span>
+            </div>
+
+            <div class="logout-link" onclick="logout()">Сменить пользователя / Выйти</div>
         </div>
     </main>
 
-    <div id="modalOverlay">
-        <div class="modal-content">
-            <span class="close-modal" onclick="toggleModal(false)">&times;</span>
-            <div class="modal-header">
-                <h2 id="modalUserName">Имя пользователя</h2>
-                <p id="modalUserType">Тип</p>
-            </div>
-            <div class="form-group">
-                <label>НОМЕР ТЕЛЕФОНА</label>
-                <input type="tel" id="phoneInput" class="styled-input" placeholder="+7 (999) 000-00-00">
-            </div>
-            <button class="save-btn" id="btnSaveProfile" onclick="saveProfile()">СОХРАНИТЬ</button>
-        </div>
-    </div>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getFirestore, collection, doc, setDoc, getDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-        // Firebase Configuration
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-            apiKey: "AIzaSyBEn2ZheCPUMgTKxuQmHw0MPehIu1B85Do",
+        // Fallback config if environment ones are missing
+        const firebaseConfig = {
+            apiKey: "",
             authDomain: "vanilnoeneboapp.firebaseapp.com",
             projectId: "vanilnoeneboapp",
             storageBucket: "vanilnoeneboapp.firebasestorage.app",
@@ -281,7 +245,8 @@
             appId: "1:648309181653:web:64f690d6acb67ea8fea65c"
         };
 
-        const app = initializeApp(firebaseConfig);
+        const actualConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : firebaseConfig;
+        const app = initializeApp(actualConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'vn-mutki';
@@ -290,7 +255,6 @@
             "CATER-ILYA": { name: "Илья", type: "Кейтеринг" },
             "CATER-MIXA": { name: "Михаил", type: "Кейтеринг" },
             "CATER-ALEX": { name: "Александр", type: "Кейтеринг" },
-            "CATER-SVET": { name: "Светлана", type: "Кейтеринг" },
             "CATER-IRA": { name: "Ирина", type: "Кейтеринг" },
             "BANK-MASHA": { name: "Мария", type: "Банкет" },
             "BANK-RITA": { name: "Маргарита", type: "Банкет" },
@@ -298,154 +262,46 @@
             "BANK-ROMAN": { name: "Роман", type: "Банкет" },
             "BANK-LUBA": { name: "Любовь", type: "Банкет" },
             "SU-ROOT": { name: "Администратор", type: "ROOT" }
-        };
-
-        let isAuthInProgress = false;
-
-        // AUTH INITIALIZATION (MANDATORY RULE 3)
-        async function performAuth() {
-            if (isAuthInProgress) return;
-            isAuthInProgress = true;
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-            } catch (e) {
-                console.error("Auth Failed:", e);
-                showStatus("Ошибка авторизации сети", "red");
-            } finally {
-                isAuthInProgress = false;
-            }
         }
 
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const savedUserStr = localStorage.getItem('mutki_user');
-                if (savedUserStr) {
-                    const userData = JSON.parse(savedUserStr);
-                    renderLoggedInState(userData);
-                    loadProfileData(user.uid);
-                }
-            } else {
-                // If not logged in but should be
-                const savedUserStr = localStorage.getItem('mutki_user');
-                if (savedUserStr) performAuth();
-            }
-        });
-
+        const input = document.getElementById('tokenInput');
         const statusBar = document.getElementById('statusBar');
         const mainApp = document.getElementById('mainApp');
-        const phoneInput = document.getElementById('phoneInput');
 
-        document.getElementById('tokenInput').addEventListener('input', async (e) => {
-            const val = e.target.value.trim().toUpperCase();
+        async function initAuth() {
+            try { await signInAnonymously(auth); } catch (e) { console.error(e); }
+        }
+        initAuth();
+
+        input.addEventListener('input', () => {
+            const val = input.value.trim().toUpperCase();
             if (USER_DB[val]) {
-                localStorage.setItem('mutki_user', JSON.stringify(USER_DB[val]));
-                await performAuth();
+                login(USER_DB[val]);
             }
         });
 
-        phoneInput.addEventListener('input', (e) => {
-            let val = e.target.value;
-            if (val.startsWith('8')) val = '+7' + val.substring(1);
-            else if (val.startsWith('9')) val = '+7' + val;
-            e.target.value = val;
-        });
-
-        function renderLoggedInState(user) {
+        function login(user) {
+            localStorage.setItem('mutki_user', JSON.stringify(user));
             statusBar.innerHTML = `
-                <div class="nav-btn settings-btn" onclick="toggleModal(true)" title="Профиль">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                    </svg>
+                <div class="exit-btn" onclick="logout()" title="Выйти">
+                    <img src="ico/exit.png" class="exit-icon" alt="Exit" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTkgMjFIM2ExIDEgMCAwIDEtMS0xVjRhMSAxIDAgMCAxIDEtMWg2bTMgMTIgNS01LTUtNSIvPjxwYXRoIGQ9Ik0yMSA xMkg5Ii8+PC9zdmc+'">
                 </div>
                 <div class="user-info-badge">
-                    <div id="recordIndicator" class="record-indicator"></div>
                     <span>${user.name}</span>
                     <span class="type-tag">${user.type}</span>
                 </div>
-                <div class="nav-btn exit-btn" onclick="logout()">ВЫХОД</div>
+                <div id="recordIndicator" class="record-indicator"></div>
             `;
-            
-            document.getElementById('modalUserName').innerText = user.name;
-            document.getElementById('modalUserType').innerText = user.type;
             mainApp.style.display = 'block';
             autoLogActivity(user);
         }
 
-        async function loadProfileData(uid) {
-            if (!uid) return;
-            try {
-                // RULE 1: Private path - Ensure user is authenticated before this call
-                const docRef = doc(db, 'artifacts', appId, 'users', uid, 'profile');
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    phoneInput.value = docSnap.data().phone || "";
-                }
-            } catch (e) {
-                console.warn("Could not load profile:", e.message);
-            }
-        }
-
-        window.toggleModal = (show) => {
-            document.getElementById('modalOverlay').style.display = show ? 'flex' : 'none';
-        };
-
-        window.saveProfile = async function() {
-            const user = auth.currentUser;
-            if (!user) {
-                showStatus("Авторизация не завершена. Подождите.", "red");
-                await performAuth();
-                return;
-            }
-
-            const btn = document.getElementById('btnSaveProfile');
-            const phone = phoneInput.value.trim();
-            const userDataStr = localStorage.getItem('mutki_user');
-            if (!userDataStr) return;
-            const userData = JSON.parse(userDataStr);
-
-            btn.disabled = true;
-            btn.innerText = "СОХРАНЕНИЕ...";
-
-            try {
-                // RULE 1: Strict private path
-                const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'profile');
-                await setDoc(docRef, {
-                    name: userData.name,
-                    type: userData.type,
-                    phone: phone,
-                    updatedAt: serverTimestamp()
-                }, { merge: true });
-                
-                showStatus("Данные успешно сохранены", "var(--accent)");
-                setTimeout(() => toggleModal(false), 500);
-            } catch (e) {
-                console.error("Firestore Error:", e);
-                showStatus("Ошибка доступа к БД", "red");
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "СОХРАНИТЬ";
-            }
-        };
-
-        function showStatus(text, color) {
-            const el = document.getElementById('saveStatus');
-            if (!el) return;
-            el.innerText = text;
-            el.style.color = color;
-            setTimeout(() => { if(el.innerText === text) el.innerText = ""; }, 4000);
-        }
-
         async function autoLogActivity(user) {
-            const indicator = document.getElementById('recordIndicator');
-            if (indicator) indicator.className = 'record-indicator recording';
+            const currentIndicator = document.getElementById('recordIndicator');
+            if (currentIndicator) currentIndicator.className = 'record-indicator recording';
 
             try {
-                if (!auth.currentUser) await performAuth();
-                // RULE 1: Public data path
+                if (!auth.currentUser) await signInAnonymously(auth);
                 const logRef = collection(db, 'artifacts', appId, 'public', 'data', 'user_logs');
                 await addDoc(logRef, {
                     userName: user.name,
@@ -453,26 +309,20 @@
                     timestamp: serverTimestamp(),
                     event: "SESSION_START"
                 });
-                if (indicator) indicator.className = 'record-indicator recorded';
+                if (currentIndicator) currentIndicator.className = 'record-indicator recorded';
             } catch (e) {
-                console.error("Logging failed:", e);
-                if (indicator) indicator.className = 'record-indicator record-error';
+                console.error(e);
+                if (currentIndicator) currentIndicator.className = 'record-indicator record-error';
             }
         }
 
-        window.logout = () => {
+        window.logout = function() {
             localStorage.removeItem('mutki_user');
-            auth.signOut().then(() => {
-                location.reload();
-            });
-        };
-
-        // Initial check
-        const saved = localStorage.getItem('mutki_user');
-        if (saved) {
-            performAuth();
+            location.reload();
         }
 
+        const saved = localStorage.getItem('mutki_user');
+        if (saved) login(JSON.parse(saved));
     </script>
 </body>
 </html>
