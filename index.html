@@ -146,7 +146,6 @@
             fill: var(--logout-text);
         }
 
-        /* Список мероприятий */
         .events-container {
             border: 1px solid #1F1713;
             background: transparent;
@@ -179,6 +178,7 @@
             display: flex;
             gap: 8px;
             color: #1F1713;
+            align-items: baseline;
         }
 
         .event-item:last-child {
@@ -188,12 +188,21 @@
         .event-date {
             font-weight: 800;
             white-space: nowrap;
+            min-width: 42px;
         }
 
         .event-desc {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            flex-grow: 1;
+        }
+
+        .event-type-tag {
+            font-size: 10px;
+            font-weight: bold;
+            opacity: 0.6;
+            margin-right: 4px;
         }
 
         .no-events {
@@ -202,7 +211,6 @@
             font-style: italic;
         }
 
-        /* Модалки */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -410,7 +418,6 @@
         </div>
     </div>
 
-    <!-- Модалка Календаря -->
     <div class="modal-overlay" id="calendarModal">
         <div class="modal-content" id="swipeArea" style="touch-action: none;">
             <div class="modal-header">
@@ -425,7 +432,6 @@
         </div>
     </div>
 
-    <!-- Модалка Кейтеринга -->
     <div class="modal-overlay" id="cateringModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -446,7 +452,6 @@
         </div>
     </div>
 
-    <!-- Модалка Банкета -->
     <div class="modal-overlay" id="banketModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -467,7 +472,6 @@
         </div>
     </div>
 
-    <!-- Модалка для ROOT -->
     <div class="modal-overlay" id="rootModal">
         <div class="modal-content" style="text-align: center;">
             <div class="modal-header">
@@ -526,7 +530,6 @@
         let displayedMonth = new Date().getMonth();
         let displayedYear = new Date().getFullYear();
 
-        // Инициализация авторизации
         async function initAuth() {
             try { 
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -580,36 +583,34 @@
             }
         }
 
-        // Подписка на список мероприятий
         function subscribeToEvents() {
             const eventsRef = collection(db, 'artifacts', appId, 'public', 'data', 'events');
             
             onSnapshot(eventsRef, (snapshot) => {
-                const events = [];
+                let events = [];
                 snapshot.forEach(doc => {
                     events.push({ id: doc.id, ...doc.data() });
                 });
 
-                // Сортировка по дате (в формате ДД.ММ.ГГГГ)
-                events.sort((a, b) => {
-                    const parseDate = (s) => {
-                        const [d, m, y] = s.split('.').map(Number);
-                        return new Date(y, m - 1, d).getTime();
-                    };
-                    return parseDate(a.date) - parseDate(b.date);
-                });
+                const parseDate = (s) => {
+                    if (!s) return 0;
+                    const parts = s.split('.').map(Number);
+                    if (parts.length < 3) return 0;
+                    return new Date(parts[2], parts[1] - 1, parts[0]).getTime();
+                };
 
-                // Берем только будущие или сегодняшние
+                events.sort((a, b) => parseDate(a.date) - parseDate(b.date));
                 const todayTime = new Date().setHours(0,0,0,0);
-                const filtered = events.filter(e => {
-                    const [d, m, y] = e.date.split('.').map(Number);
-                    return new Date(y, m - 1, d).getTime() >= todayTime;
-                }).slice(0, 10); // Показываем 10 ближайших
+                
+                let filtered = events.filter(e => parseDate(e.date) >= todayTime);
+                
+                if (currentUser && currentUser.type !== "ROOT") {
+                    filtered = filtered.filter(e => e.type === currentUser.type);
+                }
 
-                renderEvents(filtered);
+                renderEvents(filtered.slice(0, 15));
             }, (error) => {
-                console.error("Snapshot error:", error);
-                upcomingList.innerHTML = `<div class="no-events" style="color:red">Ошибка загрузки данных</div>`;
+                upcomingList.innerHTML = `<div class="no-events" style="color:red">Ошибка доступа</div>`;
             });
         }
 
@@ -620,23 +621,28 @@
             }
 
             upcomingList.innerHTML = events.map(e => {
-                const shortDate = e.date.substring(0, 5); // ДД.ММ
+                const shortDate = e.date ? e.date.substring(0, 5) : "--.--";
                 const description = e.type === 'Кейтеринг' ? e.eventName : e.customer;
+                
+                let typePrefix = '';
+                if (currentUser && currentUser.type === "ROOT") {
+                    typePrefix = `<span class="event-type-tag">[${e.type === 'Кейтеринг' ? 'К' : 'Б'}]</span>`;
+                }
+
                 return `
                     <div class="event-item">
                         <span class="event-date">${shortDate}</span>
-                        <span class="event-desc">${description || 'Без названия'}</span>
+                        <div class="event-desc">${typePrefix}${description || 'Без названия'}</div>
                     </div>
                 `;
             }).join('');
         }
 
-        // МАСКА ДАТЫ
+        // Логика маски и автоматического добавления года
         document.querySelectorAll('.date-mask').forEach(input => {
             input.addEventListener('input', (e) => {
                 let value = e.target.value.replace(/\D/g, ''); 
                 if (value.length > 8) value = value.slice(0, 8); 
-                
                 let formattedValue = '';
                 if (value.length > 0) {
                     formattedValue = value.slice(0, 2);
@@ -649,9 +655,18 @@
                 }
                 e.target.value = formattedValue;
             });
+
+            // Автоматическое добавление года при потере фокуса
+            input.addEventListener('blur', (e) => {
+                const val = e.target.value;
+                // Если введено ровно 5 символов (ДД.ММ), добавляем текущий год
+                if (val.length === 5 && val.includes('.')) {
+                    const currentYear = new Date().getFullYear();
+                    e.target.value = val + '.' + currentYear;
+                }
+            });
         });
 
-        // КАЛЕНДАРЬ
         function buildCalendar(m, y) {
             const realNow = new Date();
             const realToday = realNow.getDate();
@@ -701,7 +716,6 @@
             document.getElementById('calendarModal').style.display = 'flex';
         };
 
-        // КНОПКА ДОБАВЛЕНИЯ
         document.getElementById('addEntryBtn').onclick = () => {
             if (!currentUser) return;
             if (currentUser.type === "ROOT") {
@@ -734,9 +748,7 @@
                     createdAt: serverTimestamp()
                 });
                 closeAllModals();
-            } catch (e) {
-                console.error("Error adding document: ", e);
-            } finally {
+            } catch (e) { console.error(e); } finally {
                 btn.disabled = false;
                 btn.innerText = "Добавить";
             }
