@@ -90,16 +90,6 @@
             position: relative;
         }
 
-        .user-info-badge .type-tag {
-            background: #7a5a4d;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #eee;
-        }
-
         /* Кнопка ВЫХОД */
         .logout-btn {
             position: absolute;
@@ -123,7 +113,7 @@
             opacity: 0.8;
         }
 
-        /* Индикатор записи теперь находится внутри флекса перед именем */
+        /* Индикатор записи */
         .record-indicator {
             width: 8px;
             height: 8px;
@@ -208,7 +198,6 @@
 
     <div class="status-bar" id="statusBar">
         <input type="password" id="tokenInput" class="token-input" placeholder="ВВЕДИТЕ ТОКЕН ДОСТУПА">
-        <!-- В режиме ввода токена индикатор скрыт или пуст -->
     </div>
 
     <main id="mainApp">
@@ -253,7 +242,7 @@
             "BANK-KATYA": { name: "Екатерина", type: "Банкет" },
             "BANK-ROMAN": { name: "Роман", type: "Банкет" },
             "BANK-LUBA": { name: "Любовь", type: "Банкет" },
-            "SU-ROOT": { name: "Администратор", type: "ROOT" }
+            "SU-ROOT": { name: "Суперюзер", type: "ROOT" }
         }
 
         const input = document.getElementById('tokenInput');
@@ -275,12 +264,11 @@
         function login(user) {
             localStorage.setItem('mutki_user', JSON.stringify(user));
             
-            // Отрисовка статус-бара: индикатор теперь ПЕРЕД именем
+            // Теперь отображается только индикатор и имя
             statusBar.innerHTML = `
                 <div class="user-info-badge">
                     <div id="recordIndicator" class="record-indicator"></div>
                     <span>${user.name}</span>
-                    <span class="type-tag">${user.type}</span>
                 </div>
                 <button class="logout-btn" onclick="logout()">Выход</button>
             `;
