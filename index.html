@@ -856,11 +856,19 @@
 
         function openInfoModal(event) {
             const container = document.getElementById('infoDetailsContainer');
-            let content = `
-                <div class="detail-row">
-                    <span class="detail-label">Тип</span>
-                    <span class="detail-value">${event.type}</span>
-                </div>
+            let content = '';
+
+            // Отображаем ТИП только для ROOT
+            if (currentUser && currentUser.type === 'ROOT') {
+                content += `
+                    <div class="detail-row">
+                        <span class="detail-label">Тип</span>
+                        <span class="detail-value">${event.type}</span>
+                    </div>
+                `;
+            }
+
+            content += `
                 <div class="detail-row">
                     <span class="detail-label">Дата</span>
                     <span class="detail-value">${event.date}</span>
