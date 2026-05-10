@@ -12,6 +12,8 @@
             --accent: #4CAF50;
             --text-light: #FFFFFF;
             --error: #ff4444;
+            --logout-bg: #1F1713; /* Исправлено опечатку в цвете IF1713 -> 1F1713 */
+            --logout-text: #FFEED2;
         }
 
         body {
@@ -43,6 +45,11 @@
             width: 32px;
             height: 32px;
             object-fit: contain;
+        }
+
+        .header-subtitle {
+            font-size: 11px; 
+            opacity: 0.9;
         }
 
         /* Область авторизации */
@@ -92,32 +99,33 @@
             color: #eee;
         }
 
-        /* Кнопка выхода в статус-баре */
+        /* Новая кнопка ВЫХОД */
         .logout-btn {
             position: absolute;
             right: 12px;
             top: 50%;
             transform: translateY(-50%);
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            color: white;
-            padding: 8px;
-            border-radius: 50%;
+            background-color: var(--logout-bg);
+            border: 1px solid var(--logout-text);
+            color: var(--logout-text);
+            padding: 4px 10px;
+            border-radius: 4px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.2s;
+            font-size: 11px; /* Как у подзаголовка */
+            font-weight: normal;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: opacity 0.2s;
         }
 
         .logout-btn:active {
-            background: rgba(255, 255, 255, 0.2);
+            opacity: 0.8;
         }
 
-        /* Индикатор записи (смещен левее кнопки выхода) */
+        /* Индикатор записи */
         .record-indicator {
             position: absolute;
-            right: 56px;
+            right: 75px; /* Смещен, чтобы не перекрывать текстовую кнопку */
             width: 8px;
             height: 8px;
             background-color: #4CAF50;
@@ -194,7 +202,7 @@
         </div>
         <div style="text-align: right;">
             <div style="font-size: 14px; font-weight: 900; letter-spacing: 0.5px;">АДМИНСКИЕ МУТКИ</div>
-            <div style="font-size: 11px; opacity: 0.9;">ВАНИЛЬНОГО НЕБА</div>
+            <div class="header-subtitle">ВАНИЛЬНОГО НЕБА</div>
         </div>
     </header>
 
@@ -267,20 +275,14 @@
         function login(user) {
             localStorage.setItem('mutki_user', JSON.stringify(user));
             
-            // Отрисовка статус-бара с кнопкой выхода
+            // Отрисовка статус-бара с новой кнопкой ВЫХОД
             statusBar.innerHTML = `
                 <div class="user-info-badge">
                     <span>${user.name}</span>
                     <span class="type-tag">${user.type}</span>
                 </div>
                 <div id="recordIndicator" class="record-indicator"></div>
-                <button class="logout-btn" onclick="logout()" title="Выйти">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="15" y1="9" x2="9" y2="15"></line>
-                        <line x1="9" y1="9" x2="15" y2="15"></line>
-                    </svg>
-                </button>
+                <button class="logout-btn" onclick="logout()">Выход</button>
             `;
             
             mainApp.style.display = 'block';
