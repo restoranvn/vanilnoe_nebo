@@ -755,18 +755,20 @@
                 item.className = 'event-item';
                 const shortDate = e.date ? e.date.substring(0, 5) : "--.--";
                 
+                // --- НОВАЯ ЛОГИКА ОТОБРАЖЕНИЯ ---
                 let description = '';
                 if (e.type === 'Кейтеринг') {
-                    description = e.eventName || 'Без названия';
-                    if (e.location) description += ` | ${e.location}`;
+                    // 1. Для кейтеринга только название
+                    description = e.eventName || 'Кейтеринг (без названия)';
                 } else {
-                    description = e.customer || 'Без имени';
+                    // 2. Для банкета только заказчик и зал
+                    description = e.customer || 'Заказчик не указан';
                     if (e.hall) description += ` | ${e.hall}`;
                 }
 
-                // Добавляем количество гостей, если оно указано
+                // Опционально: сохраняем количество гостей в конце, если оно есть
                 if (e.guests) {
-                    description += ` | ${e.guests}`;
+                    description += ` | 👤 ${e.guests}`;
                 }
 
                 let typePrefix = '';
