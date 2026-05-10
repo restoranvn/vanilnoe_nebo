@@ -181,7 +181,7 @@
             align-items: flex-start;
         }
 
-        /* Разделитель между разными датами */
+        /* Разделитель только между сегодня и будущим */
         .date-separator {
             height: 1px;
             background-color: #1F1713;
@@ -716,7 +716,10 @@
         }
 
         function renderEvents(events) {
-            const todayTime = new Date().setHours(0,0,0,0);
+            const today = new Date();
+            const todayStr = today.toLocaleDateString('ru-RU');
+            const todayTime = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+
             const parseDate = (s) => {
                 if (!s) return 0;
                 const parts = s.split('.').map(Number);
@@ -737,22 +740,23 @@
             const limit = filtered.slice(0, 15);
             upcomingList.innerHTML = '';
 
-            let lastDate = null;
+            let separatorAdded = false;
+            let hasTodayEvents = limit.some(e => e.date === todayStr);
 
             limit.forEach(e => {
-                // Добавление разделителя, если дата сменилась
-                if (lastDate && lastDate !== e.date) {
+                // Если мы перешли от сегодняшних мероприятий к будущим, добавляем ОДИН разделитель
+                if (hasTodayEvents && !separatorAdded && e.date !== todayStr) {
                     const separator = document.createElement('div');
                     separator.className = 'date-separator';
                     upcomingList.appendChild(separator);
+                    separatorAdded = true;
                 }
-                lastDate = e.date;
 
                 const item = document.createElement('div');
                 item.className = 'event-item';
                 const shortDate = e.date ? e.date.substring(0, 5) : "--.--";
                 
-                // Для "Банкет" добавляем информацию о зале через "|"
+                // Для "Банкет" отображаем зал после заказчика через "|"
                 let description = '';
                 if (e.type === 'Кейтеринг') {
                     description = e.eventName || 'Без названия';
