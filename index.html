@@ -295,12 +295,15 @@
             align-items: center;
             margin-bottom: 16px;
             color: var(--dark-ui);
+            gap: 15px;
         }
 
         .modal-title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 800;
             text-transform: uppercase;
+            flex: 1;
+            line-height: 1.2;
         }
 
         .close-modal {
@@ -508,7 +511,7 @@
             <div class="modal-header">
                 <div class="calendar-nav">
                     <button class="close-modal" id="prevMonth" style="font-size: 20px;">❮</button>
-                    <span id="currentDateTitle" class="modal-title">--.--</span>
+                    <span id="currentDateTitle" class="modal-title" style="text-align: center;">--.--</span>
                     <button class="close-modal" id="nextMonth" style="font-size: 20px;">❯</button>
                 </div>
                 <button class="close-modal" id="closeCalendar">&times;</button>
@@ -585,7 +588,7 @@
     <div class="modal-overlay" id="infoModal">
         <div class="modal-content">
             <div class="modal-header">
-                <span class="modal-title">Информация</span>
+                <span class="modal-title" id="infoModalTitle">Информация</span>
                 <button class="close-modal" onclick="closeAllModals()">&times;</button>
             </div>
             <div id="infoDetailsContainer">
@@ -856,7 +859,15 @@
 
         function openInfoModal(event) {
             const container = document.getElementById('infoDetailsContainer');
+            const titleEl = document.getElementById('infoModalTitle');
             let content = '';
+
+            // Устанавливаем заголовок из названия или заказчика
+            if (event.type === 'Кейтеринг') {
+                titleEl.innerText = event.eventName || 'Кейтеринг';
+            } else {
+                titleEl.innerText = event.customer || 'Банкет';
+            }
 
             // Отображаем ТИП только для ROOT
             if (currentUser && currentUser.type === 'ROOT') {
@@ -878,20 +889,12 @@
             if (event.type === 'Кейтеринг') {
                 content += `
                     <div class="detail-row">
-                        <span class="detail-label">Название</span>
-                        <span class="detail-value">${event.eventName || '-'}</span>
-                    </div>
-                    <div class="detail-row">
                         <span class="detail-label">Локация</span>
                         <span class="detail-value">${event.location || '-'}</span>
                     </div>
                 `;
             } else {
                 content += `
-                    <div class="detail-row">
-                        <span class="detail-label">Заказчик</span>
-                        <span class="detail-value">${event.customer || '-'}</span>
-                    </div>
                     <div class="detail-row">
                         <span class="detail-label">Зал</span>
                         <span class="detail-value">${event.hall || '-'}</span>
@@ -1144,6 +1147,9 @@
             document.querySelectorAll('.form-input').forEach(i => i.value = '');
             const hallSelect = document.getElementById('banketHallSelect');
             if(hallSelect) hallSelect.selectedIndex = 0;
+            // Сброс заголовка инфо-модалки к дефолту
+            const infoTitle = document.getElementById('infoModalTitle');
+            if(infoTitle) infoTitle.innerText = "Информация";
         };
 
         document.getElementById('closeCalendar').onclick = closeAllModals;
