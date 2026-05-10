@@ -216,7 +216,7 @@
 
         .form-input {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #ccc;
             border-radius: 6px;
             font-size: 16px;
@@ -228,6 +228,29 @@
         .form-input:focus {
             border-color: var(--brand-color);
             box-shadow: 0 0 0 2px rgba(96, 69, 57, 0.1);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--dark-ui);
+            color: var(--logout-text);
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 800;
+            text-transform: uppercase;
+            cursor: pointer;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         .calendar-nav {
@@ -346,13 +369,15 @@
             </div>
             <div class="form-group">
                 <label class="form-label">Дата мероприятия</label>
-                <input type="text" class="form-input date-mask" placeholder="ДД.ММ.ГГГГ" inputmode="numeric">
+                <input type="text" id="cateringDate" class="form-input date-mask" placeholder="ДД.ММ.ГГГГ" inputmode="numeric">
             </div>
             <div class="form-group">
                 <label class="form-label">Название мероприятия</label>
                 <input type="text" class="form-input" id="cateringNameInput" placeholder="Введите название">
             </div>
-            <div class="form-placeholder">Дополнительные детали кейтеринга будут доступны позже...</div>
+            <button class="submit-btn" id="submitCatering">
+                <span>Добавить</span>
+            </button>
         </div>
     </div>
 
@@ -365,13 +390,15 @@
             </div>
             <div class="form-group">
                 <label class="form-label">Дата мероприятия</label>
-                <input type="text" class="form-input date-mask" placeholder="ДД.ММ.ГГГГ" inputmode="numeric">
+                <input type="text" id="banketDate" class="form-input date-mask" placeholder="ДД.ММ.ГГГГ" inputmode="numeric">
             </div>
             <div class="form-group">
                 <label class="form-label">Заказчик</label>
                 <input type="text" class="form-input" id="banketCustomerInput" placeholder="ФИО или Организация">
             </div>
-            <div class="form-placeholder">Дополнительные детали банкета будут доступны позже...</div>
+            <button class="submit-btn" id="submitBanket">
+                <span>Добавить</span>
+            </button>
         </div>
     </div>
 
@@ -390,8 +417,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { getAuth, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBEn2ZheCPUMgTKxuQmHw0MPehIu1B85Do",
@@ -434,7 +461,15 @@
         let displayedYear = new Date().getFullYear();
 
         async function initAuth() {
-            try { await signInAnonymously(auth); } catch (e) { console.error(e); }
+            try { 
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    // fall back for demo if no token provided by environment
+                    const { signInAnonymously } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+                    await signInAnonymously(auth); 
+                }
+            } catch (e) { console.error(e); }
         }
         initAuth();
 
@@ -477,8 +512,8 @@
         // МАСКА ДАТЫ (ДД.ММ.ГГГГ)
         document.querySelectorAll('.date-mask').forEach(input => {
             input.addEventListener('input', (e) => {
-                let value = e.target.value.replace(/\D/g, ''); // Удаляем всё кроме цифр
-                if (value.length > 8) value = value.slice(0, 8); // Ограничение длины
+                let value = e.target.value.replace(/\D/g, ''); 
+                if (value.length > 8) value = value.slice(0, 8); 
                 
                 let formattedValue = '';
                 if (value.length > 0) {
@@ -553,19 +588,59 @@
             }
 
             const newTitle = "Новое мероприятие";
+            const todayStr = new Date().toLocaleDateString('ru-RU');
             
             if (currentUser.type === "Кейтеринг") {
+                document.getElementById('cateringDate').value = todayStr;
                 document.getElementById('cateringModalTitle').innerText = newTitle;
                 document.getElementById('cateringModal').style.display = 'flex';
             } else if (currentUser.type === "Банкет") {
+                document.getElementById('banketDate').value = todayStr;
                 document.getElementById('banketModalTitle').innerText = newTitle;
                 document.getElementById('banketModal').style.display = 'flex';
             }
         };
 
+        // СОХРАНЕНИЕ ДАННЫХ
+        async function saveData(type, data) {
+            if (!auth.currentUser) return;
+            const btn = type === 'Кейтеринг' ? document.getElementById('submitCatering') : document.getElementById('submitBanket');
+            btn.disabled = true;
+            btn.innerText = "Сохранение...";
+
+            try {
+                const eventsRef = collection(db, 'artifacts', appId, 'public', 'data', 'events');
+                await addDoc(eventsRef, {
+                    ...data,
+                    type: type,
+                    createdBy: currentUser.name,
+                    createdAt: serverTimestamp()
+                });
+                closeAllModals();
+            } catch (e) {
+                console.error("Error adding document: ", e);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Добавить";
+            }
+        }
+
+        document.getElementById('submitCatering').onclick = () => {
+            const date = document.getElementById('cateringDate').value;
+            const name = document.getElementById('cateringNameInput').value;
+            if (!date || !name) return;
+            saveData('Кейтеринг', { date, eventName: name });
+        };
+
+        document.getElementById('submitBanket').onclick = () => {
+            const date = document.getElementById('banketDate').value;
+            const customer = document.getElementById('banketCustomerInput').value;
+            if (!date || !customer) return;
+            saveData('Банкет', { date, customer });
+        };
+
         window.closeAllModals = function() {
             document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
-            // Очистка полей при закрытии
             document.querySelectorAll('.form-input').forEach(i => i.value = '');
             document.getElementById('cateringModalTitle').innerText = "Кейтеринг";
             document.getElementById('banketModalTitle').innerText = "Банкет";
