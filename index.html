@@ -15,7 +15,8 @@
             --logout-bg: #1F1713;
             --logout-text: #FFEED2;
             --dark-ui: #1F1713;
-            --border-sep: #78866B; /* Цвет полосок в календаре */
+            --border-sep: #78866B; 
+            --day-bg: #f5f5f5; /* Легкий серый фон для дат */
         }
 
         body {
@@ -138,7 +139,6 @@
             fill: var(--logout-text);
         }
 
-        /* Модальное окно */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -179,7 +179,19 @@
             margin-bottom: 15px;
             color: var(--dark-ui);
             font-weight: bold;
-            font-size: 20px;
+            font-size: 18px;
+        }
+
+        .date-container {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+        }
+
+        .today-label {
+            font-size: 14px;
+            font-weight: normal;
+            opacity: 0.7;
         }
 
         .close-modal {
@@ -192,35 +204,39 @@
             line-height: 1;
         }
 
-        /* Календарная сетка */
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
+            gap: 4px; /* Небольшой зазор между ячейками */
             text-align: center;
             color: var(--dark-ui);
         }
 
-        /* Полоски над и под днями недели */
         .day-name {
             font-size: 11px;
             font-weight: 800;
-            padding: 10px 0;
+            padding: 8px 0;
             text-transform: uppercase;
-            border-top: 1px solid var(--border-sep);
-            border-bottom: 1px solid var(--border-sep);
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
 
         .day {
             padding: 10px 0;
             font-size: 15px;
+            background-color: var(--day-bg); /* Тот самый серый фон */
+            border-radius: 4px;
             border: 1px solid transparent;
         }
 
         .today {
             border: 1px solid var(--dark-ui);
+            background-color: #fff; /* Выделение сегодня на фоне серых ячеек */
             font-weight: bold;
-            border-radius: 4px;
+        }
+
+        /* Пустые ячейки в начале месяца без фона */
+        .empty-cell {
+            background-color: transparent;
         }
 
         .record-indicator {
@@ -270,11 +286,13 @@
         </button>
     </div>
 
-    <!-- Модалка Календаря -->
     <div class="modal-overlay" id="calendarModal">
         <div class="modal-content">
             <div class="modal-header">
-                <span id="currentDateTitle">--.--</span>
+                <div class="date-container">
+                    <span class="today-label">Сегодня</span>
+                    <span id="currentDateTitle">--.--</span>
+                </div>
                 <button class="close-modal" id="closeCalendar">&times;</button>
             </div>
             <div class="calendar-grid" id="calendarGrid">
@@ -393,7 +411,9 @@
             const daysInMonth = new Date(year, month + 1, 0).getDate();
 
             for (let i = 0; i < offset; i++) {
-                calGrid.appendChild(document.createElement('div'));
+                const empty = document.createElement('div');
+                empty.className = 'empty-cell';
+                calGrid.appendChild(empty);
             }
 
             for (let d = 1; d <= daysInMonth; d++) {
