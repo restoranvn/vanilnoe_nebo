@@ -219,7 +219,6 @@
         .edit-icon-btn:active { opacity: 1; }
         .edit-icon-btn svg { width: 18px; height: 18px; fill: var(--dark-ui); }
 
-        /* Стили для неактивной иконки root */
         .edit-icon-btn.readonly {
             opacity: 0.2;
             cursor: default;
@@ -376,12 +375,23 @@
             background-color: var(--day-bg);
             border-radius: 6px;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 40px;
         }
 
         .today {
             border: 1.5px solid var(--dark-ui);
             background-color: #fff;
             font-weight: 900;
+        }
+
+        /* Стиль для дат с мероприятиями */
+        .day.has-event {
+            background-color: #604539 !important;
+            color: #FFEED2 !important;
+            font-weight: bold;
         }
 
         .record-indicator {
@@ -652,6 +662,10 @@
                 events.sort((a, b) => parseDate(a.date) - parseDate(b.date));
                 globalEvents = events;
                 renderEvents(events);
+                // Если календарь открыт, перерисовываем его, чтобы обновить подсветку
+                if (document.getElementById('calendarModal').style.display === 'flex') {
+                    buildCalendar(displayedMonth, displayedYear);
+                }
             }, (error) => {
                 upcomingList.innerHTML = `<div class="no-events" style="color:red">Ошибка доступа</div>`;
             });
@@ -697,12 +711,10 @@
                     <div class="event-desc">${typePrefix}${description || 'Без названия'}</div>
                 `;
 
-                // Кнопка редактирования
                 if (currentUser) {
                     const editBtn = document.createElement('button');
                     editBtn.className = 'edit-icon-btn';
                     
-                    // Если пользователь ROOT, делаем иконку неактивной
                     if (currentUser.type === 'ROOT') {
                         editBtn.classList.add('readonly');
                     } else {
@@ -823,10 +835,34 @@
             for (let i = 0; i < offset; i++) calGrid.appendChild(document.createElement('div'));
 
             const daysInMonth = new Date(y, m + 1, 0).getDate();
+            
+            // Получаем список дат с событиями для текущего месяца и года,
+            // учитывая права пользователя (ROOT видит всё, остальные — только свой тип)
+            const eventDates = new Set();
+            globalEvents.forEach(ev => {
+                if (currentUser && currentUser.type !== "ROOT" && ev.type !== currentUser.type) return;
+                
+                const parts = ev.date.split('.');
+                if (parts.length === 3) {
+                    const dVal = parseInt(parts[0]);
+                    const mVal = parseInt(parts[1]) - 1;
+                    const yVal = parseInt(parts[2]);
+                    if (mVal === m && yVal === y) {
+                        eventDates.add(dVal);
+                    }
+                }
+            });
+
             for (let d = 1; d <= daysInMonth; d++) {
                 const el = document.createElement('div');
                 el.className = 'day';
                 if (isCurrentMonth && d === realToday) el.classList.add('today');
+                
+                // Подсветка, если есть мероприятие
+                if (eventDates.has(d)) {
+                    el.classList.add('has-event');
+                }
+                
                 el.innerText = d;
                 calGrid.appendChild(el);
             }
