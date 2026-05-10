@@ -22,7 +22,6 @@
             overflow-x: hidden;
         }
 
-        /* Хедер без теней */
         header {
             padding: 12px 16px;
             background-color: var(--brand-color);
@@ -32,7 +31,6 @@
             color: white;
             position: relative;
             z-index: 10;
-            box-shadow: none; /* Убрана тень */
         }
 
         .logo-container {
@@ -47,17 +45,16 @@
             object-fit: contain;
         }
 
-        /* Область авторизации без теней и прозрачности */
+        /* Область авторизации */
         .status-bar {
-            height: 48px;
+            height: 52px;
             background-color: var(--brand-color);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             position: relative;
-            box-shadow: none; /* Убрана тень */
-            border-top: 1px solid rgba(255,255,255,0.1); /* Тонкая линия разделения вместо тени */
+            border-top: 1px solid rgba(255,255,255,0.1);
         }
 
         .token-input {
@@ -74,7 +71,7 @@
         }
 
         .token-input::placeholder {
-            color: #b5a49d; /* Непрозрачный цвет вместо rgba */
+            color: #b5a49d;
         }
 
         .user-info-badge {
@@ -83,11 +80,10 @@
             display: flex;
             gap: 10px;
             align-items: center;
-            justify-content: center;
         }
 
         .user-info-badge .type-tag {
-            background: #7a5a4d; /* Непрозрачный фон для тега */
+            background: #7a5a4d;
             padding: 3px 8px;
             border-radius: 4px;
             font-size: 10px;
@@ -96,10 +92,32 @@
             color: #eee;
         }
 
-        /* Индикаторы */
+        /* Кнопка выхода в статус-баре */
+        .logout-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .logout-btn:active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Индикатор записи (смещен левее кнопки выхода) */
         .record-indicator {
             position: absolute;
-            right: 16px;
+            right: 56px;
             width: 8px;
             height: 8px;
             background-color: #4CAF50;
@@ -166,16 +184,6 @@
             background: #f0faf1;
             border-radius: 20px;
         }
-
-        .logout-link {
-            display: inline-block;
-            margin-top: 45px;
-            color: #b5a49d;
-            font-size: 13px;
-            text-decoration: none;
-            border-bottom: 1px dashed #d1c5bf;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
@@ -204,8 +212,6 @@
                 <span id="syncIcon">✓</span>
                 <span id="syncText">Активность записана</span>
             </div>
-
-            <div class="logout-link" onclick="logout()">Сменить пользователя / Выйти</div>
         </div>
     </main>
 
@@ -260,13 +266,23 @@
 
         function login(user) {
             localStorage.setItem('mutki_user', JSON.stringify(user));
+            
+            // Отрисовка статус-бара с кнопкой выхода
             statusBar.innerHTML = `
                 <div class="user-info-badge">
                     <span>${user.name}</span>
                     <span class="type-tag">${user.type}</span>
                 </div>
                 <div id="recordIndicator" class="record-indicator"></div>
+                <button class="logout-btn" onclick="logout()" title="Выйти">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="15" y1="9" x2="9" y2="15"></line>
+                        <line x1="9" y1="9" x2="15" y2="15"></line>
+                    </svg>
+                </button>
             `;
+            
             mainApp.style.display = 'block';
             autoLogActivity(user);
         }
