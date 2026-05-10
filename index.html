@@ -165,7 +165,7 @@
             box-shadow: 0 5px 25px rgba(0,0,0,0.2);
             box-sizing: border-box;
             position: relative;
-            margin-top: 70px;
+            margin-top: 140px; /* Отступ увеличен в 2 раза (был 70px) */
             margin-bottom: 20px;
         }
 
@@ -462,7 +462,6 @@
                 
                 el.innerText = d;
                 el.onclick = () => {
-                    // Здесь можно добавить логику выбора даты, если потребуется
                     console.log(`Выбрана дата: ${d}.${m + 1}.${y}`);
                 };
                 calGrid.appendChild(el);
