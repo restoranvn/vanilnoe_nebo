@@ -222,10 +222,12 @@
             font-size: 16px;
             box-sizing: border-box;
             outline: none;
+            font-family: inherit;
         }
 
         .form-input:focus {
             border-color: var(--brand-color);
+            box-shadow: 0 0 0 2px rgba(96, 69, 57, 0.1);
         }
 
         .calendar-nav {
@@ -346,7 +348,11 @@
                 <label class="form-label">Дата мероприятия</label>
                 <input type="text" class="form-input date-mask" placeholder="ДД.ММ.ГГГГ" inputmode="numeric">
             </div>
-            <div class="form-placeholder">Дополнительные поля кейтеринга...</div>
+            <div class="form-group">
+                <label class="form-label">Название мероприятия</label>
+                <input type="text" class="form-input" id="cateringNameInput" placeholder="Введите название">
+            </div>
+            <div class="form-placeholder">Дополнительные детали кейтеринга будут доступны позже...</div>
         </div>
     </div>
 
@@ -361,7 +367,11 @@
                 <label class="form-label">Дата мероприятия</label>
                 <input type="text" class="form-input date-mask" placeholder="ДД.ММ.ГГГГ" inputmode="numeric">
             </div>
-            <div class="form-placeholder">Дополнительные поля банкета...</div>
+            <div class="form-group">
+                <label class="form-label">Заказчик</label>
+                <input type="text" class="form-input" id="banketCustomerInput" placeholder="ФИО или Организация">
+            </div>
+            <div class="form-placeholder">Дополнительные детали банкета будут доступны позже...</div>
         </div>
     </div>
 
@@ -555,8 +565,8 @@
 
         window.closeAllModals = function() {
             document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
-            // Очистка полей даты при закрытии
-            document.querySelectorAll('.date-mask').forEach(i => i.value = '');
+            // Очистка полей при закрытии
+            document.querySelectorAll('.form-input').forEach(i => i.value = '');
             document.getElementById('cateringModalTitle').innerText = "Кейтеринг";
             document.getElementById('banketModalTitle').innerText = "Банкет";
         };
