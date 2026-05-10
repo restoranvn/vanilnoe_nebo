@@ -392,10 +392,17 @@
         function buildCalendar() {
             const now = new Date();
             const year = now.getFullYear();
-            const month = now.getMonth();
+            const monthIndex = now.getMonth();
             const today = now.getDate();
 
-            dateTitle.innerText = `${String(today).padStart(2, '0')}.${String(month + 1).padStart(2, '0')}`;
+            // Массив месяцев в родительном падеже
+            const monthsGenitive = [
+                "января", "февраля", "марта", "апреля", "мая", "июня",
+                "июля", "августа", "сентября", "октября", "ноября", "декабря"
+            ];
+
+            // Форматируем заголовок: Число Месяц (например, 10 мая)
+            dateTitle.innerText = `${today} ${monthsGenitive[monthIndex]}`;
 
             calGrid.innerHTML = '';
             const daysShort = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -406,9 +413,9 @@
                 calGrid.appendChild(el);
             });
 
-            const firstDayOfMonth = new Date(year, month, 1).getDay();
+            const firstDayOfMonth = new Date(year, monthIndex, 1).getDay();
             const offset = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1; 
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
 
             for (let i = 0; i < offset; i++) {
                 const empty = document.createElement('div');
