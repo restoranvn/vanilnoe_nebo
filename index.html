@@ -73,18 +73,16 @@
             color: #b5a49d;
         }
 
-        /* Обновленная кнопка ВЫХОД */
+        /* Кнопка ВЫХОД перенесена направо */
         .exit-btn {
             position: absolute;
-            left: 12px;
+            right: 12px;
             cursor: pointer;
-            /* Шрифт как у подзаголовка (11px, opacity 0.9) */
             font-family: inherit;
             font-size: 11px;
             font-weight: 400;
             opacity: 0.9;
             letter-spacing: 0.5px;
-            /* Рамка и отступы */
             border: 1px solid #FFEED2;
             padding: 4px 10px;
             border-radius: 4px;
@@ -275,12 +273,12 @@
             localStorage.setItem('mutki_user', JSON.stringify(user));
             
             statusBar.innerHTML = `
-                <div class="exit-btn" onclick="logout()">ВЫХОД</div>
                 <div class="user-info-badge">
                     <div id="recordIndicator" class="record-indicator"></div>
                     <span>${user.name}</span>
                     <span class="type-tag">${user.type}</span>
                 </div>
+                <div class="exit-btn" onclick="logout()">ВЫХОД</div>
             `;
             
             mainApp.style.display = 'block';
