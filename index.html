@@ -178,10 +178,9 @@
             display: flex;
             gap: 8px;
             color: #1F1713;
-            align-items: center; /* Центрируем по вертикали для чистоты */
+            align-items: center; 
         }
 
-        /* Разделитель только между сегодня и будущим */
         .date-separator {
             height: 1px;
             background-color: #1F1713;
@@ -505,6 +504,10 @@
                 <label class="form-label">Локация</label>
                 <input type="text" class="form-input" id="cateringLocationInput" placeholder="Где проводим?">
             </div>
+            <div class="form-group">
+                <label class="form-label">Количество гостей</label>
+                <input type="number" class="form-input" id="cateringGuestsInput" placeholder="0" inputmode="numeric">
+            </div>
             <button class="submit-btn" id="submitCatering">
                 <span>Добавить</span>
             </button>
@@ -536,6 +539,10 @@
                     <option value="Чайка">Чайка</option>
                 </select>
             </div>
+            <div class="form-group">
+                <label class="form-label">Количество гостей</label>
+                <input type="number" class="form-input" id="banketGuestsInput" placeholder="0" inputmode="numeric">
+            </div>
             <button class="submit-btn" id="submitBanket">
                 <span>Добавить</span>
             </button>
@@ -559,12 +566,13 @@
                 <label class="form-label" id="editLabelInfo">Информация</label>
                 <input type="text" class="form-input" id="editInfoInput" placeholder="Основные данные">
             </div>
-            <!-- Дополнительное поле для редактирования локации/зала -->
             <div class="form-group" id="editExtraGroup">
                 <label class="form-label" id="editLabelExtra">Доп. информация</label>
-                <div id="editExtraContainer">
-                    <!-- Будет вставлен input или select динамически -->
-                </div>
+                <div id="editExtraContainer"></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Количество гостей</label>
+                <input type="number" class="form-input" id="editGuestsInput" placeholder="0" inputmode="numeric">
             </div>
             <button class="submit-btn" id="saveEditBtn">
                 <span>Сохранить</span>
@@ -747,7 +755,6 @@
                 item.className = 'event-item';
                 const shortDate = e.date ? e.date.substring(0, 5) : "--.--";
                 
-                // Формируем описание: Название | Локация или Заказчик | Зал
                 let description = '';
                 if (e.type === 'Кейтеринг') {
                     description = e.eventName || 'Без названия';
@@ -755,6 +762,11 @@
                 } else {
                     description = e.customer || 'Без имени';
                     if (e.hall) description += ` | ${e.hall}`;
+                }
+
+                // Добавляем количество гостей, если оно указано
+                if (e.guests) {
+                    description += ` | ${e.guests}`;
                 }
 
                 let typePrefix = '';
@@ -792,6 +804,7 @@
             document.getElementById('editId').value = event.id;
             document.getElementById('editType').value = event.type;
             document.getElementById('editDate').value = event.date;
+            document.getElementById('editGuestsInput').value = event.guests || '';
             
             const infoInput = document.getElementById('editInfoInput');
             const labelInfo = document.getElementById('editLabelInfo');
@@ -835,6 +848,7 @@
             const date = document.getElementById('editDate').value;
             const info = document.getElementById('editInfoInput').value;
             const extra = document.getElementById('editExtraInput').value;
+            const guests = document.getElementById('editGuestsInput').value;
 
             if (!date || !info) return;
             const btn = document.getElementById('saveEditBtn');
@@ -844,6 +858,7 @@
                 const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'events', id);
                 const updateData = { 
                     date: date,
+                    guests: guests,
                     updatedAt: serverTimestamp(),
                     updatedBy: currentUser.name
                 };
@@ -996,16 +1011,18 @@
             const date = document.getElementById('cateringDate').value;
             const name = document.getElementById('cateringNameInput').value;
             const location = document.getElementById('cateringLocationInput').value;
+            const guests = document.getElementById('cateringGuestsInput').value;
             if (!date || !name) return;
-            saveData('Кейтеринг', { date, eventName: name, location: location });
+            saveData('Кейтеринг', { date, eventName: name, location: location, guests: guests });
         };
 
         document.getElementById('submitBanket').onclick = () => {
             const date = document.getElementById('banketDate').value;
             const customer = document.getElementById('banketCustomerInput').value;
             const hall = document.getElementById('banketHallSelect').value;
+            const guests = document.getElementById('banketGuestsInput').value;
             if (!date || !customer || !hall) return;
-            saveData('Банкет', { date, customer, hall: hall });
+            saveData('Банкет', { date, customer, hall: hall, guests: guests });
         };
 
         window.closeAllModals = function() {
