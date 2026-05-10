@@ -22,7 +22,6 @@
             overflow-x: hidden;
         }
 
-        /* Хедер без теней */
         header {
             padding: 12px 16px;
             background-color: var(--brand-color);
@@ -32,7 +31,6 @@
             color: white;
             position: relative;
             z-index: 10;
-            box-shadow: none; /* Убрана тень */
         }
 
         .logo-container {
@@ -47,7 +45,7 @@
             object-fit: contain;
         }
 
-        /* Область авторизации без теней и прозрачности */
+        /* Область авторизации */
         .status-bar {
             height: 48px;
             background-color: var(--brand-color);
@@ -56,8 +54,7 @@
             justify-content: center;
             color: white;
             position: relative;
-            box-shadow: none; /* Убрана тень */
-            border-top: 1px solid rgba(255,255,255,0.1); /* Тонкая линия разделения вместо тени */
+            border-top: 1px solid rgba(255,255,255,0.1);
         }
 
         .token-input {
@@ -74,7 +71,31 @@
         }
 
         .token-input::placeholder {
-            color: #b5a49d; /* Непрозрачный цвет вместо rgba */
+            color: #b5a49d;
+        }
+
+        /* Кнопка выхода в виде иконки */
+        .exit-btn {
+            position: absolute;
+            left: 12px;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .exit-btn:hover {
+            opacity: 1;
+        }
+
+        .exit-icon {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
         }
 
         .user-info-badge {
@@ -87,7 +108,7 @@
         }
 
         .user-info-badge .type-tag {
-            background: #7a5a4d; /* Непрозрачный фон для тега */
+            background: #7a5a4d;
             padding: 3px 8px;
             border-radius: 4px;
             font-size: 10px;
@@ -166,16 +187,6 @@
             background: #f0faf1;
             border-radius: 20px;
         }
-
-        .logout-link {
-            display: inline-block;
-            margin-top: 45px;
-            color: #b5a49d;
-            font-size: 13px;
-            text-decoration: none;
-            border-bottom: 1px dashed #d1c5bf;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
@@ -191,6 +202,7 @@
     </header>
 
     <div class="status-bar" id="statusBar">
+        <!-- По умолчанию поле ввода -->
         <input type="password" id="tokenInput" class="token-input" placeholder="ВВЕДИТЕ ТОКЕН ДОСТУПА">
         <div id="recordIndicator" class="record-indicator"></div>
     </div>
@@ -204,8 +216,6 @@
                 <span id="syncIcon">✓</span>
                 <span id="syncText">Активность записана</span>
             </div>
-
-            <div class="logout-link" onclick="logout()">Сменить пользователя / Выйти</div>
         </div>
     </main>
 
@@ -242,7 +252,6 @@
             "SU-ROOT": { name: "Администратор", type: "ROOT" }
         }
 
-        const input = document.getElementById('tokenInput');
         const statusBar = document.getElementById('statusBar');
         const mainApp = document.getElementById('mainApp');
 
@@ -251,22 +260,35 @@
         }
         initAuth();
 
-        input.addEventListener('input', () => {
-            const val = input.value.trim().toUpperCase();
-            if (USER_DB[val]) {
-                login(USER_DB[val]);
+        // Обработка ввода для первичного поля
+        function setupInputListener() {
+            const input = document.getElementById('tokenInput');
+            if (input) {
+                input.addEventListener('input', () => {
+                    const val = input.value.trim().toUpperCase();
+                    if (USER_DB[val]) {
+                        login(USER_DB[val]);
+                    }
+                });
             }
-        });
+        }
+        setupInputListener();
 
         function login(user) {
             localStorage.setItem('mutki_user', JSON.stringify(user));
+            
+            // Обновляем статус-бар: иконка выхода слева, инфо в центре
             statusBar.innerHTML = `
+                <div class="exit-btn" onclick="logout()" title="Выйти">
+                    <img src="ico/exit.png" alt="Exit" class="exit-icon" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1828/1828490.png'">
+                </div>
                 <div class="user-info-badge">
                     <span>${user.name}</span>
                     <span class="type-tag">${user.type}</span>
                 </div>
                 <div id="recordIndicator" class="record-indicator"></div>
             `;
+            
             mainApp.style.display = 'block';
             autoLogActivity(user);
         }
@@ -296,8 +318,11 @@
             location.reload();
         }
 
+        // Проверка сохраненной сессии
         const saved = localStorage.getItem('mutki_user');
-        if (saved) login(JSON.parse(saved));
+        if (saved) {
+            login(JSON.parse(saved));
+        }
     </script>
 </body>
 </html>
