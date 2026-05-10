@@ -219,6 +219,13 @@
         .edit-icon-btn:active { opacity: 1; }
         .edit-icon-btn svg { width: 18px; height: 18px; fill: var(--dark-ui); }
 
+        /* Стили для неактивной иконки root */
+        .edit-icon-btn.readonly {
+            opacity: 0.2;
+            cursor: default;
+            pointer-events: none;
+        }
+
         .no-events {
             font-size: 12px;
             opacity: 0.6;
@@ -606,7 +613,6 @@
             `;
             controlsArea.style.display = 'block';
             autoLogActivity(user);
-            // Если события уже загружены, перерендерим их под права нового пользователя
             if (globalEvents.length > 0) renderEvents(globalEvents);
         }
 
@@ -691,16 +697,23 @@
                     <div class="event-desc">${typePrefix}${description || 'Без названия'}</div>
                 `;
 
-                // Кнопка редактирования доступна всем авторизованным (кроме ROOT, если это не его профиль, но в ТЗ сказано "для типов Кейтеринг и Банкет")
-                if (currentUser && (currentUser.type === 'Кейтеринг' || currentUser.type === 'Банкет' || currentUser.type === 'ROOT')) {
+                // Кнопка редактирования
+                if (currentUser) {
                     const editBtn = document.createElement('button');
                     editBtn.className = 'edit-icon-btn';
+                    
+                    // Если пользователь ROOT, делаем иконку неактивной
+                    if (currentUser.type === 'ROOT') {
+                        editBtn.classList.add('readonly');
+                    } else {
+                        editBtn.onclick = () => openEditModal(e);
+                    }
+
                     editBtn.innerHTML = `
                         <svg viewBox="0 0 24 24">
                             <path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" />
                         </svg>
                     `;
-                    editBtn.onclick = () => openEditModal(e);
                     item.appendChild(editBtn);
                 }
 
@@ -762,7 +775,6 @@
 
         document.getElementById('saveEditBtn').onclick = saveEdit;
 
-        // Логика маски и автоматического добавления года
         document.querySelectorAll('.date-mask').forEach(input => {
             input.addEventListener('input', (e) => {
                 let value = e.target.value.replace(/\D/g, ''); 
