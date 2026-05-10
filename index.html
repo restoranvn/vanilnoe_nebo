@@ -373,7 +373,8 @@
             padding: 12px 0;
             font-size: 14px;
             background-color: var(--day-bg);
-            border-radius: 6px;
+            /* Убрано border-radius для квадратности */
+            border-radius: 0; 
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -387,11 +388,12 @@
             font-weight: 900;
         }
 
-        /* Стиль для дат с мероприятиями */
+        /* Стиль для дат с мероприятиями (КВАДРАТНЫЕ) */
         .day.has-event {
             background-color: #604539 !important;
             color: #FFEED2 !important;
             font-weight: bold;
+            border-radius: 0; 
         }
 
         .record-indicator {
@@ -662,7 +664,6 @@
                 events.sort((a, b) => parseDate(a.date) - parseDate(b.date));
                 globalEvents = events;
                 renderEvents(events);
-                // Если календарь открыт, перерисовываем его, чтобы обновить подсветку
                 if (document.getElementById('calendarModal').style.display === 'flex') {
                     buildCalendar(displayedMonth, displayedYear);
                 }
@@ -836,8 +837,6 @@
 
             const daysInMonth = new Date(y, m + 1, 0).getDate();
             
-            // Получаем список дат с событиями для текущего месяца и года,
-            // учитывая права пользователя (ROOT видит всё, остальные — только свой тип)
             const eventDates = new Set();
             globalEvents.forEach(ev => {
                 if (currentUser && currentUser.type !== "ROOT" && ev.type !== currentUser.type) return;
@@ -858,7 +857,6 @@
                 el.className = 'day';
                 if (isCurrentMonth && d === realToday) el.classList.add('today');
                 
-                // Подсветка, если есть мероприятие
                 if (eventDates.has(d)) {
                     el.classList.add('has-event');
                 }
@@ -955,4 +953,4 @@
         if (saved) login(JSON.parse(saved));
     </script>
 </body>
-</html>
+</html>щ
