@@ -154,26 +154,6 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-        .card {
-            background: white;
-            padding: 30px 24px;
-            border-radius: 28px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-        }
-
-        .status-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--accent);
-            font-weight: 600;
-            font-size: 15px;
-            padding: 8px 16px;
-            background: #f0faf1;
-            border-radius: 20px;
-        }
     </style>
 </head>
 <body>
@@ -193,13 +173,7 @@
     </div>
 
     <main id="mainApp">
-        <div class="card">
-            <!-- Удален заголовок и описание, оставлен только индикатор синхронизации -->
-            <div class="status-indicator" id="syncStatus">
-                <span id="syncIcon">✓</span>
-                <span id="syncText">Активность записана</span>
-            </div>
-        </div>
+        <!-- Поле с информацией о записи удалено для минимализма -->
     </main>
 
     <script type="module">
