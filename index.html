@@ -300,39 +300,50 @@
             "SU-ROOT": { name: "Администратор", type: "ROOT" }
         };
 
-        let currentUserAuth = null;
+        let isAuthInProgress = false;
 
         // AUTH INITIALIZATION (MANDATORY RULE 3)
-        async function initAuth() {
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
-                await signInAnonymously(auth);
+        async function performAuth() {
+            if (isAuthInProgress) return;
+            isAuthInProgress = true;
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (e) {
+                console.error("Auth Failed:", e);
+                showStatus("Ошибка авторизации сети", "red");
+            } finally {
+                isAuthInProgress = false;
             }
         }
 
         onAuthStateChanged(auth, async (user) => {
-            currentUserAuth = user;
             if (user) {
-                const savedUser = localStorage.getItem('mutki_user');
-                if (savedUser) {
-                    const userData = JSON.parse(savedUser);
+                const savedUserStr = localStorage.getItem('mutki_user');
+                if (savedUserStr) {
+                    const userData = JSON.parse(savedUserStr);
                     renderLoggedInState(userData);
                     loadProfileData(user.uid);
                 }
+            } else {
+                // If not logged in but should be
+                const savedUserStr = localStorage.getItem('mutki_user');
+                if (savedUserStr) performAuth();
             }
         });
 
-        // Application Logic
         const statusBar = document.getElementById('statusBar');
         const mainApp = document.getElementById('mainApp');
         const phoneInput = document.getElementById('phoneInput');
 
-        document.getElementById('tokenInput').addEventListener('input', (e) => {
+        document.getElementById('tokenInput').addEventListener('input', async (e) => {
             const val = e.target.value.trim().toUpperCase();
             if (USER_DB[val]) {
                 localStorage.setItem('mutki_user', JSON.stringify(USER_DB[val]));
-                initAuth(); // Trigger auth on login
+                await performAuth();
             }
         });
 
@@ -367,14 +378,14 @@
         async function loadProfileData(uid) {
             if (!uid) return;
             try {
-                // RULE 1: Private path
+                // RULE 1: Private path - Ensure user is authenticated before this call
                 const docRef = doc(db, 'artifacts', appId, 'users', uid, 'profile');
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) {
                     phoneInput.value = docSnap.data().phone || "";
                 }
             } catch (e) {
-                console.error("Error loading profile:", e);
+                console.warn("Could not load profile:", e.message);
             }
         }
 
@@ -383,32 +394,36 @@
         };
 
         window.saveProfile = async function() {
-            if (!currentUserAuth) {
-                showStatus("Ошибка авторизации. Перезайдите.", "red");
+            const user = auth.currentUser;
+            if (!user) {
+                showStatus("Авторизация не завершена. Подождите.", "red");
+                await performAuth();
                 return;
             }
 
             const btn = document.getElementById('btnSaveProfile');
             const phone = phoneInput.value.trim();
-            const userData = JSON.parse(localStorage.getItem('mutki_user'));
+            const userDataStr = localStorage.getItem('mutki_user');
+            if (!userDataStr) return;
+            const userData = JSON.parse(userDataStr);
 
             btn.disabled = true;
             btn.innerText = "СОХРАНЕНИЕ...";
 
             try {
                 // RULE 1: Strict private path
-                const docRef = doc(db, 'artifacts', appId, 'users', currentUserAuth.uid, 'profile');
+                const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'profile');
                 await setDoc(docRef, {
                     name: userData.name,
                     type: userData.type,
                     phone: phone,
                     updatedAt: serverTimestamp()
-                });
+                }, { merge: true });
                 
-                showStatus("Профиль сохранен успешно", "var(--accent)");
-                toggleModal(false);
+                showStatus("Данные успешно сохранены", "var(--accent)");
+                setTimeout(() => toggleModal(false), 500);
             } catch (e) {
-                console.error("Save error:", e);
+                console.error("Firestore Error:", e);
                 showStatus("Ошибка доступа к БД", "red");
             } finally {
                 btn.disabled = false;
@@ -418,9 +433,10 @@
 
         function showStatus(text, color) {
             const el = document.getElementById('saveStatus');
+            if (!el) return;
             el.innerText = text;
             el.style.color = color;
-            setTimeout(() => el.innerText = "", 4000);
+            setTimeout(() => { if(el.innerText === text) el.innerText = ""; }, 4000);
         }
 
         async function autoLogActivity(user) {
@@ -428,6 +444,7 @@
             if (indicator) indicator.className = 'record-indicator recording';
 
             try {
+                if (!auth.currentUser) await performAuth();
                 // RULE 1: Public data path
                 const logRef = collection(db, 'artifacts', appId, 'public', 'data', 'user_logs');
                 await addDoc(logRef, {
@@ -438,19 +455,23 @@
                 });
                 if (indicator) indicator.className = 'record-indicator recorded';
             } catch (e) {
-                console.error(e);
+                console.error("Logging failed:", e);
                 if (indicator) indicator.className = 'record-indicator record-error';
             }
         }
 
         window.logout = () => {
             localStorage.removeItem('mutki_user');
-            location.reload();
+            auth.signOut().then(() => {
+                location.reload();
+            });
         };
 
-        // Check initial state
+        // Initial check
         const saved = localStorage.getItem('mutki_user');
-        if (saved) initAuth();
+        if (saved) {
+            performAuth();
+        }
 
     </script>
 </body>
