@@ -107,9 +107,8 @@
             letter-spacing: 0.5px;
         }
 
-        /* Контейнер для кнопок управления */
         .controls-area {
-            display: none; /* Показывается после входа */
+            display: none;
             padding: 16px;
             animation: fadeIn 0.4s ease-out;
         }
@@ -138,7 +137,7 @@
             fill: var(--logout-text);
         }
 
-        /* Модальное окно */
+        /* Модальное окно с отступами 12px */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -151,16 +150,20 @@
             justify-content: center;
             align-items: center;
             backdrop-filter: blur(2px);
+            padding: 12px; /* Отступы от краев экрана */
+            box-sizing: border-box;
         }
 
         .modal-content {
             background: white;
-            border: 1px solid var(--dark-ui);
-            width: 90%;
-            max-width: 320px;
+            border: 1px solid var(--dark-ui); /* Рамка 1px */
+            border-radius: 12px; /* Закругленные углы */
+            width: 100%;
+            max-width: 340px;
             padding: 20px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.3);
             animation: slideUp 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            box-sizing: border-box;
         }
 
         @keyframes slideUp {
@@ -188,7 +191,6 @@
             line-height: 1;
         }
 
-        /* Календарная сетка */
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -213,6 +215,7 @@
         .today {
             border: 1px solid var(--dark-ui);
             font-weight: bold;
+            border-radius: 4px;
         }
 
         .record-indicator {
@@ -270,7 +273,7 @@
                 <button class="close-modal" id="closeCalendar">&times;</button>
             </div>
             <div class="calendar-grid" id="calendarGrid">
-                <!-- JS Fill -->
+                <!-- Заполняется через JS -->
             </div>
         </div>
     </div>
@@ -363,14 +366,12 @@
             }
         }
 
-        // Логика Календаря
         function buildCalendar() {
             const now = new Date();
             const year = now.getFullYear();
             const month = now.getMonth();
             const today = now.getDate();
 
-            // Формат заголовок: дд.мм
             dateTitle.innerText = `${String(today).padStart(2, '0')}.${String(month + 1).padStart(2, '0')}`;
 
             calGrid.innerHTML = '';
