@@ -12,7 +12,6 @@
             --accent: #4CAF50;
             --text-light: #FFFFFF;
             --error: #ff4444;
-            --dark-btn: #1F1713;
         }
 
         body {
@@ -23,6 +22,7 @@
             overflow-x: hidden;
         }
 
+        /* Хедер без теней */
         header {
             padding: 12px 16px;
             background-color: var(--brand-color);
@@ -32,6 +32,7 @@
             color: white;
             position: relative;
             z-index: 10;
+            box-shadow: none; /* Убрана тень */
         }
 
         .logo-container {
@@ -46,6 +47,7 @@
             object-fit: contain;
         }
 
+        /* Область авторизации без теней и прозрачности */
         .status-bar {
             height: 48px;
             background-color: var(--brand-color);
@@ -54,8 +56,8 @@
             justify-content: center;
             color: white;
             position: relative;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            padding: 0 10px;
+            box-shadow: none; /* Убрана тень */
+            border-top: 1px solid rgba(255,255,255,0.1); /* Тонкая линия разделения вместо тени */
         }
 
         .token-input {
@@ -72,7 +74,7 @@
         }
 
         .token-input::placeholder {
-            color: #b5a49d;
+            color: #b5a49d; /* Непрозрачный цвет вместо rgba */
         }
 
         .user-info-badge {
@@ -85,7 +87,7 @@
         }
 
         .user-info-badge .type-tag {
-            background: #7a5a4d;
+            background: #7a5a4d; /* Непрозрачный фон для тега */
             padding: 3px 8px;
             border-radius: 4px;
             font-size: 10px;
@@ -94,25 +96,10 @@
             color: #eee;
         }
 
-        /* Кнопка выхода в статусбаре */
-        .logout-btn-header {
-            position: absolute;
-            right: 8px;
-            background-color: var(--dark-btn);
-            color: var(--primary-bg);
-            border: 1px solid var(--primary-bg);
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 11px; /* Как у подзаголовка */
-            font-weight: normal;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-
+        /* Индикаторы */
         .record-indicator {
             position: absolute;
-            left: 16px; /* Переместил влево, чтобы не мешать кнопке */
+            right: 16px;
             width: 8px;
             height: 8px;
             background-color: #4CAF50;
@@ -179,6 +166,16 @@
             background: #f0faf1;
             border-radius: 20px;
         }
+
+        .logout-link {
+            display: inline-block;
+            margin-top: 45px;
+            color: #b5a49d;
+            font-size: 13px;
+            text-decoration: none;
+            border-bottom: 1px dashed #d1c5bf;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -207,6 +204,8 @@
                 <span id="syncIcon">✓</span>
                 <span id="syncText">Активность записана</span>
             </div>
+
+            <div class="logout-link" onclick="logout()">Сменить пользователя / Выйти</div>
         </div>
     </main>
 
@@ -216,7 +215,7 @@
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
         const firebaseConfig = {
-            apiKey: "",
+            apiKey: "AIzaSyBEn2ZheCPUMgTKxuQmHw0MPehIu1B85Do",
             authDomain: "vanilnoeneboapp.firebaseapp.com",
             projectId: "vanilnoeneboapp",
             storageBucket: "vanilnoeneboapp.firebasestorage.app",
@@ -262,12 +261,11 @@
         function login(user) {
             localStorage.setItem('mutki_user', JSON.stringify(user));
             statusBar.innerHTML = `
-                <div id="recordIndicator" class="record-indicator"></div>
                 <div class="user-info-badge">
                     <span>${user.name}</span>
                     <span class="type-tag">${user.type}</span>
                 </div>
-                <button class="logout-btn-header" onclick="logout()">ВЫЙТИ</button>
+                <div id="recordIndicator" class="record-indicator"></div>
             `;
             mainApp.style.display = 'block';
             autoLogActivity(user);
