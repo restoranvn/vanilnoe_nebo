@@ -149,7 +149,7 @@
             background: rgba(0,0,0,0.5);
             z-index: 100;
             justify-content: center;
-            align-items: flex-start; /* Выравнивание по верхнему краю */
+            align-items: flex-start;
             backdrop-filter: blur(2px);
             padding: 0 12px;
             box-sizing: border-box;
@@ -165,7 +165,7 @@
             box-shadow: 0 5px 25px rgba(0,0,0,0.2);
             box-sizing: border-box;
             position: relative;
-            margin-top: 70px; /* Фиксированный отступ сверху */
+            margin-top: 70px;
             margin-bottom: 20px;
         }
 
@@ -263,25 +263,6 @@
             background-color: transparent;
         }
 
-        .go-to-date-btn {
-            margin-top: 16px;
-            width: 100%;
-            background-color: var(--dark-ui);
-            color: var(--logout-text);
-            border: 1px solid var(--logout-text);
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 800;
-            letter-spacing: 1px;
-            cursor: pointer;
-            text-transform: uppercase;
-        }
-
-        .go-to-date-btn:active {
-            opacity: 0.8;
-        }
-
         .record-indicator {
             width: 8px;
             height: 8px;
@@ -345,8 +326,6 @@
             <div class="calendar-grid" id="calendarGrid">
                 <!-- JS Fill -->
             </div>
-
-            <button class="go-to-date-btn" id="goToDateBtn">ПЕРЕЙТИ К ДАТЕ</button>
         </div>
     </div>
 
@@ -393,7 +372,6 @@
 
         let displayedMonth = new Date().getMonth();
         let displayedYear = new Date().getFullYear();
-        let selectedDate = null;
 
         async function initAuth() {
             try { await signInAnonymously(auth); } catch (e) { console.error(e); }
@@ -484,9 +462,8 @@
                 
                 el.innerText = d;
                 el.onclick = () => {
-                    document.querySelectorAll('.day').forEach(item => item.classList.remove('selected'));
-                    el.classList.add('selected');
-                    selectedDate = new Date(y, m, d);
+                    // Здесь можно добавить логику выбора даты, если потребуется
+                    console.log(`Выбрана дата: ${d}.${m + 1}.${y}`);
                 };
                 calGrid.appendChild(el);
             }
@@ -514,16 +491,6 @@
 
         document.getElementById('closeCalendar').addEventListener('click', () => {
             modal.style.display = 'none';
-        });
-
-        document.getElementById('goToDateBtn').addEventListener('click', () => {
-            if (selectedDate) {
-                const d = selectedDate.getDate();
-                const m = selectedDate.getMonth() + 1;
-                const y = selectedDate.getFullYear();
-                console.log(`Переход к дате: ${d}.${m}.${y}`);
-                modal.style.display = 'none';
-            }
         });
 
         window.onclick = (event) => {
