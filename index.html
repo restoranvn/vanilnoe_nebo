@@ -178,7 +178,7 @@
             display: flex;
             gap: 8px;
             color: #1F1713;
-            align-items: flex-start;
+            align-items: center; /* Центрируем по вертикали для чистоты */
         }
 
         /* Разделитель только между сегодня и будущим */
@@ -197,7 +197,6 @@
             font-weight: 800;
             white-space: nowrap;
             min-width: 42px;
-            margin-top: 2px;
         }
 
         .event-content-wrapper {
@@ -215,12 +214,6 @@
             font-weight: 600;
         }
         
-        .event-subdesc {
-            font-size: 11px;
-            opacity: 0.7;
-            text-transform: uppercase;
-        }
-
         .event-type-tag {
             font-size: 10px;
             font-weight: bold;
@@ -237,7 +230,6 @@
             align-items: center;
             justify-content: center;
             opacity: 0.7;
-            margin-top: 2px;
         }
 
         .edit-icon-btn:active { opacity: 1; }
@@ -744,7 +736,6 @@
             let hasTodayEvents = limit.some(e => e.date === todayStr);
 
             limit.forEach(e => {
-                // Если мы перешли от сегодняшних мероприятий к будущим, добавляем ОДИН разделитель
                 if (hasTodayEvents && !separatorAdded && e.date !== todayStr) {
                     const separator = document.createElement('div');
                     separator.className = 'date-separator';
@@ -756,19 +747,16 @@
                 item.className = 'event-item';
                 const shortDate = e.date ? e.date.substring(0, 5) : "--.--";
                 
-                // Для "Банкет" отображаем зал после заказчика через "|"
+                // Формируем описание: Название | Локация или Заказчик | Зал
                 let description = '';
                 if (e.type === 'Кейтеринг') {
                     description = e.eventName || 'Без названия';
+                    if (e.location) description += ` | ${e.location}`;
                 } else {
                     description = e.customer || 'Без имени';
-                    if (e.hall) {
-                        description += ` | ${e.hall}`;
-                    }
+                    if (e.hall) description += ` | ${e.hall}`;
                 }
 
-                const subDescription = e.type === 'Кейтеринг' ? (e.location || 'Локация не указана') : (e.hall || 'Зал не выбран');
-                
                 let typePrefix = '';
                 if (currentUser && currentUser.type === "ROOT") {
                     typePrefix = `<span class="event-type-tag">[${e.type === 'Кейтеринг' ? 'К' : 'Б'}]</span>`;
@@ -778,7 +766,6 @@
                     <span class="event-date">${shortDate}</span>
                     <div class="event-content-wrapper">
                         <div class="event-desc">${typePrefix}${description}</div>
-                        <div class="event-subdesc">${subDescription}</div>
                     </div>
                 `;
 
